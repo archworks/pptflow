@@ -1,0 +1,5 @@
+pywin32
+moviepy
+python-pptx
+azure-cognitiveservices-speech
+python-dotenv

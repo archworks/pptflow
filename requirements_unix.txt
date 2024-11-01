@@ -1,0 +1,5 @@
+moviepy
+python-pptx
+azure-cognitiveservices-speech
+python-dotenv
+PyMuPDF
