@@ -36,8 +36,8 @@ If you prefer to run the application directly from the source code, or if you wa
 
 #### Pre-Requisites
 
-1. **Install Python**: Download and install Python 3.7 or later from the [official website](https://www.python.org/downloads/).
-2. **Prepare Python Virtual Environment (optional but recommended)**: Open a terminal or command prompt and run:
+1. **Install Python**: Download and install Python 3.7 or later from its [official website](https://www.python.org/downloads/).
+2. **Prepare Python Virtual Environment (optional but recommended)**: Open a terminal or command prompt and run.
     ```bash
     pip install virtualenv
     ``` 
@@ -49,25 +49,25 @@ If you prefer to run the application directly from the source code, or if you wa
     cd pptflow
     ```
 2. **Set Up a Virtual Environment (optional but recommended)**: Create a virtual environment to manage dependencies, then activate the virtual environment.
-* On Windows
-    ```bash
-    python -m venv venv
-    venv\Scripts\activate
-    ``` 
-* On macOS/Linux
-    ```bash
-    python -m venv venv
-    source venv/bin/activate
-    ``` 
+    * On Windows
+        ```bash
+        python -m venv venv
+        venv\Scripts\activate
+        ``` 
+    * On macOS/Linux
+        ```bash
+        python -m venv venv
+        source venv/bin/activate
+        ``` 
 3. **Install Dependencies**
-* On Windows
-    ```bash
-    pip install -r requirements_win.txt
-    ```
-* On macOS/Linux  
-    ```
-    pip install -r requirements_unix.txt
-    ```
+    * On Windows
+        ```bash
+        pip install -r requirements_win.txt
+        ```
+    * On macOS/Linux  
+        ```
+        pip install -r requirements_unix.txt
+        ```
 4. **Configure Parameters**: Copy the example environment configuration. Open the .env file in a text editor and customize the parameters as needed.
     ```bash
     cp .env.example .env
