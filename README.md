@@ -41,6 +41,7 @@ If you prefer to run the application directly from the source code, or if you wa
     ```bash
     pip install virtualenv
     ``` 
+3. **Install ImageMagick**: Download and install ImageMagick from its [offical website](https://imagemagick.org/script/download.php)
 
 #### Application Setup
 1. **Clone the Repository**: Use git to clone the project repository, then navigate to the project directory.

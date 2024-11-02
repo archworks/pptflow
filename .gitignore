@@ -161,3 +161,5 @@ cython_debug/
 
 temp/
 test/*.mp4
+
+ImageMagick
