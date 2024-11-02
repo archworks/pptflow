@@ -37,4 +37,4 @@ def create_video_from_images_and_audio(input_image_dir_path, input_audio_dir_pat
             clips.append(img_clip)
 
     final_clip = concatenate_videoclips(clips)
-    final_clip.write_videofile(output_video_file_path, codec="libx264", audio_codec="aac", fps=10)
+    final_clip.write_videofile(output_video_file_path, codec="libx264", audio_codec="aac", fps=10, threads=4)

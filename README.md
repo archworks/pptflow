@@ -12,16 +12,16 @@
 - **User-Friendly Interface**: Easy to navigate and set up, even for beginners.
 
 ## System Requirements
-### Operating System
-* Windows: Windows 10 or later
-* macOS: macOS 10.15 (Catalina) or later
-* Linux: Most modern distributions (Ubuntu, Fedora, etc.)
-### Hardware Requirements
-* RAM: Minimum of 4 GB (8 GB recommended for optimal performance)
-* Storage: At least 500 MB of free disk space
-### Software Requirements
-* Microsoft PowerPoint (Windows/macOS): Required for importing slides
-* LibreOffice (Linux): Required for importing slides
+* Operating System
+    * Windows: Windows 10 or later
+    * macOS: macOS 10.15 (Catalina) or later
+    * Linux: Most modern distributions (Ubuntu, Fedora, etc.)
+* Hardware Requirements
+    * RAM: Minimum of 4 GB (8 GB recommended for optimal performance)
+    * Storage: At least 500 MB of free disk space
+* Software Requirements
+    * Microsoft PowerPoint (on Windows/macOS): Required for loading slides
+    * LibreOffice (on Linux): Required for loading slides
 
 ## Installation Options
 ### 1. Installing the Released Application
