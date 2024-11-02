@@ -2,13 +2,13 @@ from moviepy.editor import *
 from moviepy.video.tools.subtitles import SubtitlesClip
 from moviepy.config  import change_settings
 
-change_settings({'IMAGEMAGICK_BINARY': '/Users/leon/MyWorkspace/project/pptflow/ImageMagick/bin/magick'})
+change_settings({'IMAGEMAGICK_BINARY': r'D:\workspace\pptflow\ImageMagick\magick.exe'})
 print(TextClip.list("font"))
 
 # 加载图片、音频和字幕
-image_path = '/Users/leon/MyWorkspace/project/pptflow/temp/image/test-P1.png'
-audio_path = '/Users/leon/MyWorkspace/project/pptflow/temp/audio/test-P1.mp3'
-subtitles_path = '/Users/leon/MyWorkspace/project/pptflow/temp/audio/test-P1.srt'
+image_path = r'D:\workspace\pptflow\temp\image\test-P1.png'
+audio_path = r'D:\workspace\pptflow\temp\audio\test-P1.mp3'
+subtitles_path = r'D:\workspace\pptflow\temp\audio\test-P1.srt'
 
 # 创建视频剪辑
 image_clip = ImageClip(image_path).set_duration(AudioFileClip(audio_path).duration)

@@ -1,5 +1,10 @@
-from moviepy.editor import ImageSequenceClip, AudioFileClip, concatenate_videoclips
+from moviepy.editor import ImageSequenceClip, AudioFileClip, concatenate_videoclips, CompositeVideoClip, ImageClip, TextClip
+from moviepy.video.tools.subtitles import SubtitlesClip
+from moviepy.config import change_settings
 import os
+
+if os.environ.get("IMAGEMAGICK_BINARY"):
+    change_settings({'IMAGEMAGICK_BINARY': f'{os.environ.get("IMAGEMAGICK_BINARY")}'})
 
 # Create a video from images and audio
 def create_video_from_images_and_audio(input_image_dir_path, input_audio_dir_path, 
@@ -27,14 +32,24 @@ def create_video_from_images_and_audio(input_image_dir_path, input_audio_dir_pat
         if end_page_num and idx + 1  > end_page_num:
             continue
         file_name_without_ext = image_file.split('.')[0]
+        image_file_path = os.path.join(input_image_dir_path, image_file)
         audio_file_path = os.path.join(input_audio_dir_path, f"{file_name_without_ext}.mp3")
+        subtitle_file_path = os.path.join(input_audio_dir_path, f"{file_name_without_ext}.srt")
         if os.path.exists(audio_file_path):
-            audio = AudioFileClip(audio_file_path)
-            img_clip = ImageSequenceClip(
-                [os.path.join(input_image_dir_path, image_file)], durations=[audio.duration]
-            )
-            img_clip = img_clip.set_audio(audio)
-            clips.append(img_clip)
+            audio_clip = AudioFileClip(audio_file_path)
+            image_clip = ImageClip(image_file_path).set_duration(audio_clip.duration)
+            # 将音频添加到视频剪辑
+            video_clip = image_clip.set_audio(audio_clip)
+            # 添加字幕
+            if os.path.exists(subtitle_file_path):
+                subtitles = SubtitlesClip(subtitle_file_path, lambda txt: TextClip(txt, font='Microsoft-YaHei-&-Microsoft-YaHei-UI', fontsize=24, color='white',stroke_color='black',stroke_width=0.5,method='caption',size=(video_clip.w*0.9, None)))
+                video_clip = CompositeVideoClip([video_clip, subtitles.set_position(('center', video_clip.h*0.85))])
 
+            clips.append(video_clip)
+
+    # 合成所有视频剪辑
     final_clip = concatenate_videoclips(clips)
+    # 设置视频输出
     final_clip.write_videofile(output_video_file_path, codec="libx264", audio_codec="aac", fps=10, threads=4)
+    # 释放资源
+    final_clip.close()

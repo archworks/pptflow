@@ -18,8 +18,7 @@ if tts_service_provider.lower() == "azure":
 elif tts_service_provider.lower() == "xunfei":
     from pptflow.tts_xunfei import tts
 
-current_dir = os.getcwd()
-test_path = os.path.join(current_dir, "test")
+test_path = os.path.join(parent_dir, "test")
 ppt_path = os.path.join(test_path, "test.pptx")
-audio_dir_path = os.path.join(os.path.join(current_dir, "temp"), "audio")
+audio_dir_path = os.path.join(os.path.join(parent_dir, "temp"), "audio")
 ppt_note_to_audio(tts, ppt_path, audio_dir_path)
