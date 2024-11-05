@@ -41,7 +41,8 @@ def process(ppt_path, video_path=None, start_page_num=None, end_page_num=None):
     audio_dir_path = os.path.join(temp_dir, "audio")
 
     if video_path == None:
-        video_path = re.sub(r"pptx?", "mp4", ppt_path)
+        video_path = re.sub(r"pptx?$", "mp4", ppt_path)
+        print(f'video_path:{video_path}')
     ppt_to_image(ppt_path, image_dir_path, start_page_num, end_page_num)
     ppt_note_to_audio(tts, ppt_path, audio_dir_path, start_page_num, end_page_num)
     create_video_from_images_and_audio(
