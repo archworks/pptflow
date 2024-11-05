@@ -1,9 +1,10 @@
-import os, re, platform,time
-from .ppt2audio import ppt_note_to_audio
-from .clip2video import create_video_from_images_and_audio
 from dotenv import load_dotenv
 
 load_dotenv()
+
+import os, re, platform, time
+from .ppt2audio import ppt_note_to_audio
+from .clip2video import create_video_from_images_and_audio
 
 ## import tts module according to service provider
 tts_service_provider = os.environ.get("TTS_SERVICE_PROVIDER")
@@ -26,6 +27,7 @@ elif os_name == "Darwin":  # macOS
     from .ppt2image_mac import ppt_to_image
 else:
     raise NotImplementedError(f"不支持的操作系统: {os_name}")
+
 
 # https://github.com/scliubit/
 # azure tts quick start:https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=macos%2Cterminal&pivots=programming-language-python
