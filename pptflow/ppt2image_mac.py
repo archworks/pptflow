@@ -2,8 +2,7 @@ import os
 import subprocess
 from .pdf2image import pdf_to_image
 
-def ppt_to_image(input_ppt_path, output_image_dir_path,
-    start_page_num=None, end_page_num=None):
+def ppt_to_image(input_ppt_path, output_image_dir_path, setting):
     file_name_without_ext = os.path.basename(input_ppt_path).split(".")[0]
     temp_pdf_path = os.path.join(output_image_dir_path, f'{file_name_without_ext}.pdf')
     ppt_to_pdf(input_ppt_path, temp_pdf_path)

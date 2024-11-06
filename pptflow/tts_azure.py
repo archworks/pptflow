@@ -1,6 +1,7 @@
 import azure.cognitiveservices.speech as speechsdk
 import os
-
+# azure tts quick start:https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=macos%2Cterminal&pivots=programming-language-python
+# azure tts sample: https://github.com/Azure-Samples/cognitive-services-speech-sdk/blob/master/samples/python/console/speech_synthesis_sample.py
 def tts(text, output_audio_filename):
     speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('TTS_AZURE_SPEECH_KEY'), region=os.environ.get('TTS_AZURE_SPEECH_REGION'))
     # The language of the voice that speaks.

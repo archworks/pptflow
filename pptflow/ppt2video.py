@@ -5,6 +5,7 @@ load_dotenv()
 import os, re, platform, time
 from .ppt2audio import ppt_note_to_audio
 from .clip2video import create_video_from_images_and_audio
+from .setting import Setting
 
 ## import tts module according to service provider
 tts_service_provider = os.environ.get("TTS_SERVICE_PROVIDER")
@@ -28,14 +29,7 @@ elif os_name == "Darwin":  # macOS
 else:
     raise NotImplementedError(f"不支持的操作系统: {os_name}")
 
-
-# https://github.com/scliubit/
-# azure tts quick start:https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=macos%2Cterminal&pivots=programming-language-python
-# azure tts sample: https://github.com/Azure-Samples/cognitive-services-speech-sdk/blob/master/samples/python/console/speech_synthesis_sample.py
-# How to export pptx to image (png, jpeg) in Python? https://stackoverflow.com/questions/61815883/how-to-export-pptx-to-image-png-jpeg-in-python
-
-
-def process(ppt_path, video_path=None, start_page_num=None, end_page_num=None):
+def process(ppt_path, setting: Setting, video_path=None):
     start_time = time.time()
     # Specify the full path to the PowerPoint presentation
     temp_dir = os.path.join(os.getcwd(), "temp")
@@ -45,15 +39,14 @@ def process(ppt_path, video_path=None, start_page_num=None, end_page_num=None):
     if video_path == None:
         video_path = re.sub(r"pptx?$", "mp4", ppt_path)
         print(f'video_path:{video_path}')
-    ppt_to_image(ppt_path, image_dir_path, start_page_num, end_page_num)
-    ppt_note_to_audio(tts, ppt_path, audio_dir_path, start_page_num, end_page_num)
+    ppt_to_image(ppt_path, image_dir_path, setting)
+    ppt_note_to_audio(tts, ppt_path, audio_dir_path, setting)
     create_video_from_images_and_audio(
         image_dir_path,
         audio_dir_path,
         ppt_path,
         video_path,
-        start_page_num,
-        end_page_num,
+        setting
     )
     end_time = time.time()
     elapsed_time = end_time - start_time

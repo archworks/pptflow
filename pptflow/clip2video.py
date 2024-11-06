@@ -8,7 +8,7 @@ if os.environ.get("IMAGEMAGICK_BINARY"):
 
 # Create a video from images and audio
 def create_video_from_images_and_audio(input_image_dir_path, input_audio_dir_path, 
-    input_ppt_file_path, output_video_file_path, start_page_num=None, end_page_num=None):
+    input_ppt_file_path, output_video_file_path, setting):
     if not os.path.exists(input_image_dir_path):
         raise ValueError(f"{input_image_dir_path} not exist")
     if not os.path.exists(input_audio_dir_path):
@@ -27,9 +27,9 @@ def create_video_from_images_and_audio(input_image_dir_path, input_audio_dir_pat
 
     clips = []
     for idx, image_file in enumerate(image_files):
-        if start_page_num and idx + 1  < start_page_num:
+        if setting.start_page_num and idx + 1  < setting.start_page_num:
             continue
-        if end_page_num and idx + 1  > end_page_num:
+        if setting.end_page_num and idx + 1  > setting.end_page_num:
             continue
         file_name_without_ext = image_file.split('.')[0]
         image_file_path = os.path.join(input_image_dir_path, image_file)

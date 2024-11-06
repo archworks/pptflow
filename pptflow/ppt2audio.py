@@ -62,7 +62,7 @@ def del_file_text_del_cache(audio_file_path):
     if os.path.exists(note_text_path):
         os.remove(note_text_path)
 
-def ppt_note_to_audio(tts, input_ppt_path, output_audio_dir_path, start_page_num = None, end_page_num=None, output_replace_check = True):
+def ppt_note_to_audio(tts, input_ppt_path, output_audio_dir_path, setting):
     try:
         presentation = Presentation(input_ppt_path)
         file_name_without_ext = os.path.basename(input_ppt_path).split('.')[0]
@@ -73,9 +73,9 @@ def ppt_note_to_audio(tts, input_ppt_path, output_audio_dir_path, start_page_num
 
         # 遍历每一张幻灯片
         for idx, slide in enumerate(presentation.slides):
-            if start_page_num and idx + 1 < start_page_num:
+            if setting.start_page_num and idx + 1 < setting.start_page_num:
                 continue
-            if end_page_num and idx + 1 > end_page_num:
+            if setting.end_page_num and idx + 1 > setting.end_page_num:
                 continue
             # 读取幻灯片的备注
             if slide.has_notes_slide:
@@ -83,7 +83,7 @@ def ppt_note_to_audio(tts, input_ppt_path, output_audio_dir_path, start_page_num
                 # 打印备注文本
                 note_text = notes_slide.notes_text_frame.text
                 generate_audio_and_subtitles(tts,output_audio_dir_path,note_text,len(presentation.slides), idx,\
-                    file_name_without_ext, output_replace_check)
+                    file_name_without_ext, setting.audio_local_cache_enabled)
     except Exception as e:
         print(f"An error occurred: {e}")
         raise e
@@ -108,14 +108,14 @@ def split_text(text, max_chars=50):
 
     return result
 
-def generate_audio(tts, output_audio_dir_path, text, length, index, filename_prefix, output_replace_check):
+def generate_audio(tts, output_audio_dir_path, text, length, index, filename_prefix, audio_local_cache_enabled):
     #print(note_text)
     # 预处理
     speech_text = tts_pause(index, length, text)
     speech_text = tts_replace(speech_text)
 
     audio_file_path = os.path.join(output_audio_dir_path, f"{filename_prefix}-P{index + 1}.mp3")
-    if output_replace_check and not audio_file_do_replace_check(audio_file_path, speech_text):
+    if audio_local_cache_enabled and not audio_file_do_replace_check(audio_file_path, speech_text):
         print(f'{audio_file_path}已存在且文本内容无变化，跳过')
         return 
     tts_re = tts(speech_text, audio_file_path)
@@ -124,13 +124,13 @@ def generate_audio(tts, output_audio_dir_path, text, length, index, filename_pre
     else:
         del_file_text_del_cache(audio_file_path)
 
-def generate_audio_and_subtitles(tts, output_audio_dir_path, text, page_length, page_index, filename_prefix, output_replace_check):
+def generate_audio_and_subtitles(tts, output_audio_dir_path, text, page_length, page_index, filename_prefix, audio_local_cache_enabled):
     text_segments = split_text(text)
     
     audio_file_path = os.path.join(output_audio_dir_path, f"{filename_prefix}-P{page_index + 1}.mp3")
     subtitle_file_path = os.path.join(output_audio_dir_path,f'{filename_prefix}-P{page_index + 1}.srt')
     
-    if output_replace_check and not audio_file_do_replace_check(audio_file_path, ''.join(text_segments)):
+    if audio_local_cache_enabled and not audio_file_do_replace_check(audio_file_path, ''.join(text_segments)):
         print(f'{audio_file_path}已存在且文本内容无变化，跳过')
         return 
     

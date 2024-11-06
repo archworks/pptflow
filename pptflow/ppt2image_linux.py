@@ -2,8 +2,7 @@ import os
 import subprocess
 from .pdf2image import pdf_to_image
 
-def ppt_to_image(input_ppt_path, output_image_dir_path,
-    start_page_num=None, end_page_num=None):
+def ppt_to_image(input_ppt_path, output_image_dir_path, setting):
     # Create a dir to save the slides as images
     if not os.path.exists(output_image_dir_path):
         os.makedirs(output_image_dir_path)
