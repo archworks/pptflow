@@ -73,14 +73,14 @@ def del_file_text_del_cache(audio_file_path):
         os.remove(note_text_path)
 
 
-def ppt_note_to_audio(tts, input_ppt_path, output_audio_dir_path, setting):
+def ppt_note_to_audio(tts, input_ppt_path, setting):
     try:
         presentation = Presentation(input_ppt_path)
         file_name_without_ext = os.path.basename(input_ppt_path).split('.')[0]
 
         # Create a dir to save the slides as images
-        if not os.path.exists(output_audio_dir_path):
-            os.makedirs(output_audio_dir_path)
+        if not os.path.exists(setting.audio_dir_path):
+            os.makedirs(setting.audio_dir_path)
 
         # Go through each slide
         for idx, slide in enumerate(presentation.slides):
@@ -95,8 +95,8 @@ def ppt_note_to_audio(tts, input_ppt_path, output_audio_dir_path, setting):
                 # Get the text from the notes section
                 note_text = notes_slide.notes_text_frame.text
                 # Generate audio and subtitles
-                generate_audio_and_subtitles(tts, output_audio_dir_path, note_text, len(presentation.slides), idx,
-                                             file_name_without_ext, setting.audio_local_cache_enabled)
+                generate_audio_and_subtitles(tts, note_text, len(presentation.slides), idx,
+                                             file_name_without_ext, setting)
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise e
@@ -145,15 +145,14 @@ def generate_audio(tts, output_audio_dir_path, text, length, index, filename_pre
         del_file_text_del_cache(audio_file_path)
 
 
-def generate_audio_and_subtitles(tts, output_audio_dir_path, text, page_length, page_index, filename_prefix,
-                                 audio_local_cache_enabled):
+def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_prefix, setting):
     text_segments = split_text(text)
 
-    audio_file_path = os.path.join(output_audio_dir_path, f"{filename_prefix}-P{page_index + 1}.mp3")
-    subtitle_file_path = os.path.join(output_audio_dir_path, f'{filename_prefix}-P{page_index + 1}.srt')
+    audio_file_path = os.path.join(setting.audio_dir_path, f"{filename_prefix}-P{page_index + 1}.mp3")
+    subtitle_file_path = os.path.join(setting.audio_dir_path, f'{filename_prefix}-P{page_index + 1}.srt')
 
     # Check if the audio file already exists and has the same content as the current text
-    if audio_local_cache_enabled and not audio_file_do_replace_check(audio_file_path, ''.join(text_segments)):
+    if setting.audio_local_cache_enabled and not audio_file_do_replace_check(audio_file_path, ''.join(text_segments)):
         logger.info(f'{audio_file_path}已存在且文本内容无变化，跳过')
         return
 
@@ -163,7 +162,7 @@ def generate_audio_and_subtitles(tts, output_audio_dir_path, text, page_length, 
         current_time = 0
         for idx, segment_text in enumerate(text_segments):
             # file path to save the audio clip based on the current segment
-            segment_audio_file_path = os.path.join(output_audio_dir_path,
+            segment_audio_file_path = os.path.join(setting.audio_dir_path,
                                                    f'{filename_prefix}-P{page_index + 1}-S{idx + 1}.mp3')
             # Preprocess the text
             # Add pauses at the end of each slide, and at the beginning of the first one and the end of the last one
@@ -208,7 +207,7 @@ def generate_audio_and_subtitles(tts, output_audio_dir_path, text, page_length, 
         for clip in audio_clips:
             clip.close()
         for i in range(len(text_segments)):
-            segment_audio_file_path = os.path.join(output_audio_dir_path,
+            segment_audio_file_path = os.path.join(setting.audio_dir_path,
                                                    f'{filename_prefix}-P{page_index + 1}-S{i + 1}.mp3')
             if os.path.exists(segment_audio_file_path):
                 os.remove(segment_audio_file_path)

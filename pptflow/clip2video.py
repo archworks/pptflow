@@ -13,25 +13,24 @@ if os.environ.get("IMAGEMAGICK_BINARY"):
 
 
 # Create a video from images and audio
-def create_video_from_images_and_audio(input_image_dir_path, input_audio_dir_path,
-                                       input_ppt_file_path, output_video_file_path, setting):
-    if not os.path.exists(input_image_dir_path):
-        logger.error(f"{input_image_dir_path} not exist")
-        raise ValueError(f"{input_image_dir_path} not exist")
-    if not os.path.exists(input_audio_dir_path):
-        logger.error(f"{input_audio_dir_path} not exist")
-        raise ValueError(f"{input_audio_dir_path} not exist")
+def create_video_from_images_and_audio(ppt_file_path, setting):
+    if not os.path.exists(setting.image_dir_path):
+        logger.error(f"{setting.image_dir_path} not exist")
+        raise ValueError(f"{setting.image_dir_path} not exist")
+    if not os.path.exists(setting.audio_dir_path):
+        logger.error(f"{setting.audio_dir_path} not exist")
+        raise ValueError(f"{setting.audio_dir_path} not exist")
 
-    file_name_raw = os.path.basename(input_ppt_file_path).split('.')[0]
+    file_name_raw = os.path.basename(ppt_file_path).split('.')[0]
 
     # Sort the images extracted from the ppt
     image_files = sorted(
-        [f for f in os.listdir(input_image_dir_path) if f.endswith(".png") and file_name_raw in f],
+        [f for f in os.listdir(setting.image_dir_path) if f.endswith(".png") and file_name_raw in f],
         key=lambda x: int(x.split('.')[0].split('-P')[1])
     )
 
     if len(image_files) == 0:
-        logger.error(f"image files don't exist in {input_image_dir_path}")
+        logger.error(f"image files don't exist in {setting.image_dir_path}")
         raise ValueError("image files don't exist")
 
     clips = []
@@ -41,9 +40,9 @@ def create_video_from_images_and_audio(input_image_dir_path, input_audio_dir_pat
         if setting.end_page_num and idx + 1 > setting.end_page_num:
             continue
         file_name_without_ext = image_file.split('.')[0]
-        image_file_path = os.path.join(input_image_dir_path, image_file)
-        audio_file_path = os.path.join(input_audio_dir_path, f"{file_name_without_ext}.mp3")
-        subtitle_file_path = os.path.join(input_audio_dir_path, f"{file_name_without_ext}.srt")
+        image_file_path = os.path.join(setting.image_dir_path, image_file)
+        audio_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.mp3")
+        subtitle_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.srt")
         if os.path.exists(audio_file_path):
             audio_clip = AudioFileClip(audio_file_path)
             image_clip = ImageClip(image_file_path).set_duration(audio_clip.duration)
@@ -62,7 +61,10 @@ def create_video_from_images_and_audio(input_image_dir_path, input_audio_dir_pat
 
     # Synthesize all video clips
     final_clip = concatenate_videoclips(clips)
-    # Write the clips to a videofile
-    final_clip.write_videofile(output_video_file_path, codec="libx264", audio_codec="aac", fps=10, threads=4)
+    # Write the clips to a video file
+    # final_clip.write_videofile(setting.video_file_path, codec="libx264", audio_codec="aac", fps=10, threads=4)
+    final_clip.write_videofile(setting.video_path, codec=setting.video_codec,
+                               audio_codec=setting.audio_codec, fps=setting.video_frame_rate,
+                               threads=setting.video_processing_threads)
     # Release resources
     final_clip.close()
