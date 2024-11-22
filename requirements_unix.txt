@@ -3,3 +3,4 @@ python-pptx
 azure-cognitiveservices-speech
 python-dotenv
 PyMuPDF
+Pillow==9.5.0

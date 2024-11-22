@@ -24,6 +24,7 @@ class Setting:
     subtitle_fontsize: int = 24
     subtitle_color: str = 'white'
     subtitle_stroke_color: str = 'black'
+    subtitle_stroke_width: float = 0.5
 
     # 2.Advanced Settings
     # Audio settings

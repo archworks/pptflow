@@ -25,7 +25,7 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
 
     # Sort the images extracted from the ppt
     image_files = sorted(
-        [f for f in os.listdir(setting.image_dir_path) if f.endswith(".png") and file_name_raw in f],
+        [f for f in os.listdir(setting.image_dir_path) if f.endswith((".jpg",".png")) and file_name_raw in f],
         key=lambda x: int(x.split('.')[0].split('-P')[1])
     )
 
@@ -51,9 +51,9 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
             # Add subtitles
             if os.path.exists(subtitle_file_path):
                 subtitles = SubtitlesClip(subtitle_file_path,
-                                          lambda txt: TextClip(txt, font='Microsoft-YaHei-&-Microsoft-YaHei-UI',
-                                                               fontsize=24, color='white', stroke_color='black',
-                                                               stroke_width=0.5, method='caption',
+                                          lambda txt: TextClip(txt, font= setting.subtitle_font,
+                                                               fontsize=setting.subtitle_fontsize, color=setting.subtitle_color, stroke_color=setting.subtitle_stroke_color,
+                                                               stroke_width=setting.subtitle_stroke_width, method='caption',
                                                                size=(video_clip.w * 0.9, None)))
                 video_clip = CompositeVideoClip([video_clip, subtitles.set_position(('center', video_clip.h * 0.85))])
 

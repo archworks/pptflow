@@ -3,3 +3,4 @@ moviepy
 python-pptx
 azure-cognitiveservices-speech
 python-dotenv
+Pillow==9.5.0
