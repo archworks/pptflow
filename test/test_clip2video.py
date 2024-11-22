@@ -12,8 +12,5 @@ from pptflow.setting import Setting
 
 test_path = os.path.join(parent_dir, "test")
 ppt_path = os.path.join(test_path, 'test.pptx')
-temp_dir = os.path.join(parent_dir, "temp")
-image_dir_path = os.path.join(temp_dir, "image")
-audio_dir_path =  os.path.join(temp_dir, "audio")
-video_path = os.path.join(temp_dir, "test.mp4")
-create_video_from_images_and_audio(image_dir_path, audio_dir_path, ppt_path, video_path, Setting())
+setting = Setting()
+create_video_from_images_and_audio(ppt_path, setting)
