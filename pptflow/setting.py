@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import os
 
+
 @dataclass
 class Setting:
     # 1.Basic Settings
@@ -13,7 +14,7 @@ class Setting:
     narration_voice_name: str = 'zh-CN-YunjianNeural'
     narration_voice_speed: int = 1
     # Video settings
-    video_format: str = 'mp4'
+    video_formats = ['MP4', 'AVI', 'MKV']
     video_width: int = 1280
     video_height: int = 720
     video_frame_rate: int = 10
@@ -26,7 +27,7 @@ class Setting:
 
     # 2.Advanced Settings
     # Audio settings
-    audio_format: str = 'mp3'
+    audio_formats = ['MP3', 'WAV', 'AAC']
     audio_codec: str = 'aac'
     audio_local_cache_enabled: bool = True
     audio_path: str = None
@@ -42,10 +43,10 @@ class Setting:
 
     # 4.System Settings
     # Language Settings
-    language_mode: str = 'en'  # Default: en
+    language_mode = ['en', 'zh']  # Default: en
     # Storage Settings
     storage_path: str = None
     # Specify the full path to the PowerPoint presentation
-    temp_dir = os.path.join(os.getcwd(), "temp")
-    image_dir_path = os.path.join(temp_dir, "image")
-    audio_dir_path = os.path.join(temp_dir, "audio")
+    temp_dir = os.path.join(os.getcwd(), 'temp')
+    image_dir_path = os.path.join(temp_dir, 'image')
+    audio_dir_path = os.path.join(temp_dir, 'audio')

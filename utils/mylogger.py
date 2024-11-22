@@ -25,7 +25,7 @@ BACKUP_COUNT = 3  # 保留3个备份文件
 # 配置日志格式和级别
 def setup_logging():
     logging.basicConfig(
-        level=logging.DEBUG,  # 设置日志级别，只会输出大于等于该级别的日志
+        level=logging.INFO,  # 设置日志级别，只会输出大于等于该级别的日志
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
             logging.StreamHandler(),  # 也可以输出到控制台
