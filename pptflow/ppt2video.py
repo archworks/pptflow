@@ -1,7 +1,3 @@
-from dotenv import load_dotenv
-
-load_dotenv()
-
 import os, re, platform, time
 from .ppt2audio import ppt_note_to_audio
 from .clip2video import create_video_from_images_and_audio
@@ -32,11 +28,15 @@ elif os_name == "Linux":
 elif os_name == "Darwin":  # macOS
     from .ppt2image_mac import ppt_to_image
 else:
-    logger.error(f"不支持的操作系统: {os_name}")
-    raise NotImplementedError(f"不支持的操作系统: {os_name}")
+    logger.error(f"Unsupported OS: {os_name}")
+    raise NotImplementedError(f"Unsupported OS: {os_name}")
 
 
 def process(ppt_path, setting: Setting):
+    # Check whether the ppt_path is None or Valid
+    if ppt_path is None or not os.path.exists(ppt_path):
+        logger.error("ppt_path is None or invalid")
+        raise ValueError("ppt_path is None or invalid")
     start_time = time.time()
 
     # set default output path to the mp4 file, same director as the ppt file.
@@ -48,4 +48,4 @@ def process(ppt_path, setting: Setting):
     create_video_from_images_and_audio(ppt_path, setting)
     end_time = time.time()
     elapsed_time = end_time - start_time
-    logger.info(f"运行时间:{elapsed_time:.2f}秒")
+    logger.info(f"Runtime:{elapsed_time:.2f}seconds")

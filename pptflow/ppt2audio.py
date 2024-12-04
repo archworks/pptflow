@@ -3,7 +3,8 @@ from unittest import result
 from pptx import Presentation
 import os
 import re
-from moviepy.editor import AudioFileClip, concatenate_audioclips
+from moviepy.audio.io import AudioFileClip
+from moviepy.audio.AudioClip import concatenate_audioclips
 from utils import mylogger
 
 # 创建日志纪录实例

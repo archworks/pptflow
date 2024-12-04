@@ -1,15 +1,13 @@
-from moviepy.editor import ImageSequenceClip, AudioFileClip, concatenate_videoclips, CompositeVideoClip, ImageClip, \
-    TextClip
+from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
+from moviepy.audio.io.AudioFileClip import AudioFileClip
+from moviepy import CompositeVideoClip, concatenate_videoclips
+from moviepy.video.VideoClip import ImageClip, TextClip
 from moviepy.video.tools.subtitles import SubtitlesClip
-from moviepy.config import change_settings
 import os
 from utils import mylogger
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
-
-if os.environ.get("IMAGEMAGICK_BINARY"):
-    change_settings({'IMAGEMAGICK_BINARY': f'{os.environ.get("IMAGEMAGICK_BINARY")}'})
 
 
 # Create a video from images and audio
@@ -43,28 +41,34 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
         image_file_path = os.path.join(setting.image_dir_path, image_file)
         audio_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.mp3")
         subtitle_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.srt")
+
         if os.path.exists(audio_file_path):
             audio_clip = AudioFileClip(audio_file_path)
-            image_clip = ImageClip(image_file_path).set_duration(audio_clip.duration)
+            image_clip = ImageClip(image_file_path).with_duration(audio_clip.duration)
             # Adds audio to a video clip
-            video_clip = image_clip.set_audio(audio_clip)
+            video_clip = image_clip.with_audio(audio_clip)
             # Add subtitles
             if os.path.exists(subtitle_file_path):
-                subtitles = SubtitlesClip(subtitle_file_path,
-                                          lambda txt: TextClip(txt, font='Microsoft-YaHei-&-Microsoft-YaHei-UI',
-                                                               fontsize=24, color='white', stroke_color='black',
-                                                               stroke_width=0.5, method='caption',
-                                                               size=(video_clip.w * 0.9, None)))
-                video_clip = CompositeVideoClip([video_clip, subtitles.set_position(('center', video_clip.h * 0.85))])
+                generator = lambda txt: TextClip(font='C:/Windows/Fonts/msyh.ttc', text=txt,
+                                                 font_size=24, color='white', stroke_color='black',
+                                                 stroke_width=1, method='caption',
+                                                 size=(int(video_clip.w * 0.9), None))
+                subtitles = SubtitlesClip(subtitles=subtitle_file_path, make_textclip=generator)
+                video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.85))])
 
             clips.append(video_clip)
 
     # Synthesize all video clips
     final_clip = concatenate_videoclips(clips)
+
     # Write the clips to a video file
-    # final_clip.write_videofile(setting.video_file_path, codec="libx264", audio_codec="aac", fps=10, threads=4)
     final_clip.write_videofile(setting.video_path, codec=setting.video_codec,
                                audio_codec=setting.audio_codec, fps=setting.video_frame_rate,
-                               threads=setting.video_processing_threads)
+                               threads=setting.video_processing_threads, logger="bar",
+                               )
+
     # Release resources
     final_clip.close()
+
+
+

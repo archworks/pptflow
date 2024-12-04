@@ -21,6 +21,7 @@ def start_export():
 class ExportFrame(ctk.CTkFrame):
     def __init__(self, parent, app):
         super().__init__(parent)
+        self.run_export = None
         self.app = app
         self.grid_columnconfigure(0, weight=1)
 
@@ -32,6 +33,7 @@ class ExportFrame(ctk.CTkFrame):
         # Export settings
         self.create_export_frame()
         self.create_progress_frame()
+
 
     def create_export_frame(self):
         frame = ctk.CTkFrame(self)
