@@ -1,5 +1,9 @@
 import customtkinter as ctk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
+from utils import mylogger
+
+# 创建日志纪录实例
+logger = mylogger.get_logger(__name__)
 
 
 class ExportSection(ctk.CTkFrame):
@@ -27,6 +31,7 @@ class ExportSection(ctk.CTkFrame):
         self.create_audio_settings()
         self.create_video_settings()
         self.create_subtitle_settings()
+        self.create_save_button()
 
     def create_export_path(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
@@ -57,14 +62,14 @@ class ExportSection(ctk.CTkFrame):
         )
         title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        settings = {
-            self.app.get_text("audio_engine"): ["Azure TTS", "讯飞 TTS"],
+        self.audio_settings = {
+            self.app.get_text("audio_engine"): ["azure", "xunfei"],
             self.app.get_text("audio_language"): ["Simplified Chinese", "English", "Japanese"],
             self.app.get_text("audio_voice_type"): ["zh-CN-YunjianNeural", "xxxx"],
             self.app.get_text("audio_speed"): ["0.8x", "1.0x", "1.2x", "1.5x"]
         }
 
-        for i, (key, values) in enumerate(settings.items()):
+        for i, (key, values) in enumerate(self.audio_settings.items()):
             label = ctk.CTkLabel(frame, text=f"{key}:")
             label.grid(row=i + 1, column=0, padx=20, pady=5, sticky="w")
 
@@ -82,13 +87,13 @@ class ExportSection(ctk.CTkFrame):
         )
         title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        settings = {
+        self.video_settings = {
             self.app.get_text("video_format"): ["MP4", "AVI", "MOV"],
             self.app.get_text("video_size"): ["1920x1080", "1280x720", "854x480"],
             self.app.get_text("video_fps"): ["10fps", "30fps", "24fps"]
         }
 
-        for i, (key, values) in enumerate(settings.items()):
+        for i, (key, values) in enumerate(self.video_settings.items()):
             label = ctk.CTkLabel(frame, text=f"{key}:")
             label.grid(row=i + 1, column=0, padx=20, pady=5, sticky="w")
 
@@ -106,19 +111,32 @@ class ExportSection(ctk.CTkFrame):
         )
         title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        settings = {
-            self.app.get_text("font_type"): ["Microsoft YaHei", "Calibri", "Arial", "Song"],
+        self.subtitle_settings = {
+            self.app.get_text("font_type"): [key for key in self.app.setting.subtitle_font_dict],
             self.app.get_text("font_size"): ["12", "14", "16", "18", "20"],
             self.app.get_text("font_color"): ["White", "Black", "Yellow", "Red"],
             self.app.get_text("border_color"): ["Black", "White", "No"]
         }
 
-        for i, (key, values) in enumerate(settings.items()):
+        for i, (key, values) in enumerate(self.subtitle_settings.items()):
             label = ctk.CTkLabel(frame, text=f"{key}:")
             label.grid(row=i + 1, column=0, padx=20, pady=5, sticky="w")
 
             combo = ctk.CTkComboBox(frame, values=values)
             combo.grid(row=i + 1, column=1, padx=20, pady=5)
+
+    def create_save_button(self):
+        frame = ctk.CTkFrame(self.scrollable_frame)
+        frame.grid(row=4, column=0, padx=0, pady=(0, 10), sticky="ew")
+        self.save_button = ctk.CTkButton(frame, text=self.app.get_text("save_settings"), command=self.save_settings)
+        self.save_button.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
+
+    def save_settings(self):
+        self.app.setting.video_path = self.export_path.get()
+        self.app.setting.tts_service_provider = self.audio_settings[self.app.get_text("audio_engine")]
+        messagebox.showinfo("Success", "Settings saved successfully!")
+        logger.info(f"Settings saved successfully!")
+        logger.info(f"tts:{self.app.setting.tts_service_provider}")
 
     def browse_export_path(self):
         path = filedialog.asksaveasfilename(
@@ -138,6 +156,3 @@ class ExportSection(ctk.CTkFrame):
         self.create_video_settings()
         self.create_subtitle_settings()
 
-    def start_export(self):
-        # Add export logic here
-        pass

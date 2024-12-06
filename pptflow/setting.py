@@ -1,5 +1,14 @@
 from dataclasses import dataclass
+import matplotlib.font_manager as fm
 import os
+
+
+# Get all installed fonts
+def get_installed_fonts():
+    fonts = fm.findSystemFonts(fontpaths=None, fontext='ttf')
+    font_dict = {fm.FontProperties(fname=font).get_name(): font for font in fonts}
+    sorted_font_dict = dict(sorted(font_dict.items()))  # Sort the dictionary by keys
+    return sorted_font_dict
 
 
 @dataclass
@@ -20,11 +29,12 @@ class Setting:
     video_frame_rate: int = 10
     video_path: str = None  # the output video path
     # Subtitle settings
-    subtitle_font: str = 'Microsoft-YaHei-&-Microsoft-YaHei-UI'
-    subtitle_fontsize: int = 24
+    subtitle_font: str = 'C:/Windows/Fonts/msyh.ttc'
+    subtitle_font_dict = get_installed_fonts()
+    subtitle_font_size: int = 24
     subtitle_color: str = 'white'
     subtitle_stroke_color: str = 'black'
-    subtitle_stroke_width: float = 0.5
+    subtitle_stroke_width: float = 1
 
     # 2.Advanced Settings
     # Audio settings
@@ -51,3 +61,6 @@ class Setting:
     temp_dir = os.path.join(os.getcwd(), 'temp')
     image_dir_path = os.path.join(temp_dir, 'image')
     audio_dir_path = os.path.join(temp_dir, 'audio')
+
+
+

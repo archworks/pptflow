@@ -23,7 +23,7 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
 
     # Sort the images extracted from the ppt
     image_files = sorted(
-        [f for f in os.listdir(setting.image_dir_path) if f.endswith((".jpg",".png")) and file_name_raw in f],
+        [f for f in os.listdir(setting.image_dir_path) if f.endswith((".jpg", ".png")) and file_name_raw in f],
         key=lambda x: int(x.split('.')[0].split('-P')[1])
     )
 
@@ -48,11 +48,14 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
             video_clip = image_clip.with_audio(audio_clip)
             # Add subtitles
             if os.path.exists(subtitle_file_path):
-                subtitles = SubtitlesClip(subtitle_file_path,
-                                          lambda txt: TextClip(txt, font=setting.subtitle_font,
-                                                               fontsize=setting.subtitle_fontsize, color=setting.subtitle_color, stroke_color=setting.subtitle_stroke_color,
-                                                               stroke_width=setting.subtitle_stroke_width, method='caption',
-                                                               size=(int(video_clip.w * 0.9), None)))
+                generator = lambda txt: TextClip(font=setting.subtitle_font, text=txt,
+                                                 font_size=setting.subtitle_font_size,
+                                                 color=setting.subtitle_color,
+                                                 stroke_color=setting.subtitle_stroke_color,
+                                                 stroke_width=setting.subtitle_stroke_width,
+                                                 method='caption',
+                                                 size=(int(video_clip.w * 0.9), None))
+                subtitles = SubtitlesClip(subtitles=subtitle_file_path, make_textclip=generator)
                 video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.85))])
 
             clips.append(video_clip)

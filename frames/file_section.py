@@ -83,14 +83,14 @@ class FileSection(ctk.CTkFrame):
         # Start page
         self.start_label = ctk.CTkLabel(frame, text=self.app.get_text("start_page"))
         self.start_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
-        self.start_page = ctk.CTkEntry(frame, width=100, placeholder_text=self.app.get_text("start_page_info"))
+        self.start_page = ctk.CTkEntry(frame, width=150, placeholder_text=self.app.get_text("start_page_info"))
         self.start_page.grid(row=1, column=1, padx=5, pady=10, sticky="w")
         # self.start_page.insert(0, "1")
 
         # End page
         self.end_label = ctk.CTkLabel(frame, text=self.app.get_text("end_page"))
         self.end_label.grid(row=2, column=0, padx=20, pady=10, sticky="w")
-        self.end_page = ctk.CTkEntry(frame, width=100, placeholder_text=self.app.get_text("end_page_info"))
+        self.end_page = ctk.CTkEntry(frame, width=150, placeholder_text=self.app.get_text("end_page_info"))
         self.end_page.grid(row=2, column=1, padx=5, pady=10, sticky="w")
 
     def create_generate_button(self):
@@ -113,7 +113,7 @@ class FileSection(ctk.CTkFrame):
             text=self.app.get_text("play_video"),
             command=self.play_video
         )
-        self.play_button.grid(row=0, column=0, padx=20, pady=20, sticky="ew")
+        self.play_button.grid(row=0, column=0, padx=20, pady=(0, 20), sticky="ew")
 
     def browse_file(self):
         self.file_display = filedialog.askopenfilename(
