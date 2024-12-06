@@ -23,7 +23,7 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
 
     # Sort the images extracted from the ppt
     image_files = sorted(
-        [f for f in os.listdir(setting.image_dir_path) if f.endswith(".png") and file_name_raw in f],
+        [f for f in os.listdir(setting.image_dir_path) if f.endswith((".jpg",".png")) and file_name_raw in f],
         key=lambda x: int(x.split('.')[0].split('-P')[1])
     )
 
@@ -41,7 +41,6 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
         image_file_path = os.path.join(setting.image_dir_path, image_file)
         audio_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.mp3")
         subtitle_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.srt")
-
         if os.path.exists(audio_file_path):
             audio_clip = AudioFileClip(audio_file_path)
             image_clip = ImageClip(image_file_path).with_duration(audio_clip.duration)
@@ -49,26 +48,21 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
             video_clip = image_clip.with_audio(audio_clip)
             # Add subtitles
             if os.path.exists(subtitle_file_path):
-                generator = lambda txt: TextClip(font='C:/Windows/Fonts/msyh.ttc', text=txt,
-                                                 font_size=24, color='white', stroke_color='black',
-                                                 stroke_width=1, method='caption',
-                                                 size=(int(video_clip.w * 0.9), None))
-                subtitles = SubtitlesClip(subtitles=subtitle_file_path, make_textclip=generator)
+                subtitles = SubtitlesClip(subtitle_file_path,
+                                          lambda txt: TextClip(txt, font=setting.subtitle_font,
+                                                               fontsize=setting.subtitle_fontsize, color=setting.subtitle_color, stroke_color=setting.subtitle_stroke_color,
+                                                               stroke_width=setting.subtitle_stroke_width, method='caption',
+                                                               size=(int(video_clip.w * 0.9), None)))
                 video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.85))])
 
             clips.append(video_clip)
 
     # Synthesize all video clips
     final_clip = concatenate_videoclips(clips)
-
     # Write the clips to a video file
+    # final_clip.write_videofile(setting.video_file_path, codec="libx264", audio_codec="aac", fps=10, threads=4)
     final_clip.write_videofile(setting.video_path, codec=setting.video_codec,
                                audio_codec=setting.audio_codec, fps=setting.video_frame_rate,
-                               threads=setting.video_processing_threads, logger="bar",
-                               )
-
+                               threads=setting.video_processing_threads)
     # Release resources
     final_clip.close()
-
-
-
