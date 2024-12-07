@@ -5,9 +5,6 @@ from utils import mylogger
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
 
-
-# azure tts quick start:https://learn.microsoft.com/zh-cn/azure/ai-services/speech-service/get-started-text-to-speech?tabs=macos%2Cterminal&pivots=programming-language-python
-# azure tts sample: https://github.com/Azure-Samples/cognitive-services-speech-sdk/blob/master/samples/python/console/speech_synthesis_sample.py
 def tts(text, output_audio_filename):
     """
     Converts the provided text to speech and saves it as an audio file.

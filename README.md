@@ -53,7 +53,7 @@ If you prefer to run the application directly from the source code, or if you wa
     * On Windows
         ```bash
         python -m venv venv
-        venv\Scripts\activate
+        venv\Scripts\activate.bat
         ``` 
     * On macOS/Linux
         ```bash
