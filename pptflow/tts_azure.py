@@ -19,6 +19,8 @@ def tts(text, output_audio_filename):
     Returns:
     bool: True if the speech synthesis is successful, False otherwise.
     """
+    logger.info(f"subscription:{os.environ.get('TTS_AZURE_SPEECH_KEY')}")
+    logger.info(f"region:{os.environ.get('TTS_AZURE_SPEECH_REGION')}")
     # Initializes the speech configuration using the Azure Speech SDK, obtaining the key and region from environment variables.
     speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('TTS_AZURE_SPEECH_KEY'),
                                            region=os.environ.get('TTS_AZURE_SPEECH_REGION'))

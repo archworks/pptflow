@@ -35,7 +35,8 @@ class SettingsSection(ctk.CTkFrame):
         self.cache_label = ctk.CTkLabel(frame, text=self.app.get_text("cache_path"))
         self.cache_label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        self.cache_path = ctk.CTkEntry(frame, width=300)
+        self.cache_path_var = ctk.StringVar(value=self.app.setting.temp_dir)
+        self.cache_path = ctk.CTkEntry(frame, width=300, textvariable=self.cache_path_var)
         self.cache_path.grid(row=0, column=1, padx=5, pady=10)
 
         self.browse_button = ctk.CTkButton(frame,
@@ -48,10 +49,10 @@ class SettingsSection(ctk.CTkFrame):
         self.lang_label.grid(row=1, column=0, padx=20, pady=10)
 
         self.language_list = [self.app.get_text(language) for language in self.app.language_modes]
-        self.language = ctk.CTkComboBox(frame,
-                                        values=self.language_list,
-                                        command=self.on_language_change)
-        self.language.grid(row=1, column=1, padx=5, pady=10, sticky="w")
+        self.language_setting = ctk.CTkComboBox(frame,
+                                                values=self.language_list,
+                                                command=self.on_language_change)
+        self.language_setting.grid(row=1, column=1, padx=5, pady=10, sticky="w")
         # self.language.set(self.app.current_language)
 
         # Theme selection
@@ -79,17 +80,20 @@ class SettingsSection(ctk.CTkFrame):
     def browse_cache_path(self):
         path = filedialog.askdirectory()
         if path:
+            self.app.setting.temp_dir = path
             self.cache_path.delete(0, "end")
             self.cache_path.insert(0, path)
 
-    def on_language_change(self, language):
+    def on_language_change(self, language_value):
         # Dynamically generate the mapping based on the language list
-        language_modes = {self.app.get_text(key): key for key in self.app.language_modes}
-        logger.debug(f"Language Modes: {language_modes}")
-        self.app.change_language(language_modes[language])
-        self.language_list = [self.app.get_text(language) for language in self.app.language_modes]
-        self.language.configure(values=self.language_list)
-        self.language.set(self.app.get_text(self.app.current_language))
+        # language_modes = {self.app.get_text(key): key for key in self.app.language_modes}
+        # logger.debug(f"Language Modes: {language_modes}")
+        language = self.app.text_to_key(language_value)
+        self.app.change_language(language)
+        self.create_settings_frame()
+        # self.language_list = [self.app.get_text(language) for language in self.app.language_modes]
+        # self.language_setting.configure(values=self.language_list)
+        self.language_setting.set(self.app.get_text(self.app.current_language))
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         new_mode = self.theme_map[new_appearance_mode]
@@ -118,3 +122,6 @@ class SettingsSection(ctk.CTkFrame):
             self.app.get_text("light"),
             self.app.get_text("system")
         ])
+
+    def refresh(self):
+        pass

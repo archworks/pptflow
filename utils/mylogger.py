@@ -11,7 +11,8 @@ import os
 # error: 级别40，无法修复的严重错误；必须立即处理并可能需要停止程序
 # critical:级别50，未知的不正常行为，超出已知容错；可能会影响程序未来运行
 # 获取上一级目录
-log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'log')
+log_dir = os.path.join(os.getcwd(), 'log')
+# log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'log')
 
 # 创建 log 文件夹（如果不存在）
 os.makedirs(log_dir, exist_ok=True)

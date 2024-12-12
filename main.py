@@ -1,12 +1,13 @@
-from pathlib import Path
-
+from dotenv import load_dotenv
+import os
 import customtkinter as ctk
 from pptflow.setting import Setting
 from frames.file_section import FileSection
 from frames.export_section import ExportSection
 from frames.settings_section import SettingsSection
 import json
-import os
+import sys
+
 from utils import mylogger
 
 logger = mylogger.get_logger(__name__)
@@ -23,7 +24,7 @@ class App(ctk.CTk):
         self.setting = Setting()
 
         # Configure window
-        self.title("PPT to Video Converter")
+        self.title("PPT FLOW")
         self.center_window()
 
         # Set theme
@@ -56,6 +57,16 @@ class App(ctk.CTk):
             self.frames[name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
+        # Add copyright notice
+        self.copyright_frame = ctk.CTkFrame(self, height=30, corner_radius=0)
+        self.copyright_frame.grid(row=1, column=0, columnspan=2, sticky="ew")
+        self.copyright_label = ctk.CTkLabel(
+            self.copyright_frame,
+            text="© 2024 ArchWorks. All rights reserved.",
+            font=ctk.CTkFont(size=12)
+        )
+        self.copyright_label.grid(row=0, column=0, padx=20, pady=5)
+
         # Show default frame
         self.select_frame("video_generation")
 
@@ -76,11 +87,18 @@ class App(ctk.CTk):
         nav_items = ["video_generation", "export_settings", "system_settings"]
 
         for i, item in enumerate(nav_items):
-            button = ctk.CTkButton(self.navigation_frame, corner_radius=0, height=40,
-                                   border_spacing=10, text=self.get_text(item),
-                                   fg_color="transparent", text_color=("gray10", "gray90"),
-                                   hover_color=("gray70", "gray30"),
-                                   anchor="w", command=lambda x=item: self.select_frame(x))
+            button = ctk.CTkButton(
+                self.navigation_frame,
+                corner_radius=0,
+                height=40,
+                border_spacing=10,
+                text=self.get_text(item),
+                fg_color="transparent",
+                text_color=("gray10", "gray90"),
+                hover_color=("gray70", "gray30"),
+                anchor="w",
+                command=lambda x=item: self.select_frame(x)
+            )
             button.grid(row=i + 1, column=0, sticky="ew")
             self.nav_buttons.append((button, item))
 
@@ -94,6 +112,7 @@ class App(ctk.CTk):
 
         # Show selected frame
         frame = self.frames[name]
+        frame.refresh()
         frame.tkraise()
 
     def center_window(self):
@@ -108,6 +127,13 @@ class App(ctk.CTk):
 
     def get_text(self, key):
         return self.translations.get(key, key)
+
+    def text_to_key(self, text):
+        """Convert display text back to key"""
+        for key, value in self.translations.items():
+            if value == text:
+                return key
+        return text
 
     def change_language(self, language):
         if language in self.language_modes:
@@ -126,11 +152,11 @@ class App(ctk.CTk):
         if self.current_language in self._translations_cache:
             return self._translations_cache[self.current_language]
 
-        locale_dir = os.path.join('locales', self.current_language)
+        locale_dir = resource_path(os.path.join('locales', self.current_language))
         translation_file = os.path.join(locale_dir, 'messages.json')
 
         if not os.path.exists(translation_file):
-            locale_dir = os.path.join('locales', self.language_modes[0])
+            locale_dir = resource_path(os.path.join('locales', self.language_modes[0]))
             translation_file = os.path.join(locale_dir, 'messages.json')
 
         with open(translation_file, 'r', encoding='utf-8') as f:
@@ -138,6 +164,13 @@ class App(ctk.CTk):
 
         self._translations_cache[self.current_language] = translations
         return translations
+
+
+def resource_path(relative_path):
+    """获取资源文件的绝对路径"""
+    if hasattr(sys, '_MEIPASS'):  # 打包后运行环境
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 
 def get_locales_subdirectories():
@@ -164,5 +197,8 @@ def get_locales_subdirectories():
 
 
 if __name__ == "__main__":
+    # Load the .env file
+    load_dotenv()
     app = App()
+    logger.info("Application started")
     app.mainloop()

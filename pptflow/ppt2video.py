@@ -6,8 +6,11 @@ from utils import mylogger
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
+
 # import tts module according to service provider
 tts_service_provider = os.environ.get("TTS_SERVICE_PROVIDER")
+
+logger.info(f"tts服务:{tts_service_provider}")
 if not tts_service_provider:
     logger.error("tts服务未配置")
     raise NotImplementedError(f"tts服务未配置")

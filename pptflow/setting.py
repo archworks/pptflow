@@ -17,11 +17,13 @@ class Setting:
     # PPT settings
     start_page_num: int = None
     end_page_num: int = None
+    ppt_path: str = None
+    ppt_total_slides: int = None
     # Audio settings
     tts_service_provider: str = 'azure'
     narration_language: str = 'zh-cn'
     narration_voice_name: str = 'zh-CN-YunjianNeural'
-    narration_voice_speed: int = 1
+    narration_voice_speed: float = 1
     # Video settings
     video_formats = ['MP4', 'AVI', 'MKV']
     video_width: int = 1280
@@ -33,8 +35,8 @@ class Setting:
     subtitle_font_dict = get_installed_fonts()
     subtitle_font_size: int = 24
     subtitle_color: str = 'white'
-    subtitle_stroke_color: str = 'black'
-    subtitle_stroke_width: float = 1
+    subtitle_stroke_color: str = 'black'  # subtitle outline color
+    subtitle_stroke_width: int = 1  # subtitle outline width
 
     # 2.Advanced Settings
     # Audio settings

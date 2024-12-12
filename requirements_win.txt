@@ -3,4 +3,4 @@ moviepy==2.1.1
 python-pptx
 azure-cognitiveservices-speech
 python-dotenv
-customtkinter
+customtkinter==5.2.2

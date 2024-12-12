@@ -1,9 +1,7 @@
-import re
-from unittest import result
 from pptx import Presentation
 import os
 import re
-from moviepy.audio.io import AudioFileClip
+from moviepy import AudioFileClip
 from moviepy.audio.AudioClip import concatenate_audioclips
 from utils import mylogger
 
@@ -99,7 +97,7 @@ def ppt_note_to_audio(tts, input_ppt_path, setting):
                 generate_audio_and_subtitles(tts, note_text, len(presentation.slides), idx,
                                              file_name_without_ext, setting)
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}", exc_info=True)
         raise e
 
 
@@ -137,7 +135,7 @@ def generate_audio(tts, output_audio_dir_path, text, length, index, filename_pre
 
     audio_file_path = os.path.join(output_audio_dir_path, f"{filename_prefix}-P{index + 1}.mp3")
     if audio_local_cache_enabled and not audio_file_do_replace_check(audio_file_path, speech_text):
-        logger.info(f'{audio_file_path}已存在且文本内容无变化，跳过')
+        logger.info(f'{audio_file_path} already exists and the text content does not change, then the step will be skipped.')
         return
     tts_re = tts(speech_text, audio_file_path)
     if tts_re:
@@ -147,6 +145,7 @@ def generate_audio(tts, output_audio_dir_path, text, length, index, filename_pre
 
 
 def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_prefix, setting):
+    global subtitle_file, audio_clips
     text_segments = split_text(text)
 
     audio_file_path = os.path.join(setting.audio_dir_path, f"{filename_prefix}-P{page_index + 1}.mp3")
@@ -154,7 +153,7 @@ def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_pr
 
     # Check if the audio file already exists and has the same content as the current text
     if setting.audio_local_cache_enabled and not audio_file_do_replace_check(audio_file_path, ''.join(text_segments)):
-        logger.info(f'{audio_file_path}已存在且文本内容无变化，跳过')
+        logger.info(f'{audio_file_path} already exists and the text content does not change, then skip this step.')
         return
 
     try:
@@ -198,9 +197,11 @@ def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_pr
 
         # Save the final audio clip to the specified path
         final_audio = concatenate_audioclips(audio_clips)
-        final_audio.write_audiofile(audio_file_path)
+        final_audio.write_audiofile(audio_file_path, logger=None)
         # Cache the audio file via saving the text content
         add_audio_file_text_cache(audio_file_path, ''.join(text_segments))
+    except Exception as e:
+        logger.error(f"Error occurred: {e}", exc_info=True)
     finally:
         # Close the subtitle file
         subtitle_file.close()

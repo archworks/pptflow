@@ -1,4 +1,3 @@
-from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy import CompositeVideoClip, concatenate_videoclips
 from moviepy.video.VideoClip import ImageClip, TextClip
@@ -63,9 +62,9 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
     # Synthesize all video clips
     final_clip = concatenate_videoclips(clips)
     # Write the clips to a video file
-    # final_clip.write_videofile(setting.video_file_path, codec="libx264", audio_codec="aac", fps=10, threads=4)
+    logger.info(f"Writing video to {setting.video_path}")
     final_clip.write_videofile(setting.video_path, codec=setting.video_codec,
                                audio_codec=setting.audio_codec, fps=setting.video_frame_rate,
-                               threads=setting.video_processing_threads)
+                               threads=setting.video_processing_threads, logger=None)
     # Release resources
     final_clip.close()
