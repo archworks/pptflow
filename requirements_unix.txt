@@ -1,6 +1,7 @@
-moviepy
+moviepy==2.1.1
 python-pptx
 azure-cognitiveservices-speech
 python-dotenv
 PyMuPDF
 Pillow==9.5.0
+customtkinter
