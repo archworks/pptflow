@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from utils import mylogger
+from utils import setting_dic as sd
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -82,14 +83,17 @@ class ExportSection(ctk.CTkFrame):
         title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
         self.audio_settings = {
-            self.app.get_text("audio_engine"): ["azure", "xunfei"],
-            self.app.get_text("audio_language"): [self.app.get_text("zh"), self.app.get_text("en"),
-                                                  self.app.get_text("jp")],
-            self.app.get_text("audio_voice_type"): ["zh-CN-YunjianNeural", "xxxx"],
-            self.app.get_text("audio_speed"): ["1.0x", "0.8x", "1.2x", "1.5x"]
+            self.app.get_text("tts_server"): sd.tts_servers,
+            self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
+            self.app.get_text("audio_voice_type"): sd.audio_voice_type,
+            self.app.get_text("audio_speed"): sd.audio_speeds
         }
 
         create_combo_box(frame, self.audio_settings, self.audio_settings_vars)
+        self.audio_settings_vars[self.app.get_text("tts_server")].set(self.app.setting.tts_service_provider)
+        self.audio_settings_vars[self.app.get_text("audio_language")].set(self.app.get_text(self.app.current_language))
+        self.audio_settings_vars[self.app.get_text("audio_voice_type")].set(self.app.setting.narration_voice_name)
+        self.audio_settings_vars[self.app.get_text("audio_speed")].set(self.app.setting.narration_voice_speed)
 
     def create_video_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
@@ -103,11 +107,16 @@ class ExportSection(ctk.CTkFrame):
         title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
         self.video_settings = {
-            self.app.get_text("video_format"): ["MP4", "AVI", "MOV"],
-            self.app.get_text("video_size"): ["1280x720", "1920x1080", "854x480"],
-            self.app.get_text("video_fps"): ["10fps", "30fps", "24fps"]
+            self.app.get_text("video_format"): sd.video_formats,
+            self.app.get_text("video_size"): sd.video_sizes,
+            self.app.get_text("video_fps"): sd.video_fps,
+            self.app.get_text("video_threads"): sd.video_processing_threads
         }
         create_combo_box(frame, self.video_settings, self.video_settings_vars)
+        self.video_settings_vars[self.app.get_text("video_format")].set(self.app.setting.video_format)
+        self.video_settings_vars[self.app.get_text("video_size")].set(f'{self.app.setting.video_width}x{self.app.setting.video_height}')
+        self.video_settings_vars[self.app.get_text("video_fps")].set(self.app.setting.video_fps)
+        self.video_settings_vars[self.app.get_text("video_threads")].set(self.app.setting.video_processing_threads)
 
     def create_subtitle_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
@@ -121,18 +130,18 @@ class ExportSection(ctk.CTkFrame):
         title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
         self.subtitle_settings = {
-            self.app.get_text("font_type"): [key for key in self.app.setting.subtitle_font_dict],
+            self.app.get_text("font_type"): [key for key in sd.subtitle_font_dict],
             self.app.get_text("font_size"): [str(i) for i in range(18, 49, 2)],
-            self.app.get_text("font_color"): [self.app.get_text("white"),
-                                              self.app.get_text("black"),
-                                              self.app.get_text("red"),
-                                              self.app.get_text("yellow")],
-            self.app.get_text("border_color"): [self.app.get_text("black"), self.app.get_text("white"),
-                                                self.app.get_text("no_color")],
-            self.app.get_text("border_width"): ["0", "1", "2", "3", "4"]
+            self.app.get_text("font_color"): [self.app.get_text(s) for s in sd.font_colors],
+            self.app.get_text("border_color"): [self.app.get_text(s) for s in sd.border_colors],
+            self.app.get_text("border_width"): sd.border_widths
         }
         create_combo_box(frame, self.subtitle_settings, self.subtitle_settings_vars)
-        self.subtitle_settings_vars[self.app.get_text("font_type")].set("Microsoft YaHei")
+        self.subtitle_settings_vars[self.app.get_text("font_type")].set(self.app.setting.subtitle_font)
+        self.subtitle_settings_vars[self.app.get_text("font_size")].set(self.app.setting.subtitle_font_size)
+        self.subtitle_settings_vars[self.app.get_text("font_color")].set(self.app.get_text(self.app.setting.subtitle_color))
+        self.subtitle_settings_vars[self.app.get_text("border_color")].set(self.app.get_text(self.app.setting.subtitle_stroke_color))
+        self.subtitle_settings_vars[self.app.get_text("border_width")].set(self.app.setting.subtitle_stroke_width)
 
     def create_save_button(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
@@ -141,7 +150,7 @@ class ExportSection(ctk.CTkFrame):
         self.save_button.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
 
     def save_settings(self):
-        self.app.setting.video_path = self.export_path_var if self.export_path_var else None
+        self.app.setting.video_path = self.export_path_var.get() if self.export_path_var.get() else None
         if self.app.setting.video_path:
             logger.info(f"Updated video settings - Video_path:{self.app.setting.video_path}")
         self.update_audio_settings()
@@ -152,14 +161,14 @@ class ExportSection(ctk.CTkFrame):
 
     def update_audio_settings(self):
         # Gets the currently selected value for each ComboBox by variable
-        audio_engine = self.audio_settings_vars[self.app.get_text("audio_engine")].get()
+        audio_engine = self.audio_settings_vars[self.app.get_text("tts_server")].get()
         audio_language = self.audio_settings_vars[self.app.get_text("audio_language")].get()
         audio_voice_type = self.audio_settings_vars[self.app.get_text("audio_voice_type")].get()
         audio_speed = float(self.audio_settings_vars[self.app.get_text("audio_speed")].get().split("x")[0])
 
         # update the app setting
         self.app.setting.tts_service_provider = audio_engine
-        self.app.setting.audio_language = audio_language
+        self.app.setting.audio_language = self.app.text_to_key(audio_language)
         self.app.setting.audio_voice_type = audio_voice_type
         self.app.setting.audio_speed = audio_speed
 
@@ -170,23 +179,25 @@ class ExportSection(ctk.CTkFrame):
         video_format = self.video_settings_vars[self.app.get_text("video_format")].get()
         video_size = self.video_settings_vars[self.app.get_text("video_size")].get().split("x")
         video_fps = self.video_settings_vars[self.app.get_text("video_fps")].get().split("fps")[0]
+        video_processing_threads = self.video_settings_vars[self.app.get_text("video_threads")].get()
         self.app.setting.video_format = video_format
         self.app.setting.video_width = video_size[0]
         self.app.setting.video_height = video_size[1]
-        self.app.setting.video_fps = video_fps
-        logger.info(f"Updated video settings - Format: {video_format}, Size: {video_size}, FPS: {video_fps}")
+        self.app.setting.video_fps = int(video_fps)
+        self.app.setting.video_processing_threads = int(video_processing_threads)
+        logger.info(f"Updated video settings - Format: {video_format}, Size: {video_size}, "
+                    f"FPS: {video_fps}, Threads: {video_processing_threads}")
 
     def update_subtitle_settings(self):
-        subtitle_font = self.app.setting.subtitle_font_dict[
-            self.subtitle_settings_vars[self.app.get_text("font_type")].get()]
+        subtitle_font = self.subtitle_settings_vars[self.app.get_text("font_type")].get()
         subtitle_font_size = self.subtitle_settings_vars[self.app.get_text("font_size")].get()
         subtitle_font_color = self.subtitle_settings_vars[self.app.get_text("font_color")].get().lower()
         subtitle_border_color = self.subtitle_settings_vars[self.app.get_text("border_color")].get().lower()
         subtitle_border_width = self.subtitle_settings_vars[self.app.get_text("border_width")].get()
-        self.app.setting.subtitle_font = subtitle_font
+        self.app.setting.subtitle_font = sd.subtitle_font_dict[subtitle_font]
         self.app.setting.subtitle_font_size = int(subtitle_font_size)
-        self.app.setting.subtitle_color = subtitle_font_color
-        self.app.setting.subtitle_stroke_color = subtitle_border_color
+        self.app.setting.subtitle_color = self.app.text_to_key(subtitle_font_color)
+        self.app.setting.subtitle_stroke_color = self.app.text_to_key(subtitle_border_color)
         self.app.setting.subtitle_stroke_width = int(subtitle_border_width)
         logger.info(f"Updated subtitle settings - Font: {subtitle_font}, Font Size: {subtitle_font_size}, "
                     f"Font Color: {subtitle_font_color}, Border Color: {subtitle_border_color}, "

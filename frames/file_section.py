@@ -6,6 +6,7 @@ from tkinter import filedialog, messagebox
 from pptflow import ppt2video
 from utils import mylogger
 from pptx import Presentation
+from utils import setting_dic as sd
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -35,10 +36,12 @@ class FileSection(ctk.CTkFrame):
         # Loading prompt
         self.loading_title = self.app.get_text("generate_video")
 
+        self.app.setting.subtitle_font = sd.subtitle_font_dict[self.app.setting.subtitle_font]
+
         # File selection
         self.file_display = ""
         self.create_file_selection()
-        self.create_file_info()
+        # self.create_file_info()
         self.create_page_range()
         self.create_generate_button()
         self.create_play_button()
@@ -62,13 +65,13 @@ class FileSection(ctk.CTkFrame):
         )
         self.browse_btn.grid(row=0, column=2, padx=(0, 20), pady=10)
 
-    def create_file_info(self):
-        frame = ctk.CTkFrame(self.scrollable_frame)
-        frame.grid(row=1, column=0, padx=0, pady=5, sticky="ew")
-
-        self.file_info = ctk.CTkLabel(frame, text=self.app.get_text("no_file"),
-                                      font=ctk.CTkFont(size=14))
-        self.file_info.grid(row=0, column=0, padx=20, pady=5)
+    # def create_file_info(self):
+    #     frame = ctk.CTkFrame(self.scrollable_frame)
+    #     frame.grid(row=1, column=0, padx=0, pady=5, sticky="ew")
+    #
+    #     self.file_info = ctk.CTkLabel(frame, text=self.app.get_text("no_file"),
+    #                                   font=ctk.CTkFont(size=14))
+    #     self.file_info.grid(row=0, column=0, padx=20, pady=5)
 
     def create_page_range(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
@@ -151,9 +154,9 @@ class FileSection(ctk.CTkFrame):
             self.file_path.configure(state=ctk.NORMAL)
             self.file_path.delete(0, "end")
             self.file_path.insert(0, self.file_display)
-            self.file_info.configure(
-                text=f"{self.app.get_text('selected_file')}: {os.path.basename(self.file_display)}"
-            )
+            # self.file_info.configure(
+            #     text=f"{self.app.get_text('selected_file')}: {os.path.basename(self.file_display)}"
+            # )
             self.file_path.configure(state=ctk.DISABLED)
 
     def generate_video(self):
@@ -171,7 +174,7 @@ class FileSection(ctk.CTkFrame):
             messagebox.showerror("Error", f"Failed to generate video: {str(e)}")
             logger.error(e, exc_info=True)
             return
-        messagebox.showinfo(self.loading_title, self.app.get_text("video_generated"))
+        messagebox.showinfo(self.loading_title, f'{self.app.get_text("video_generated")}{self.app.setting.video_path}')
 
     def start_video_generation(self):
         if not self.file_display:
@@ -219,7 +222,7 @@ class FileSection(ctk.CTkFrame):
         self.file_path.configure(placeholder_text=self.app.get_text("select_ppt"))
         self.generate_button.configure(text=self.app.get_text("generate_video"))
         self.play_button.configure(text=self.app.get_text("play_video"))
-        self.file_info.configure(text=self.app.get_text("no_file"))
+        # self.file_info.configure(text=self.app.get_text("no_file"))
         self.browse_btn.configure(text=self.app.get_text("browse"))
         self.page_title.configure(text=self.app.get_text("page_range"))
         self.start_label.configure(text=self.app.get_text("start_page"))
