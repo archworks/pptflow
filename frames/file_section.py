@@ -36,8 +36,6 @@ class FileSection(ctk.CTkFrame):
         # Loading prompt
         self.loading_title = self.app.get_text("generate_video")
 
-        self.app.setting.subtitle_font = sd.subtitle_font_dict[self.app.setting.subtitle_font]
-
         # File selection
         self.file_display = ""
         self.create_file_selection()
@@ -177,6 +175,8 @@ class FileSection(ctk.CTkFrame):
         messagebox.showinfo(self.loading_title, f'{self.app.get_text("video_generated")}{self.app.setting.video_path}')
 
     def start_video_generation(self):
+        if not os.path.exists(self.app.setting.subtitle_font):
+            self.app.setting.subtitle_font = sd.subtitle_font_dict[self.app.setting.subtitle_font]
         if not self.file_display:
             messagebox.showerror(self.loading_title, self.app.get_text("no_file_selected"))
             return

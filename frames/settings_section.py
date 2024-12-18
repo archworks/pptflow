@@ -1,3 +1,4 @@
+import os.path
 import customtkinter as ctk
 from tkinter import filedialog
 from utils import mylogger
@@ -74,7 +75,8 @@ class SettingsSection(ctk.CTkFrame):
 
         # Save button
         self.save_button = ctk.CTkButton(frame,
-                                         text=self.app.get_text("save_settings"))
+                                         text=self.app.get_text("save_settings"),
+                                         command=self.save_settings)
         self.save_button.grid(row=4, column=0, columnspan=3, padx=20, pady=20)
 
     def browse_cache_path(self):
@@ -103,6 +105,13 @@ class SettingsSection(ctk.CTkFrame):
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         ctk.set_widget_scaling(new_scaling_float)
+
+    def save_settings(self):
+        if self.cache_path_var.get():
+            self.app.setting.temp_dir = self.cache_path_var.get()
+            logger.info(f"Cache path: {self.app.setting.temp_dir}")
+        else:
+            logger.warning(self.app.get_text("path_invalid"))
 
     # Update the language of System Settings frame
     def update_language(self):

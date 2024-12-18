@@ -46,7 +46,7 @@ class Setting:
 
     # 4.System Settings
     # Language Settings
-    language_mode = 'en'  # Default: en
+    language = 'en'  # Default: en
     # Storage Settings
     storage_path: str = None
     # Specify the full path to the PowerPoint presentation

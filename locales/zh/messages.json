@@ -3,6 +3,7 @@
     "en": "英文",
     "jp": "日语",
     "nav_menu": "导航菜单",
+    "copyright": "© 2024 ArchWorks.保留所有权利。",
     "import_ppt": "导入PPT",
     "video_generation": "视频生成",
     "basic_settings": "基础设置",
@@ -69,7 +70,7 @@
     "phone": "手机号码",
     "save_settings": "保存设置",
     "system_title": "系统设置",
-    "ui_language": "界面语言",
+    "ui_language": "界面语言：",
     "cache_path": "缓存路径：",
     "theme": "主题：",
     "dark": "深色",
@@ -85,5 +86,12 @@
     "export_success": "导出成功！",
     "export_success_text": "视频已导出至指定路径，请前往查看。",
     "export_failed": "导出失败！",
-    "export_failed_text": "导出失败，请检查设置后重试。"
+    "export_failed_text": "导出失败，请检查设置后重试。",
+    "path_invalid": "路径无效，请检查后重试。",
+    "path_not_exist": "路径不存在，请检查后重试。",
+    "path_not_writable": "路径不可写，请检查后重试。",
+    "path_not_readable": "路径不可读，请检查后重试。",
+    "path_not_file": "路径不是文件，请检查后重试。",
+    "path_not_dir": "路径不是文件夹，请检查后重试。",
+    "path_not_ppt": "路径不是PPT文件，请检查后重试。"
 }
