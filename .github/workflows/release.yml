@@ -49,7 +49,7 @@ jobs:
     # 6. 安装 Chocolatey
     - name: Install Chocolatey
       run: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force; \
+        Set-ExecutionPolicy Bypass -Scope Process -Force;
         iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
     # 7. 使用 Chocolatey 安装 Inno Setup
