@@ -1,19 +1,18 @@
 #define MyAppVersion "1.0.0"
 ; 定义安装包的基本信息
 [Setup]
-AppName=PPTFlow           ; 应用程序名称
-AppVersion={#MyAppVersion}         ; 版本号，可以从命令行传递动态版本
-DefaultDirName={pf}\PPTFlow  ; 默认安装目录
-DefaultGroupName=PPTFlow     ; 默认的开始菜单文件夹
-OutputBaseFilename=PPTFlowInstaller ; 输出的安装包文件名
-Compression=lzma            ; 压缩算法
-SolidCompression=yes        ; 启用固体压缩
-DisableProgramGroupPage=yes ; 隐藏“选择开始菜单文件夹”页面
-UninstallDisplayIcon={app}\PPTFlow.exe ; 卸载程序图标
+AppName=PPTFlow
+AppVersion={#MyAppVersion}
+DefaultDirName={pf}\PPTFlow
+DefaultGroupName=PPTFlow
+OutputBaseFilename=pptflow-{#MyAppVersion}-alpha
+Compression=lzma
+SolidCompression=yes
+DisableProgramGroupPage=yes
 
 [Files]
 ; 将 PyInstaller 打包的可执行文件复制到安装目录
-Source: "dist\main.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\pptflow.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 ; 复制其他需要的文件（如 .env 文件）
 Source: ".env"; DestDir: "{app}"; Flags: ignoreversion
