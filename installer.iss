@@ -1,7 +1,8 @@
+#define MyAppVersion "1.0.0"
 ; 定义安装包的基本信息
 [Setup]
 AppName=PPTFlow           ; 应用程序名称
-AppVersion=1.0.0          ; 版本号，可以从命令行传递动态版本
+AppVersion={#MyAppVersion}         ; 版本号，可以从命令行传递动态版本
 DefaultDirName={pf}\PPTFlow  ; 默认安装目录
 DefaultGroupName=PPTFlow     ; 默认的开始菜单文件夹
 OutputBaseFilename=PPTFlowInstaller ; 输出的安装包文件名
