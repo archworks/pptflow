@@ -44,13 +44,7 @@ jobs:
     # 5. 打包 Python 项目为可执行文件
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile \
-          --add-data "azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll;azure/cognitiveservices/speech" \
-          --add-data "locales;locales" \
-          --noconsole \
-          --hidden-import azure.cognitiveservices.speech \
-          main.py \
-          --name pptflow
+        pyinstaller --onefile --add-data "azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll;azure/cognitiveservices/speech" --add-data "locales;locales" --noconsole --hidden-import azure.cognitiveservices.speech main.py --name pptflow
 
     # 6. 安装 Chocolatey
     - name: Install Chocolatey
