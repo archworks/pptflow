@@ -27,17 +27,25 @@ jobs:
         pip install -r requirements_win.txt
         pip install pyinstaller
         
+    - name: Debug installed modules and files
+      run: |
+        echo "Checking installed packages..."
+        pip list
+        echo "Checking files in azure.cognitiveservices.speech..."
+        dir C:\hostedtoolcache\windows\Python\3.9.13\x64\Lib\site-packages\azure\cognitiveservices\speech
+        
     # 4. 手动复制 DLL 文件
     - name: Copy DLL file for PyInstaller
       run: |
-        mkdir -p ${{ github.workspace }}/venv/Lib/site-packages/azure/cognitiveservices/speech
-        copy "venv/Lib/site-packages/azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll" "${{ github.workspace }}/venv/Lib/site-packages/azure/cognitiveservices/speech/"
+        mkdir -p azure/cognitiveservices/speech
+        copy "C:\hostedtoolcache\windows\Python\3.9.13\x64\Lib\site-packages\azure\cognitiveservices\speech\Microsoft.CognitiveServices.Speech.core.dll" "azure/cognitiveservices/speech/"
+
 
     # 5. 打包 Python 项目为可执行文件
     - name: Build executable with PyInstaller
       run: |
         pyinstaller --onefile \
-          --add-data "venv/Lib/site-packages/azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll;azure/cognitiveservices/speech" \
+          --add-data "azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll;azure/cognitiveservices/speech" \
           --add-data "locales;locales" \
           --noconsole \
           --hidden-import azure.cognitiveservices.speech \
