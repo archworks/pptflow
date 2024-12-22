@@ -9,7 +9,6 @@ from pptflow.setting import Setting
 from utils import setting_dic as sd
 from .file_section import FileSection
 from .export_section import ExportSection
-from .settings_section import SettingsSection
 import json
 import sys
 from utils import mylogger
@@ -18,13 +17,13 @@ from utils import mylogger
 load_dotenv()
 # Setup logger
 logger = mylogger.get_logger(__name__)
-logger.info("Application started")
 
 
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.setting = Setting()
+        logger.info("Initializing Configuration")
         self.current_language = self.setting.language
         self.language_modes = get_locales_subdirectories() if len(
             get_locales_subdirectories()) > 0 else sd.language_mode
@@ -32,7 +31,7 @@ class App(ctk.CTk):
         self.translations = self.get_translation()
 
         # Configure window
-        self.title("PPT FLOW")
+        self.title("pptflow")
         self.center_window()
 
         # Set theme

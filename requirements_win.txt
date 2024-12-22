@@ -5,3 +5,4 @@ azure-cognitiveservices-speech
 python-dotenv
 customtkinter==5.2.2
 matplotlib
+edge-tts

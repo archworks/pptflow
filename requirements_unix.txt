@@ -6,3 +6,4 @@ PyMuPDF
 Pillow==9.5.0
 customtkinter
 matplotlib
+edge-tts

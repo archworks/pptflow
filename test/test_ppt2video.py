@@ -8,4 +8,4 @@ from pptflow.setting import Setting
 
 test_path = os.path.join(parent_dir, "test")
 ppt_path = os.path.join(test_path, 'test.pptx')
-ppt2video.process(ppt_path, Setting())
+ppt2video.ppt_to_video(ppt_path, Setting())

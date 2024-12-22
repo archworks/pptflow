@@ -11,10 +11,15 @@ class Setting:
     ppt_path: str = None
     ppt_total_slides: int = None
     # Audio settings
-    tts_service_provider: str = 'azure'
-    narration_language: str = 'zh-cn'
-    narration_voice_name: str = 'zh-CN-YunjianNeural'
-    narration_voice_speed: float = 1
+    tts_service_provider: str = 'AZURE'
+    tts_api_key: str = None
+    tts_azure_api_key = "917b9e6040b4466caa22c6f62227af35"
+    tts_speech_region = "eastasia"
+    # tts_voice_locale: str = 'zh-CN'
+    # tts_voice_gender: str = 'Male'
+    tts_voice_name: str = 'zh-CN-YunjianNeural'
+    tts_voice_type: str = 'zh-CN-YunjianNeural (zh-CN, Male)'
+    tts_voice_rate: str = '+0%'
     # Video settings
     video_format = 'MP4'
     video_width: int = 1280

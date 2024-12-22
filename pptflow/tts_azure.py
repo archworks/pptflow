@@ -5,7 +5,8 @@ from utils import mylogger
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
 
-def tts(text, output_audio_filename):
+
+def tts(text, output_audio_filename, setting):
     """
     Converts the provided text to speech and saves it as an audio file.
 
@@ -16,13 +17,13 @@ def tts(text, output_audio_filename):
     Returns:
     bool: True if the speech synthesis is successful, False otherwise.
     """
-    logger.info(f"subscription:{os.environ.get('TTS_AZURE_SPEECH_KEY')}")
-    logger.info(f"region:{os.environ.get('TTS_AZURE_SPEECH_REGION')}")
     # Initializes the speech configuration using the Azure Speech SDK, obtaining the key and region from environment variables.
-    speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('TTS_AZURE_SPEECH_KEY'),
-                                           region=os.environ.get('TTS_AZURE_SPEECH_REGION'))
+    # speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('TTS_AZURE_SPEECH_KEY'),
+    #                                        region=os.environ.get('TTS_AZURE_SPEECH_REGION'))
+    speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
+                                           region=setting.tts_speech_region)
     # The language of the voice that speaks.
-    speech_config.speech_synthesis_voice_name = 'zh-CN-YunjianNeural'
+    speech_config.speech_synthesis_voice_name = setting.tts_voice_name
     # Sets the synthesis output format.
     # The full list of supported format can be found here:
     # https://docs.microsoft.com/azure/cognitive-services/speech-service/rest-text-to-speech#audio-outputs

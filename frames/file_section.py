@@ -117,6 +117,13 @@ class FileSection(ctk.CTkFrame):
         )
         self.generate_button.grid(row=0, column=0, padx=20, pady=20, sticky="ew")
 
+        self.elapsed_time: float = 0
+        self.elapsed_time_label = ctk.CTkLabel(frame, text=f'{self.app.get_text("elapsed_time")}'
+                                                           f'{self.elapsed_time:.2f}'
+                                                           f'{self.app.get_text("seconds")}')
+        self.elapsed_time_label.grid(row=0, column=1, padx=20, pady=20, sticky="ew")
+        self.elapsed_time_label.grid_remove()  # Hidden during initialization
+
     def create_play_button(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
         frame.grid(row=4, column=0, padx=0, pady=(0, 10), sticky="ew")
@@ -167,12 +174,21 @@ class FileSection(ctk.CTkFrame):
             if self.app.setting.end_page_num < self.app.setting.start_page_num:
                 messagebox.showerror("Error", "End page number must be greater than or equal to start page number.")
                 return
-            ppt2video.process(self.file_display, self.app.setting)
+            elapsed_time = ppt2video.ppt_to_video(self.file_display, self.app.setting)
+            self.elapsed_time = elapsed_time
+            messagebox.showinfo(self.loading_title,
+                                f'{self.app.get_text("video_generated")}{self.app.setting.video_path}')
+            # 更新 label 文本
+            self.elapsed_time_label.configure(text=f'{self.app.get_text("elapsed_time")}'
+                                                   f'{self.elapsed_time:.2f}'
+                                                   f'{self.app.get_text("seconds")}')
+
+            # 显示 label
+            self.elapsed_time_label.grid()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate video: {str(e)}")
             logger.error(e, exc_info=True)
             return
-        messagebox.showinfo(self.loading_title, f'{self.app.get_text("video_generated")}{self.app.setting.video_path}')
 
     def start_video_generation(self):
         if not os.path.exists(self.app.setting.subtitle_font):
@@ -180,6 +196,9 @@ class FileSection(ctk.CTkFrame):
         if not self.file_display:
             messagebox.showerror(self.loading_title, self.app.get_text("no_file_selected"))
             return
+        # 如果再次点击生成按钮，隐藏 label
+        if self.elapsed_time_label.winfo_viewable():
+            self.elapsed_time_label.grid_remove()
         # Run the video generation in a separate thread
         threading.Thread(target=self.generate_video).start()
         messagebox.showinfo(self.loading_title, self.app.get_text("start_generate_video"))
@@ -228,6 +247,9 @@ class FileSection(ctk.CTkFrame):
         self.start_label.configure(text=self.app.get_text("start_page"))
         # self.start_page.configure(placeholder_text=self.app.get_text("start_page_info"))
         self.end_label.configure(text=self.app.get_text("end_page"))
+        self.elapsed_time_label.configure(text=f'{self.app.get_text("elapsed_time")}'
+                                               f'{self.elapsed_time:.2f}'
+                                               f'{self.app.get_text("seconds")}')
         # self.end_page.configure(placeholder_text=self.app.get_text("end_page_info"))
 
     def refresh(self):

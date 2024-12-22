@@ -42,13 +42,15 @@ class ExportSection(ctk.CTkFrame):
 
         # Create a dict for audio/video/subtitle settings
         self.export_path_var = ctk.StringVar()
+        self.tts_settings_vars = {}
         self.audio_settings_vars = {}
         self.video_settings_vars = {}
         self.subtitle_settings_vars = {}
 
         # Add settings sections
+        self.create_tts_settings()
         self.create_cache_path()
-        self.create_audio_settings()
+        # self.create_audio_settings()
         self.create_video_settings()
         self.create_subtitle_settings()
         self.create_save_button()
@@ -69,33 +71,72 @@ class ExportSection(ctk.CTkFrame):
                                            command=self.browse_cache_path)
         self.browse_button.grid(row=0, column=2, padx=20, pady=10)
 
-    def create_audio_settings(self):
+    def create_tts_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
         frame.grid(row=1, column=0, padx=0, pady=(0, 10), sticky="ew")
 
         title = ctk.CTkLabel(
             frame,
-            text=self.app.get_text("audio_settings"),
+            text=self.app.get_text("tts_settings"),
             font=ctk.CTkFont(size=16, weight="bold")
         )
         title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
-
-        self.audio_settings = {
-            self.app.get_text("tts_server"): sd.tts_servers,
-            self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
-            self.app.get_text("audio_voice_type"): sd.audio_voice_type,
-            self.app.get_text("audio_speed"): sd.audio_speeds
+        self.tts_settings = {
+            self.app.get_text("tts_service_provider"): sd.tts_service_providers,
+            self.app.get_text("tts_speech_region"): sd.tts_speech_regions,
+            self.app.get_text("tts_voice_type"): sd.tts_speech_voices,
         }
+        create_combo_box(frame, 0, self.tts_settings, self.tts_settings_vars)
+        self.tts_settings_vars[self.app.get_text("tts_service_provider")].set(self.app.setting.tts_service_provider)
+        self.tts_settings_vars[self.app.get_text("tts_speech_region")].set(self.app.setting.tts_speech_region)
+        self.tts_settings_vars[self.app.get_text("tts_voice_type")].set(self.app.setting.tts_voice_type)
 
-        create_combo_box(frame, 0, self.audio_settings, self.audio_settings_vars)
-        self.audio_settings_vars[self.app.get_text("tts_server")].set(self.app.setting.tts_service_provider)
-        self.audio_settings_vars[self.app.get_text("audio_language")].set(self.app.get_text(self.app.current_language))
-        self.audio_settings_vars[self.app.get_text("audio_voice_type")].set(self.app.setting.narration_voice_name)
-        self.audio_settings_vars[self.app.get_text("audio_speed")].set(self.app.setting.narration_voice_speed)
+        # tts voice rate
+        self.rate_slider_label = ctk.CTkLabel(frame, text=self.app.get_text("tts_voice_rate"))
+        self.rate_slider_label.grid(row=1 + len(self.tts_settings), column=0, padx=20, pady=10, sticky="w")
+        # 创建滑动条
+        self.rate_slider = ctk.CTkSlider(frame, from_=-1, to=1, orientation="horizontal", command=self.update_progress)
+        self.rate_slider.grid(row=1 + len(self.tts_settings), column=1, padx=5, pady=10, sticky="ew")
+        self.rate_slider.set(0)  # 初始滑动条值设置为 0（中间）
+        # 创建显示进度的标签
+        self.voice_rate = ctk.CTkLabel(frame, text="0%")
+        self.voice_rate.grid(row=1 + len(self.tts_settings), column=2, padx=5, pady=10, sticky="w")
+
+        # 创建复位按钮
+        self.reset_button = ctk.CTkButton(frame, text="复位", command=self.reset_progress)
+        self.reset_button.grid(row=1 + len(self.tts_settings), column=3, padx=5, pady=10)
+        self.api_key_label = ctk.CTkLabel(frame, text=self.app.get_text("tts_api_key"))
+        self.api_key_label.grid(row=2 + len(self.tts_settings), column=0, padx=20, pady=10, sticky="w")
+        # self.api_key_var = ctk.StringVar(value=self.app.setting.tts_api_key)
+        self.api_key_var = ctk.StringVar(value=self.app.setting.tts_azure_api_key)
+        self.api_key = ctk.CTkEntry(frame, width=300, textvariable=self.api_key_var)
+        self.api_key.grid(row=2 + len(self.tts_settings), column=1, padx=5, pady=10, sticky="ew")
+
+    # def create_audio_settings(self):
+    #     frame = ctk.CTkFrame(self.scrollable_frame)
+    #     frame.grid(row=2, column=0, padx=0, pady=(0, 10), sticky="ew")
+    #
+    #     title = ctk.CTkLabel(
+    #         frame,
+    #         text=self.app.get_text("audio_settings"),
+    #         font=ctk.CTkFont(size=16, weight="bold")
+    #     )
+    #     title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+    #
+    #     self.audio_settings = {
+    #         self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
+    #         self.app.get_text("audio_voice_type"): sd.audio_voice_type,
+    #         self.app.get_text("audio_speed"): sd.audio_speeds
+    #     }
+    #
+    #     create_combo_box(frame, 0, self.audio_settings, self.audio_settings_vars)
+    #     self.audio_settings_vars[self.app.get_text("audio_language")].set(self.app.get_text(self.app.current_language))
+    #     self.audio_settings_vars[self.app.get_text("audio_voice_type")].set(self.app.setting.tts_voice_type)
+    #     self.audio_settings_vars[self.app.get_text("audio_speed")].set(self.app.setting.narration_voice_speed)
 
     def create_video_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
-        frame.grid(row=2, column=0, padx=0, pady=(0, 10), sticky="ew")
+        frame.grid(row=3, column=0, padx=0, pady=(0, 10), sticky="ew")
 
         title = ctk.CTkLabel(
             frame,
@@ -132,7 +173,7 @@ class ExportSection(ctk.CTkFrame):
 
     def create_subtitle_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
-        frame.grid(row=3, column=0, padx=0, pady=(0, 10), sticky="ew")
+        frame.grid(row=4, column=0, padx=0, pady=(0, 10), sticky="ew")
 
         title = ctk.CTkLabel(
             frame,
@@ -157,7 +198,7 @@ class ExportSection(ctk.CTkFrame):
 
     def create_save_button(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
-        frame.grid(row=4, column=0, padx=0, pady=(0, 10), sticky="ew")
+        frame.grid(row=5, column=0, padx=0, pady=(0, 10), sticky="ew")
         self.save_button = ctk.CTkButton(frame, text=self.app.get_text("save_settings"), command=self.save_settings)
         self.save_button.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
 
@@ -167,27 +208,45 @@ class ExportSection(ctk.CTkFrame):
             logger.info(f"Updated cache path: {self.app.setting.temp_dir}")
         else:
             logger.warning(self.app.get_text("path_invalid"))
-        self.update_audio_settings()
+        self.update_tts_settings()
+        # self.update_audio_settings()
         self.update_video_settings()
         self.update_subtitle_settings()
         messagebox.showinfo("Success", "Settings saved successfully!")
         logger.info(f"Settings saved successfully!")
 
-    def update_audio_settings(self):
-        # Gets the currently selected value for each ComboBox by variable
-        audio_engine = self.audio_settings_vars[self.app.get_text("tts_server")].get()
-        audio_language = self.audio_settings_vars[self.app.get_text("audio_language")].get()
-        audio_voice_type = self.audio_settings_vars[self.app.get_text("audio_voice_type")].get()
-        audio_speed = float(self.audio_settings_vars[self.app.get_text("audio_speed")].get().split("x")[0])
+    def update_tts_settings(self):
+        tts_service_provider = self.tts_settings_vars[self.app.get_text("tts_service_provider")].get()
+        tts_api_key = self.api_key_var.get()
+        tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
+        tts_speech_region = self.tts_settings_vars[self.app.get_text("tts_speech_region")].get()
+        tts_voice_rate = f'{int(self.rate_slider.get() * 100):+d}%'
+        self.app.setting.tts_service_provider = tts_service_provider
+        self.app.setting.tts_api_key = tts_api_key
+        self.app.setting.tts_voice_type = tts_voice_type
+        self.app.setting.tts_voice_name = tts_voice_type.split(' ')[0]
+        self.app.setting.tts_speech_region = tts_speech_region
+        self.app.setting.tts_voice_rate = tts_voice_rate
+        logger.info(f"Updated TTS settings - Service Provider: {tts_service_provider}, "
+                    f"API Key: {tts_api_key}, Speech Region: {tts_speech_region}, "
+                    f"Voice Type: {tts_voice_type}, Voice Rate: {tts_voice_rate}")
 
-        # update the app setting
-        self.app.setting.tts_service_provider = audio_engine
-        self.app.setting.audio_language = self.app.text_to_key(audio_language)
-        self.app.setting.audio_voice_type = audio_voice_type
-        self.app.setting.audio_speed = audio_speed
-
-        logger.info(
-            f"Updated audio settings - Engine: {audio_engine}, Language: {audio_language}, Voice Type: {audio_voice_type}, Speed: {audio_speed}")
+    # def update_audio_settings(self):
+    #     # Gets the currently selected value for each ComboBox by variable
+    #     audio_engine = self.audio_settings_vars[self.app.get_text("tts_service_provider")].get()
+    #     audio_language = self.audio_settings_vars[self.app.get_text("audio_language")].get()
+    #     audio_voice_type = self.audio_settings_vars[self.app.get_text("audio_voice_type")].get()
+    #     audio_speed = float(self.audio_settings_vars[self.app.get_text("audio_speed")].get().split("x")[0])
+    #
+    #     # update the app setting
+    #     self.app.setting.tts_service_provider = audio_engine
+    #     self.app.setting.audio_language = self.app.text_to_key(audio_language)
+    #     self.app.setting.audio_voice_type = audio_voice_type
+    #     self.app.setting.audio_speed = audio_speed
+    #
+    #     logger.info(
+    #         f"Updated audio settings - Engine: {audio_engine}, Language: {audio_language}, "
+    #         f"Voice Type: {audio_voice_type}, Speed: {audio_speed}")
 
     def update_video_settings(self):
         video_format = self.video_settings_vars[self.app.get_text("video_format")].get()
@@ -234,12 +293,25 @@ class ExportSection(ctk.CTkFrame):
         if path:
             self.export_path_var.set(path)
 
+    # 定义进度条更新函数
+    def update_progress(self, value):
+        value = float(value)
+        # 计算进度百分比
+        percentage = int(value * 100)
+        self.voice_rate.configure(text=f"{percentage:+d}%")  # 显示 + 或 -
+
+    # 定义复位函数
+    def reset_progress(self):
+        self.rate_slider.set(0)  # 将滑动条值重置为 0
+        self.voice_rate.configure(text="0%")  # 更新标签文本
+
     def update_language(self):
         self.title.configure(text=self.app.get_text("export_settings"))
         self.cache_label.configure(text=self.app.get_text("cache_path"))
         self.path_label.configure(text=self.app.get_text("export_path"))
         self.browse_btn.configure(text=self.app.get_text("browse"))
-        self.create_audio_settings()
+        self.create_tts_settings()
+        # self.create_audio_settings()
         self.create_video_settings()
         self.create_subtitle_settings()
 

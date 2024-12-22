@@ -4,6 +4,7 @@ import re
 from moviepy import AudioFileClip
 from moviepy.audio.AudioClip import concatenate_audioclips
 from utils import mylogger
+import asyncio
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -170,7 +171,10 @@ def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_pr
             # Unify the pronunciation of specific words for each platform
             speech_text = tts_replace(speech_text)
             # Generate the audio clip via the tts engine at the specified path
-            tts_result = tts(speech_text, segment_audio_file_path)
+            if setting.tts_service_provider == 'edge-tts':
+                tts_result = asyncio.run(tts(speech_text, segment_audio_file_path, setting))
+            else:
+                tts_result = tts(speech_text, segment_audio_file_path, setting)
 
             # If the audio clip generation fails, delete the audio file and raise an exception
             if not tts_result:
@@ -220,3 +224,4 @@ def format_time(seconds):
     minutes, seconds = divmod(int(seconds), 60)
     hours, minutes = divmod(minutes, 60)
     return f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
+

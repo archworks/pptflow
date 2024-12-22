@@ -10,6 +10,7 @@ logger = mylogger.get_logger(__name__)
 # How to export pptx to image (png, jpeg) in Python? https://stackoverflow.com/questions/61815883/how-to-export-pptx-to-image-png-jpeg-in-python
 
 def ppt_to_image(input_ppt_path, setting):
+    Application = None
     try:
         # Create a PowerPoint application object
         Application = win32com.client.Dispatch("PowerPoint.Application")
@@ -39,7 +40,9 @@ def ppt_to_image(input_ppt_path, setting):
         # Close the presentation
         Presentation.Close()
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}", exc_info=True)
+        logger.error("Please run the program in non-admin mode or check COM registration.")
     finally:
         # Quit the PowerPoint application
-        Application.Quit()
+        if Application:
+            Application.Quit()
