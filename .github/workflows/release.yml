@@ -27,13 +27,6 @@ jobs:
         pip install -r requirements_win.txt
         pip install pyinstaller
         
-    - name: Debug installed modules and files
-      run: |
-        echo "Checking installed packages..."
-        pip list
-        echo "Checking files in azure.cognitiveservices.speech..."
-        dir C:\hostedtoolcache\windows\Python\3.9.13\x64\Lib\site-packages\azure\cognitiveservices\speech
-        
     # 4. 手动复制 DLL 文件
     - name: Copy DLL file for PyInstaller
       run: |
@@ -56,29 +49,34 @@ jobs:
     - name: Install Inno Setup using Chocolatey
       run: choco install innosetup
 
-    # 8. 使用 Inno Setup 打包为安装包
+    # 8. 获取 GitHub Release 的 tag（例如 v1.0.0）
+    - name: Get tag version
+      id: get_tag_version
+      run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+    # 9. 使用 Inno Setup 打包为安装包
     - name: Build installer
       run: |
-        iscc /dMyAppVersion=${{ github.run_number }} installer.iss
-
-    # 9. 上传安装包到 GitHub Releases
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: "output/MyProjectInstaller-${{ github.run_number }}.exe"
-        asset_name: "MyProjectInstaller-${{ github.run_number }}.exe"
-        asset_content_type: application/octet-stream
+        iscc /dMyAppVersion=${{ env.VERSION }} installer.iss
 
     # 10. 创建 GitHub Release
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       with:
-        tag_name: v${{ github.run_number }}
-        release_name: Release ${{ github.run_number }}
+        tag_name: v${{ env.VERSION }}
+        release_name: Release ${{ env.VERSION }}
         body: |
           **Changelog:**
           - Auto-generated release
         draft: false
         prerelease: false
+
+    # 11. 上传安装包到 GitHub Releases
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: "output/pptflow-${{ env.VERSION }}.exe"
+        asset_name: "pptflow-${{ env.VERSION }}.exe"
+        asset_content_type: application/octet-stream

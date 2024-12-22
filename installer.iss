@@ -1,11 +1,11 @@
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "{#MyAppVersion}"
 ; 定义安装包的基本信息
 [Setup]
 AppName=PPTFlow
 AppVersion={#MyAppVersion}
 DefaultDirName={pf}\PPTFlow
 DefaultGroupName=PPTFlow
-OutputBaseFilename=pptflow-{#MyAppVersion}-alpha
+OutputBaseFilename=pptflow-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 DisableProgramGroupPage=yes
