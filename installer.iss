@@ -1,4 +1,3 @@
-#define MyAppVersion "{#MyAppVersion}"
 ; 定义安装包的基本信息
 [Setup]
 AppName=PPTFlow
