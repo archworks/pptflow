@@ -50,22 +50,22 @@ jobs:
       run: choco install innosetup
 
     # 8. 获取 GitHub Release 的 tag（例如 v1.0.0）
-    - name: Get tag version
-      id: get_tag_version
-      run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+#    - name: Get tag version
+#      id: get_tag_version
+#      run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
     # 9. 使用 Inno Setup 打包为安装包
     - name: Build installer
       run: |
-        iscc /dMyAppVersion=${{ env.VERSION }} installer.iss
+        iscc /dMyAppVersion=1.0.0 installer.iss
 
     # 10. 创建 GitHub Release
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       with:
-        tag_name: v${{ env.VERSION }}
-        release_name: Release ${{ env.VERSION }}
+        tag_name: v1.0.0
+        release_name: Release v1.0.0
         body: |
           **Changelog:**
           - Auto-generated release
@@ -77,6 +77,6 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: "output/pptflow-${{ env.VERSION }}.exe"
-        asset_name: "pptflow-${{ env.VERSION }}.exe"
+        asset_path: "output/pptflow-v1.0.0-alpha.exe"
+        asset_name: "pptflow-v1.0.0-alpha.exe"
         asset_content_type: application/octet-stream
