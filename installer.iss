@@ -14,9 +14,6 @@ DisableProgramGroupPage=yes
 ; 将 PyInstaller 打包的可执行文件复制到安装目录
 Source: "dist\pptflow.exe"; DestDir: "{app}"; Flags: ignoreversion
 
-; 复制其他需要的文件（如 .env 文件）
-Source: ".env"; DestDir: "{app}"; Flags: ignoreversion
-
 [Icons]
 ; 创建桌面快捷方式
 Name: "{commondesktop}\PPTFlow"; Filename: "{app}\pptflow.exe"; WorkingDir: "{app}"
