@@ -1,6 +1,7 @@
 # Author: Valley-e
 # Date: 2024/12/18  
 # Description:
+import shutil
 
 from dotenv import load_dotenv
 import os
@@ -110,9 +111,9 @@ class App(ctk.CTk):
             self.nav_buttons.append((button, item))
             index = i
 
-        self.create_language_mode(index+3)
-        self.create_theme_mode(index+5)
-        self.create_scale_mode(index+7)
+        self.create_language_mode(index + 3)
+        self.create_theme_mode(index + 5)
+        self.create_scale_mode(index + 7)
 
     def create_language_mode(self, index):
         # Language selection
@@ -123,7 +124,7 @@ class App(ctk.CTk):
         self.language_setting = ctk.CTkComboBox(self.navigation_frame,
                                                 values=self.language_list,
                                                 command=self.on_language_change)
-        self.language_setting.grid(row=index+1, column=0, padx=20, pady=(10, 10))
+        self.language_setting.grid(row=index + 1, column=0, padx=20, pady=(10, 10))
 
     def create_theme_mode(self, index):
         # Theme selection
@@ -134,7 +135,7 @@ class App(ctk.CTk):
                                                                     self.get_text("light"),
                                                                     self.get_text("system")],
                                      command=self.change_appearance_mode_event)
-        self.theme.grid(row=index+1, column=0, padx=20, pady=(10, 10))
+        self.theme.grid(row=index + 1, column=0, padx=20, pady=(10, 10))
         self.theme_map = {self.translations[key]: key for key in ['dark', 'light', 'system']}
 
     def create_scale_mode(self, index):
@@ -144,7 +145,7 @@ class App(ctk.CTk):
         self.scaling_optionemenu = ctk.CTkComboBox(self.navigation_frame, values=["80%", "90%", "100%", "110%", "120%"],
                                                    command=self.change_scaling_event)
         self.scaling_optionemenu.set("100%")
-        self.scaling_optionemenu.grid(row=index+1, column=0, padx=20, pady=(10, 20))
+        self.scaling_optionemenu.grid(row=index + 1, column=0, padx=20, pady=(10, 20))
 
     def select_frame(self, name):
         # Update button colors
@@ -231,6 +232,21 @@ class App(ctk.CTk):
 
         self._translations_cache[self.current_language] = translations
         return translations
+
+    def clear_temp_cache(self):
+        self.clear_audio_cache()
+        self.clear_image_cache()
+        logger.info("Clear temp cache")
+
+    def clear_audio_cache(self):
+        if os.path.exists(self.setting.audio_dir_path):
+            shutil.rmtree(self.setting.audio_dir_path)
+        logger.info("Clear audio cache")
+
+    def clear_image_cache(self):
+        if os.path.exists(self.setting.image_dir_path):
+            shutil.rmtree(self.setting.image_dir_path)
+        logger.info("Clear image cache")
 
 
 def resource_path(relative_path):

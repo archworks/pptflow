@@ -53,7 +53,7 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
                                                  stroke_color=setting.subtitle_stroke_color,
                                                  stroke_width=setting.subtitle_stroke_width,
                                                  method='caption',
-                                                 size=(int(video_clip.w * 0.9), None))
+                                                 size=(int(video_clip.w * 0.9), int(video_clip.h * setting.max_height_ratio)))
                 subtitles = SubtitlesClip(subtitles=subtitle_file_path, make_textclip=generator)
                 video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.85))])
 

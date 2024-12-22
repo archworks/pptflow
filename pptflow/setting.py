@@ -27,6 +27,9 @@ class Setting:
     video_fps: int = 10
     video_path: str = None  # the output video path
     # Subtitle settings
+    subtitle_width: int = None
+    subtitle_height: int = None
+    max_height_ratio: float = 0.1
     subtitle_font: str = 'Microsoft YaHei'
     subtitle_font_size: int = 24
     subtitle_color: str = 'white'

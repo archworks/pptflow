@@ -66,10 +66,15 @@ class ExportSection(ctk.CTkFrame):
         self.cache_path = ctk.CTkEntry(frame, width=300, textvariable=self.cache_path_var)
         self.cache_path.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
 
-        self.browse_button = ctk.CTkButton(frame,
+        self.browse_button = ctk.CTkButton(frame, width=100,
                                            text=self.app.get_text("browse"),
                                            command=self.browse_cache_path)
         self.browse_button.grid(row=0, column=2, padx=20, pady=10)
+
+        self.clear_cache_button = ctk.CTkButton(frame, width=100,
+                                                text=self.app.get_text("clear_cache"),
+                                                command=self.app.clear_temp_cache)
+        self.clear_cache_button.grid(row=0, column=3, padx=(0, 20), pady=10)
 
     def create_tts_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
@@ -103,7 +108,7 @@ class ExportSection(ctk.CTkFrame):
         self.voice_rate.grid(row=1 + len(self.tts_settings), column=2, padx=5, pady=10, sticky="w")
 
         # 创建复位按钮
-        self.reset_button = ctk.CTkButton(frame, text="复位", command=self.reset_progress)
+        self.reset_button = ctk.CTkButton(frame, width=100, text=self.app.get_text("reset"), command=self.reset_progress)
         self.reset_button.grid(row=1 + len(self.tts_settings), column=3, padx=5, pady=10)
         self.api_key_label = ctk.CTkLabel(frame, text=self.app.get_text("tts_api_key"))
         self.api_key_label.grid(row=2 + len(self.tts_settings), column=0, padx=20, pady=10, sticky="w")
@@ -153,7 +158,7 @@ class ExportSection(ctk.CTkFrame):
         self.export_path.grid(row=1, column=1, padx=5, pady=10, sticky="ew")
 
         self.browse_btn = ctk.CTkButton(
-            frame,
+            frame, width=100,
             text=self.app.get_text("browse"),
             command=self.browse_export_path
         )
@@ -221,6 +226,8 @@ class ExportSection(ctk.CTkFrame):
         tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
         tts_speech_region = self.tts_settings_vars[self.app.get_text("tts_speech_region")].get()
         tts_voice_rate = f'{int(self.rate_slider.get() * 100):+d}%'
+        if tts_voice_type != self.app.setting.tts_voice_type or tts_voice_rate != self.app.setting.tts_voice_rate:
+            self.app.clear_audio_cache()
         self.app.setting.tts_service_provider = tts_service_provider
         self.app.setting.tts_api_key = tts_api_key
         self.app.setting.tts_voice_type = tts_voice_type
@@ -274,7 +281,8 @@ class ExportSection(ctk.CTkFrame):
         self.app.setting.subtitle_color = self.app.text_to_key(subtitle_font_color)
         self.app.setting.subtitle_stroke_color = self.app.text_to_key(subtitle_border_color)
         self.app.setting.subtitle_stroke_width = int(subtitle_border_width)
-        logger.info(f"Updated subtitle settings - Font: {subtitle_font}, Font Size: {subtitle_font_size}, "
+        logger.info(f"Updated subtitle settings - Font: {subtitle_font}, "
+                    f"Font Path: {self.app.setting.subtitle_font}, Font Size: {subtitle_font_size}, "
                     f"Font Color: {subtitle_font_color}, Border Color: {subtitle_border_color}, "
                     f"Border Width: {subtitle_border_width}")
 
@@ -307,13 +315,17 @@ class ExportSection(ctk.CTkFrame):
 
     def update_language(self):
         self.title.configure(text=self.app.get_text("export_settings"))
-        self.cache_label.configure(text=self.app.get_text("cache_path"))
-        self.path_label.configure(text=self.app.get_text("export_path"))
-        self.browse_btn.configure(text=self.app.get_text("browse"))
+        # self.cache_label.configure(text=self.app.get_text("cache_path"))
+        # self.path_label.configure(text=self.app.get_text("export_path"))
+        # self.browse_btn.configure(text=self.app.get_text("browse"))
+        # self.browse_button.configure(text=self.app.get_text("browse"))
+        # self.reset_button.configure(text=self.app.get_text("reset"))
+        self.create_cache_path()
         self.create_tts_settings()
         # self.create_audio_settings()
         self.create_video_settings()
         self.create_subtitle_settings()
+        self.create_save_button()
 
     def refresh(self):
         if self.export_path_var.get() == "" and self.app.setting.video_path:
