@@ -61,7 +61,7 @@ jobs:
     # 9. 创建 GitHub Release
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v2
+      uses: actions/create-release@v1
       with:
         tag_name: v1.0.0
         release_name: Release v1.0.0
@@ -70,7 +70,6 @@ jobs:
           - Auto-generated release
         draft: false
         prerelease: false
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     # 10. 上传安装包到 GitHub Releases
     - name: Upload Release Asset
