@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: write  # 允许创建、上传 Release
-  id-token: write  # 如果需要处理身份验证
-  actions: read  # 需要读取 Action 信息来访问权限
 
 jobs:
   build-and-release:
@@ -65,8 +63,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v1.0.0
-        release_name: Release v1.0.0
+        tag_name: "v1.0.${{ github.run_number }}"
+        release_name: "Release v1.0.${{ github.run_number }}"
         body: |
           **Changelog:**
           - Auto-generated release
