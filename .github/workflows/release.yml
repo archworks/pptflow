@@ -71,6 +71,7 @@ jobs:
           - Auto-generated release
         draft: false
         prerelease: false
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     # 11. 上传安装包到 GitHub Releases
     - name: Upload Release Asset

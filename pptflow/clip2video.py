@@ -58,7 +58,9 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
                 video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.85))])
 
             clips.append(video_clip)
-
+        else:
+            logger.warning(f"Audio file {audio_file_path} not found")
+            raise ValueError(f"Please check whether the ppt has notes.")
     # Synthesize all video clips
     final_clip = concatenate_videoclips(clips)
     # Write the clips to a video file
