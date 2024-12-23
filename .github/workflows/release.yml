@@ -1,10 +1,12 @@
 name: Build and Release Installer
 
 on:
-  push:
-    branches:
-      - master  # 当代码推送到 master 分支时触发
-  workflow_dispatch:  # 允许手动触发工作流
+  workflow_dispatch:  # 仅手动触发
+    inputs:
+      tag_name:
+        description: 'Select a tag for the release'  # 输入描述
+        required: true
+        default: ''  # 默认为空，需手动选择或填写
 
 permissions:
   contents: write  # 允许创建、上传 Release
@@ -29,7 +31,7 @@ jobs:
       run: |
         pip install -r requirements_win.txt
         pip install pyinstaller
-        
+
     # 4. 手动复制 DLL 文件
     - name: Copy DLL file for PyInstaller
       run: |
@@ -51,33 +53,43 @@ jobs:
     - name: Install Inno Setup using Chocolatey
       run: choco install innosetup
 
-    # 8. 使用 Inno Setup 打包为安装包
+    # 8. 验证输入的 tag 是否有效
+    - name: Validate tag
+      id: validate_tag
+      run: |
+        if [ "${{ github.event.inputs.tag_name }}" == "" ]; then
+          echo "Error: tag_name input is empty."
+          exit 1
+        fi
+        echo "Tag: ${{ github.event.inputs.tag_name }}"
+
+    # 9. 使用 Inno Setup 打包为安装包
     - name: Build installer
       run: |
-        iscc /dMyAppVersion=1.0.0 installer.iss
+        iscc /dMyAppVersion=${{ github.event.inputs.tag_name }} installer.iss
 
-    # 9. 创建 GitHub Release
+    # 10. 创建 GitHub Release
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1.1.4
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: "v1.0.${{ github.run_number }}"
-        release_name: "Release v1.0.${{ github.run_number }}"
+        tag_name: ${{ github.event.inputs.tag_name }}
+        release_name: Release ${{ github.event.inputs.tag_name }}
         body: |
           **Changelog:**
           - Auto-generated release
         draft: false
         prerelease: false
 
-    # 10. 上传安装包到 GitHub Releases
+    # 11. 上传安装包到 GitHub Releases
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: "output/pptflow-v1.0.0-alpha.exe"
-        asset_name: "pptflow-v1.0.0-alpha.exe"
+        asset_path: "output/pptflow-${{ github.event.inputs.tag_name }}.exe"
+        asset_name: "pptflow-${{ github.event.inputs.tag_name }}.exe"
         asset_content_type: application/octet-stream
