@@ -32,16 +32,19 @@ jobs:
       run: |
         # 获取最新的 tag
         git fetch --tags
-        latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "v0.0.0")
+        $latest_tag=git describe --tags $(git rev-list --tags --max-count=1)
         echo "Latest tag: $latest_tag"
         # 如果是自动触发，生成新的 tag_name（加 .dev）
-        if ( "${{ github.event_name }}" -eq "push" ){
+        if ([string]::IsNullOrEmpty($latest_commit)){
+          # 没有 tag，使用默认值
+          $latest_tag = "v0.0.0"
+        } else {
           # 提取主版本号（去掉 beta 或其他后缀）
           base_tag=$(echo $latest_tag | sed -E 's/(-.*)?$//')
-          new_tag="$base_tag.dev"
-          echo "Generated new tag: $new_tag"
-          echo "tag_name=$new_tag" >> $GITHUB_ENV
         }
+        new_tag="$base_tag.dev"
+        echo "Generated new tag: $new_tag"
+        echo "tag_name=$new_tag" >> $GITHUB_ENV
 
     # 3. 设置手动触发时的 tag_name
     - name: Set manual tag_name
