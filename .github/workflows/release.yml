@@ -57,7 +57,7 @@ jobs:
     - name: Delete previous release
       if: ${{ github.event_name == 'push' }}
       env:
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
       run: |
         try {
           gh release delete ${{ env.tag_name }} --yes
