@@ -56,6 +56,8 @@ jobs:
     # 4. 删除上一次的 Release（仅在自动触发时）
     - name: Delete previous release
       if: ${{ github.event_name == 'push' }}
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         try {
           gh release delete ${{ env.tag_name }} --yes
