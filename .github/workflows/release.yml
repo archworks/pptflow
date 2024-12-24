@@ -60,7 +60,8 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
       run: |
         try {
-          gh release delete ${{ env.tag_name }} --yes
+          gh release list
+          gh release delete ${{ env.tag_name }} --yes --repo $env:GITHUB_REPOSITORY
         } catch {
           Write-Host "No previous release to delete"
         }
