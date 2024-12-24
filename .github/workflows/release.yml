@@ -60,10 +60,19 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
       run: |
         try {
-          gh release list
-          gh release delete ${{ env.tag_name }} --yes --repo $env:GITHUB_REPOSITORY
+            # 确保使用完整的 tag 删除 release
+            Write-Host "Attempting to delete release: $env:tag_name"
+        
+            # 增加详细调试信息，查看 gh release delete 的输出
+            gh release delete $env:tag_name --yes --repo $env:GITHUB_REPOSITORY -v
+            if ($?) {
+                Write-Host "Release deleted successfully."
+            } else {
+                Write-Host "Failed to delete release."
+            }
         } catch {
-          Write-Host "No previous release to delete"
+            # 捕获任何错误并输出详细信息
+            Write-Host "Error deleting release: $_"
         }
 
     # 5. 设置 Python 环境
