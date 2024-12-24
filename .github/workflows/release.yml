@@ -57,10 +57,10 @@ jobs:
     - name: Validate tag
       id: validate_tag
       run: |
-        if [ "${{ github.event.inputs.tag_name }}" == "" ]; then
+        if (${{ github.event.inputs.tag_name }} == "" ]){
           echo "Error: tag_name input is empty."
           exit 1
-        fi
+        }
         echo "Tag: ${{ github.event.inputs.tag_name }}"
 
     # 9. 使用 Inno Setup 打包为安装包
