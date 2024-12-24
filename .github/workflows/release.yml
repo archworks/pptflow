@@ -64,7 +64,7 @@ jobs:
             Write-Host "Attempting to delete release: $env:tag_name"
         
             # 增加详细调试信息，查看 gh release delete 的输出
-            gh release delete $env:tag_name --yes --repo $env:GITHUB_REPOSITORY -v
+            gh release delete $env:tag_name --yes --repo $env:GITHUB_REPOSITORY
             if ($?) {
                 Write-Host "Release deleted successfully."
             } else {
