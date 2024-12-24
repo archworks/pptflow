@@ -42,6 +42,7 @@ jobs:
           # 提取主版本号（去掉 beta 或其他后缀）
           $base_tag = $latest_tag -replace '(-.*)?$', ''
         }
+        Write-Host "base_tag: $base_tag"
         $new_tag="$base_tag.dev"
         Write-Host "Generated new tag: $new_tag"
         Add-Content -Path $env:GITHUB_ENV -Value "tag_name=$new_tag"
