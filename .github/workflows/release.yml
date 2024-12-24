@@ -35,7 +35,7 @@ jobs:
         $latest_tag=git describe --tags $(git rev-list --tags --max-count=1)
         echo "Latest tag: $latest_tag"
         # 如果是自动触发，生成新的 tag_name（加 .dev）
-        if ([string]::IsNullOrEmpty($latest_commit)){
+        if ([string]::IsNullOrEmpty($latest_tag)){
           # 没有 tag，使用默认值
           $latest_tag = "v0.0.0"
         } else {
