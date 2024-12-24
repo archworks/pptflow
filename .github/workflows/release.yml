@@ -59,8 +59,8 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
       run: |
-        try {
-            $tag_exists = gh release list --repo $env:GITHUB_REPOSITORY --json "tagName" | ConvertFrom-Json | Where-Object { $_.tagName -eq $env:tag_name }
+        # 获取 GitHub Release 列表，检查指定 tag 是否存在
+        $tag_exists = gh release list --repo $env:GITHUB_REPOSITORY --json "tagName" | ConvertFrom-Json | Where-Object { $_.tagName -eq $env:tag_name }
         
         if ($tag_exists) {
             Write-Host "Release $env:tag_name found. Deleting release..."
