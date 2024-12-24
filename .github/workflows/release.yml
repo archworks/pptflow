@@ -40,9 +40,9 @@ jobs:
           $latest_tag = "v0.0.0"
         } else {
           # 提取主版本号（去掉 beta 或其他后缀）
-          base_tag=$(echo $latest_tag | sed -E 's/(-.*)?$//')
+          $base_tag=$(echo $latest_tag | sed -E 's/(-.*)?$//')
         }
-        new_tag="$base_tag.dev"
+        $new_tag="$base_tag.dev"
         echo "Generated new tag: $new_tag"
         echo "tag_name=$new_tag" >> $GITHUB_ENV
 
@@ -56,7 +56,11 @@ jobs:
     - name: Delete previous release
       if: ${{ github.event_name == 'push' }}
       run: |
-        gh release delete ${{ env.tag_name }} --yes || echo "No previous release to delete"
+        try {
+          gh release delete ${{ env.tag_name }} --yes
+        } catch {
+          Write-Host "No previous release to delete"
+        }
 
     # 5. 设置 Python 环境
     - name: Set up Python
