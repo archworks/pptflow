@@ -4,7 +4,7 @@ on:
   workflow_dispatch:  # 仅手动触发
     inputs:
       tag_name:
-        description: 'Select a tag for the release'  # 输入描述
+        description: 'Enter the tag for the release (e.g., v1.0.0)'  # 输入描述
         required: true
         default: ''  # 默认为空，需手动选择或填写
 
@@ -57,11 +57,12 @@ jobs:
     - name: Validate tag
       id: validate_tag
       run: |
-        if ("${{ github.event.inputs.tag_name }}" == "" ){
-          echo "Error: tag_name input is empty."
+        $tagName = "${{ github.event.inputs.tag_name }}"
+        if ([string]::IsNullOrWhiteSpace($tagName)) {
+          Write-Error "Error: tag_name input is empty or only contains whitespace."
           exit 1
         }
-        echo "Tag: ${{ github.event.inputs.tag_name }}"
+        echo "Tag: $tagName"
 
     # 9. 使用 Inno Setup 打包为安装包
     - name: Build installer
