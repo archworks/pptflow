@@ -43,8 +43,8 @@ jobs:
           $base_tag=$(echo $latest_tag | sed -E 's/(-.*)?$//')
         }
         $new_tag="$base_tag.dev"
-        echo "Generated new tag: $new_tag"
-        echo "tag_name=$new_tag" >> $GITHUB_ENV
+        Write-Host "Generated new tag: $new_tag"
+        Add-Content -Path $env:GITHUB_ENV -Value "tag_name=$new_tag"
 
     # 3. 设置手动触发时的 tag_name
     - name: Set manual tag_name
