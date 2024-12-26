@@ -6,7 +6,7 @@ from utils import mylogger
 logger = mylogger.get_logger(__name__)
 
 
-def tts(text, output_audio_filename, setting):
+async def tts(text, output_audio_filename, setting):
     """
     Converts the provided text to speech and saves it as an audio file.
 

@@ -5,6 +5,7 @@ from moviepy import AudioFileClip
 from moviepy.audio.AudioClip import concatenate_audioclips
 from utils import mylogger
 import asyncio
+import time
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -73,7 +74,7 @@ def del_file_text_del_cache(audio_file_path):
         os.remove(note_text_path)
 
 
-def ppt_note_to_audio(tts, input_ppt_path, setting):
+async def ppt_note_to_audio(tts, input_ppt_path, setting):
     try:
         presentation = Presentation(input_ppt_path)
         file_name_without_ext = os.path.basename(input_ppt_path).split('.')[0]
@@ -95,59 +96,59 @@ def ppt_note_to_audio(tts, input_ppt_path, setting):
                 # Get the text from the notes section
                 note_text = notes_slide.notes_text_frame.text
                 # Generate audio and subtitles
-                generate_audio_and_subtitles(tts, note_text, len(presentation.slides), idx,
-                                             file_name_without_ext, setting)
+                start_time = time.time()
+                await generate_audio_and_subtitles(tts, note_text, len(presentation.slides), idx,
+                                                   file_name_without_ext, setting)
+                logger.info(f"ppt_note_to_audio runtime: {time.time() - start_time:.2f} seconds")
     except Exception as e:
         logger.error(f"An error occurred: {e}", exc_info=True)
         raise e
 
 
-def split_text(text, max_chars=50):
-    delimiters = r'([,.;!?，。；！？\n]|\s{2,})'
+def split_text(text, max_chars=100):
+    delimiters = r'([,.;!?，。；！？\n])'
+    # 分割文本并保留分隔符
     sentences = re.split(delimiters, text)
-    sentences = [s.strip() for s in sentences if s.strip()]
+    # 将分隔符与句子合并
+    merged_sentences = []
+    temp_sentence = ""
 
+    for part in sentences:
+        if re.match(delimiters, part):  # 如果是分隔符，拼接到前一部分
+            temp_sentence += part
+        elif temp_sentence:  # 如果当前有缓存的部分，则将完整句子加入列表
+            merged_sentences.append(temp_sentence)
+            temp_sentence = part
+        else:  # 如果是新句子，直接赋值
+            temp_sentence = part
+    if temp_sentence:  # 添加最后剩余的句子
+        merged_sentences.append(temp_sentence)
+
+    # 构建结果分段
     result = []
     current_segment = ""
-    # Iterate over each sentence to build segments that do not exceed the maximum character limit
-    for sentence in sentences:
-        # If adding the current sentence to the current segment does not exceed the maximum character limit
-        if len(current_segment) + len(sentence) <= max_chars:
-            # Append the current sentence to the current segment, adding a space if the segment is not empty
-            current_segment += " " + sentence if current_segment else sentence
+
+    for sentence in merged_sentences:
+        # 判断添加当前句子是否会超出限制
+        if len(current_segment) + len(sentence) + (1 if current_segment else 0) <= max_chars:
+            if current_segment:
+                current_segment += " "
+            current_segment += sentence
         else:
-            # If the current segment is full, append it to the result list and start a new segment
             if current_segment:
                 result.append(current_segment)
             current_segment = sentence
 
-    # If there is any remaining segment that has not been added to the result list, append it
     if current_segment:
         result.append(current_segment)
 
     return result
 
 
-def generate_audio(tts, output_audio_dir_path, text, length, index, filename_prefix, audio_local_cache_enabled):
-    # logger.debug(note_text)
-    # 预处理
-    speech_text = tts_pause(index, length, text)
-    speech_text = tts_replace(speech_text)
-
-    audio_file_path = os.path.join(output_audio_dir_path, f"{filename_prefix}-P{index + 1}.mp3")
-    if audio_local_cache_enabled and not audio_file_do_replace_check(audio_file_path, speech_text):
-        logger.info(f'{audio_file_path} already exists and the text content does not change, then the step will be skipped.')
-        return
-    tts_re = tts(speech_text, audio_file_path)
-    if tts_re:
-        add_audio_file_text_cache(audio_file_path, speech_text)
-    else:
-        del_file_text_del_cache(audio_file_path)
-
-
-def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_prefix, setting):
-    global subtitle_file, audio_clips
-    text_segments = split_text(text)
+async def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_prefix, setting):
+    subtitle_file, audio_clips = None, []
+    text_segments = split_text(text, max_chars=setting.subtitle_text_length)
+    logger.info(f'text_segments: {text_segments}')
 
     audio_file_path = os.path.join(setting.audio_dir_path, f"{filename_prefix}-P{page_index + 1}.mp3")
     subtitle_file_path = os.path.join(setting.audio_dir_path, f'{filename_prefix}-P{page_index + 1}.srt')
@@ -158,60 +159,54 @@ def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_pr
         return
 
     try:
-        audio_clips = []
         subtitle_file = open(subtitle_file_path, 'w')
         current_time = 0
+        tasks = []  # List to hold tasks for concurrent execution
+
         for idx, segment_text in enumerate(text_segments):
             # file path to save the audio clip based on the current segment
             segment_audio_file_path = os.path.join(setting.audio_dir_path,
                                                    f'{filename_prefix}-P{page_index + 1}-S{idx + 1}.mp3')
+
             # Preprocess the text
-            # Add pauses at the end of each slide, and at the beginning of the first one and the end of the last one
             speech_text = tts_pause2(page_index, page_length, segment_text, idx, len(text_segments))
-            # Unify the pronunciation of specific words for each platform
             speech_text = tts_replace(speech_text)
-            # Generate the audio clip via the tts engine at the specified path
-            if setting.tts_service_provider == 'edge-tts':
-                tts_result = asyncio.run(tts(speech_text, segment_audio_file_path, setting))
-            else:
-                tts_result = tts(speech_text, segment_audio_file_path, setting)
 
-            # If the audio clip generation fails, delete the audio file and raise an exception
-            if not tts_result:
-                del_file_text_del_cache(audio_file_path)
-                logger.error('tts failed')
-                raise RuntimeError('tts failed')
-            # Read the generated audio clip
-            segment_audio = AudioFileClip(segment_audio_file_path)
+            # Add the task to the list
+            tasks.append(
+                generate_audio_clip(tts, speech_text, segment_audio_file_path, setting)
+            )
 
-            # Calculate the duration of the current audio clip
+        # Run the tasks concurrently
+        results = await asyncio.gather(*tasks)
+
+        # Process the results
+        for idx, result in enumerate(results):
+            if not result:
+                logger.error(f"Error generating audio for segment {idx + 1}")
+                continue
+            segment_audio = AudioFileClip(result)
             start_time = current_time
             end_time = start_time + segment_audio.duration
-
-            # Write the subtitle to the subtitle file
             subtitle_file.write(f"{idx + 1}\n")
             subtitle_file.write(f"{format_time(start_time)} --> {format_time(end_time)}\n")
-            subtitle_file.write(f"{segment_text}\n\n")
-
-            # Update the current time
+            subtitle_file.write(f"{text_segments[idx]}\n\n")
             current_time = end_time
-
-            # Add the current audio clip to the list of audio clips
             audio_clips.append(segment_audio)
 
         # Save the final audio clip to the specified path
         final_audio = concatenate_audioclips(audio_clips)
         final_audio.write_audiofile(audio_file_path, logger=None)
-        # Cache the audio file via saving the text content
         add_audio_file_text_cache(audio_file_path, ''.join(text_segments))
+
     except Exception as e:
         logger.error(f"Error occurred: {e}", exc_info=True)
     finally:
-        # Close the subtitle file
-        subtitle_file.close()
-        # Close and remove the temporary audio clips
+        if subtitle_file:
+            subtitle_file.close()
         for clip in audio_clips:
             clip.close()
+        # Clean up temporary files
         for i in range(len(text_segments)):
             segment_audio_file_path = os.path.join(setting.audio_dir_path,
                                                    f'{filename_prefix}-P{page_index + 1}-S{i + 1}.mp3')
@@ -219,9 +214,17 @@ def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_pr
                 os.remove(segment_audio_file_path)
 
 
+async def generate_audio_clip(tts, text, output_file, setting):
+    try:
+        await tts(text, output_file, setting)
+        return output_file  # Return the path of the generated file
+    except Exception as e:
+        logger.error(f"Error occurred: {e}", exc_info=True)
+        return None
+
+
 def format_time(seconds):
     milliseconds = int((seconds - int(seconds)) * 1000)
     minutes, seconds = divmod(int(seconds), 60)
     hours, minutes = divmod(minutes, 60)
     return f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
-

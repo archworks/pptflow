@@ -4,6 +4,7 @@ import threading
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from pptflow import ppt2video
+from utils.progress_tracker import ProgressTracker
 from utils import mylogger
 from pptx import Presentation
 from utils import setting_dic as sd
@@ -39,7 +40,6 @@ class FileSection(ctk.CTkFrame):
         # File selection
         self.file_display = ""
         self.create_file_selection()
-        # self.create_file_info()
         self.create_page_range()
         self.create_generate_button()
         self.create_play_button()
@@ -62,14 +62,6 @@ class FileSection(ctk.CTkFrame):
             command=self.browse_file
         )
         self.browse_btn.grid(row=0, column=2, padx=(0, 20), pady=10)
-
-    # def create_file_info(self):
-    #     frame = ctk.CTkFrame(self.scrollable_frame)
-    #     frame.grid(row=1, column=0, padx=0, pady=5, sticky="ew")
-    #
-    #     self.file_info = ctk.CTkLabel(frame, text=self.app.get_text("no_file"),
-    #                                   font=ctk.CTkFont(size=14))
-    #     self.file_info.grid(row=0, column=0, padx=20, pady=5)
 
     def create_page_range(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
@@ -159,9 +151,6 @@ class FileSection(ctk.CTkFrame):
             self.file_path.configure(state=ctk.NORMAL)
             self.file_path.delete(0, "end")
             self.file_path.insert(0, self.file_display)
-            # self.file_info.configure(
-            #     text=f"{self.app.get_text('selected_file')}: {os.path.basename(self.file_display)}"
-            # )
             self.file_path.configure(state=ctk.DISABLED)
 
     def generate_video(self):
