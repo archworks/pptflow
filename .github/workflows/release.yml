@@ -40,7 +40,7 @@ jobs:
           $latest_tag = "v0.0.0"
         } else {
           # 提取主版本号（去掉 beta 或其他后缀）
-          $base_tag = $latest_tag -replace '(-.*)?$', ''
+          $base_tag = $latest_tag -replace '^v?(\d+\.\d+\.\d+).*', '$1'
         }
         Write-Host "base_tag: $base_tag"
         $new_tag="$base_tag.dev"
