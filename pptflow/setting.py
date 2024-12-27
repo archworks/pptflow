@@ -15,8 +15,6 @@ class Setting:
     tts_api_key: str = None
     tts_azure_api_key = "917b9e6040b4466caa22c6f62227af35"
     tts_speech_region = "eastasia"
-    # tts_voice_locale: str = 'zh-CN'
-    # tts_voice_gender: str = 'Male'
     tts_voice_name: str = 'zh-CN-YunjianNeural'
     tts_voice_type: str = 'zh-CN-YunjianNeural (zh-CN, Male)'
     tts_voice_rate: str = '+0%'
@@ -35,6 +33,7 @@ class Setting:
     subtitle_color: str = 'white'
     subtitle_stroke_color: str = 'black'  # subtitle outline color
     subtitle_stroke_width: int = 1  # subtitle outline width
+    subtitle_text_length: int = 100
 
     # 2.Advanced Settings
     # Audio settings
@@ -61,6 +60,5 @@ class Setting:
     temp_dir = os.path.join(os.getcwd(), 'temp')
     image_dir_path = os.path.join(temp_dir, 'image')
     audio_dir_path = os.path.join(temp_dir, 'audio')
-
 
 

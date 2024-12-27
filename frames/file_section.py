@@ -4,6 +4,7 @@ import threading
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from pptflow import ppt2video
+from utils.progress_tracker import ProgressTracker
 from utils import mylogger
 from pptx import Presentation
 from utils import setting_dic as sd
@@ -39,7 +40,6 @@ class FileSection(ctk.CTkFrame):
         # File selection
         self.file_display = ""
         self.create_file_selection()
-        # self.create_file_info()
         self.create_page_range()
         self.create_generate_button()
         self.create_play_button()
@@ -62,14 +62,6 @@ class FileSection(ctk.CTkFrame):
             command=self.browse_file
         )
         self.browse_btn.grid(row=0, column=2, padx=(0, 20), pady=10)
-
-    # def create_file_info(self):
-    #     frame = ctk.CTkFrame(self.scrollable_frame)
-    #     frame.grid(row=1, column=0, padx=0, pady=5, sticky="ew")
-    #
-    #     self.file_info = ctk.CTkLabel(frame, text=self.app.get_text("no_file"),
-    #                                   font=ctk.CTkFont(size=14))
-    #     self.file_info.grid(row=0, column=0, padx=20, pady=5)
 
     def create_page_range(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
@@ -109,19 +101,35 @@ class FileSection(ctk.CTkFrame):
     def create_generate_button(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
         frame.grid(row=3, column=0, padx=0, pady=(0, 10), sticky="ew")
+        # frame.grid_columnconfigure(0, weight=1)
+
+        # Progress bar and status
+        self.progress_frame = ctk.CTkFrame(frame)
+        self.progress_frame.grid(row=0, column=0, padx=20, pady=(10, 0), sticky="ew")
+        self.progress_frame.grid_columnconfigure(0, weight=1)
+
+        self.progress_bar = ctk.CTkProgressBar(self.progress_frame)
+        self.progress_bar.grid(row=0, column=0, padx=20, pady=(0, 5), sticky="ew")
+        self.progress_bar.set(0)
+
+        self.status_label = ctk.CTkLabel(self.progress_frame, text="")
+        self.status_label.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="ew")
+
+        # Hide progress frame initially
+        self.progress_frame.grid_remove()
 
         self.generate_button = ctk.CTkButton(
             frame,
             text=self.app.get_text("generate_video"),
             command=self.start_video_generation
         )
-        self.generate_button.grid(row=0, column=0, padx=20, pady=20, sticky="ew")
+        self.generate_button.grid(row=1, column=0, padx=20, pady=20, sticky="ew")
 
         self.elapsed_time: float = 0
         self.elapsed_time_label = ctk.CTkLabel(frame, text=f'{self.app.get_text("elapsed_time")}'
                                                            f'{self.elapsed_time:.2f}'
                                                            f'{self.app.get_text("seconds")}')
-        self.elapsed_time_label.grid(row=0, column=1, padx=20, pady=20, sticky="ew")
+        self.elapsed_time_label.grid(row=1, column=1, padx=20, pady=20, sticky="ew")
         self.elapsed_time_label.grid_remove()  # Hidden during initialization
 
     def create_play_button(self):
@@ -159,13 +167,21 @@ class FileSection(ctk.CTkFrame):
             self.file_path.configure(state=ctk.NORMAL)
             self.file_path.delete(0, "end")
             self.file_path.insert(0, self.file_display)
-            # self.file_info.configure(
-            #     text=f"{self.app.get_text('selected_file')}: {os.path.basename(self.file_display)}"
-            # )
             self.file_path.configure(state=ctk.DISABLED)
+
+    def update_progress(self, progress: float, status: str):
+        """Update progress bar and status label"""
+        self.progress_bar.set(progress)
+        self.status_label.configure(text=status)
 
     def generate_video(self):
         try:
+            # Show progress frame
+            self.progress_frame.grid()
+
+            # Initialize progress tracker
+            self.progress_tracker = ProgressTracker(self.update_progress)
+
             # Get start and end page numbers from the entry fields
             self.app.setting.start_page_num = int(self.start_page.get())
             self.app.setting.end_page_num = int(self.end_page.get())
@@ -174,7 +190,8 @@ class FileSection(ctk.CTkFrame):
             if self.app.setting.end_page_num < self.app.setting.start_page_num:
                 messagebox.showerror("Error", "End page number must be greater than or equal to start page number.")
                 return
-            elapsed_time = ppt2video.ppt_to_video(self.file_display, self.app.setting)
+            elapsed_time = ppt2video.ppt_to_video(self.file_display, self.app.setting, self.progress_tracker)
+            self.generate_button.configure(state=ctk.NORMAL)
             self.elapsed_time = elapsed_time
             messagebox.showinfo(self.loading_title,
                                 f'{self.app.get_text("video_generated")}{self.app.setting.video_path}')
@@ -189,8 +206,16 @@ class FileSection(ctk.CTkFrame):
             messagebox.showerror("Error", f"Failed to generate video: {str(e)}")
             logger.error(e, exc_info=True)
             return
+        finally:
+            self.generate_button.configure(state=ctk.NORMAL)
+            # Hide progress frame
+            self.progress_frame.grid_remove()
+            self.progress_bar.set(0)
+            self.status_label.configure(text="")
 
     def start_video_generation(self):
+        # forbid to press generate button when generating video
+        self.generate_button.configure(state=ctk.DISABLED)
         if not os.path.exists(self.app.setting.subtitle_font):
             self.app.setting.subtitle_font = sd.subtitle_font_dict[self.app.setting.subtitle_font]
         if not self.file_display:
@@ -201,7 +226,7 @@ class FileSection(ctk.CTkFrame):
             self.elapsed_time_label.grid_remove()
         # Run the video generation in a separate thread
         threading.Thread(target=self.generate_video).start()
-        messagebox.showinfo(self.loading_title, self.app.get_text("start_generate_video"))
+        # messagebox.showinfo(self.loading_title, self.app.get_text("start_generate_video"))
 
     def play_video(self):
         logger.info(f'video_path:{self.app.setting.video_path}')
