@@ -9,7 +9,7 @@ logger = mylogger.get_logger(__name__)
 # 依赖安装：Microsoft PowerPoint
 # How to export pptx to image (png, jpeg) in Python? https://stackoverflow.com/questions/61815883/how-to-export-pptx-to-image-png-jpeg-in-python
 
-def ppt_to_image(input_ppt_path, setting):
+def ppt_to_image(input_ppt_path, setting, progress_tracker=None):
     Application = None
     try:
         # Create a PowerPoint application object
@@ -23,6 +23,7 @@ def ppt_to_image(input_ppt_path, setting):
         if not os.path.exists(setting.image_dir_path):
             os.makedirs(setting.image_dir_path)
 
+        total_slides = len(Presentation.Slides)
         # Export each slide as an image
         for idx, slide in enumerate(Presentation.Slides):
             # Checks whether the current slide falls within the specified start and end page ranges
@@ -36,6 +37,11 @@ def ppt_to_image(input_ppt_path, setting):
             )
             # Export the slide as an image
             slide.Export(image_file_path, "PNG", 1280, 720)
+
+            # Update progress
+            if progress_tracker:
+                progress = (idx + 1) / total_slides
+                progress_tracker.update_step(progress)
 
         # Close the presentation
         Presentation.Close()

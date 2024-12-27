@@ -74,7 +74,7 @@ def del_file_text_del_cache(audio_file_path):
         os.remove(note_text_path)
 
 
-async def ppt_note_to_audio(tts, input_ppt_path, setting):
+async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None):
     try:
         presentation = Presentation(input_ppt_path)
         file_name_without_ext = os.path.basename(input_ppt_path).split('.')[0]
@@ -83,6 +83,8 @@ async def ppt_note_to_audio(tts, input_ppt_path, setting):
         if not os.path.exists(setting.audio_dir_path):
             os.makedirs(setting.audio_dir_path)
 
+        total_slides = len(presentation.slides)
+        processed_slides = 0
         # Go through each slide
         for idx, slide in enumerate(presentation.slides):
             # Checks whether the current slide falls within the specified start and end page ranges
@@ -99,6 +101,12 @@ async def ppt_note_to_audio(tts, input_ppt_path, setting):
                 start_time = time.time()
                 await generate_audio_and_subtitles(tts, note_text, len(presentation.slides), idx,
                                                    file_name_without_ext, setting)
+
+                processed_slides += 1
+                if progress_tracker:
+                    progress = processed_slides / total_slides
+                    progress_tracker.update_step(progress)
+
                 logger.info(f"ppt_note_to_audio runtime: {time.time() - start_time:.2f} seconds")
     except Exception as e:
         logger.error(f"An error occurred: {e}", exc_info=True)

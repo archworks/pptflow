@@ -1,3 +1,5 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy import CompositeVideoClip, concatenate_videoclips
 from moviepy.video.VideoClip import ImageClip, TextClip
@@ -10,7 +12,7 @@ logger = mylogger.get_logger(__name__)
 
 
 # Create a video from images and audio
-def create_video_from_images_and_audio(ppt_file_path, setting):
+def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=None):
     if not os.path.exists(setting.image_dir_path):
         logger.error(f"{setting.image_dir_path} not exist")
         raise ValueError(f"{setting.image_dir_path} not exist")
@@ -31,6 +33,7 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
         raise ValueError("image files don't exist")
 
     clips = []
+    total_files = len(image_files)
     for idx, image_file in enumerate(image_files):
         if setting.start_page_num and idx + 1 < setting.start_page_num:
             continue
@@ -58,6 +61,10 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
                 video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.85))])
 
             clips.append(video_clip)
+            # Update progress (70% for clip creation, 30% for final rendering)
+            if progress_tracker:
+                progress = 0.3 * (idx + 1) / total_files
+                progress_tracker.update_step(progress)
         else:
             logger.warning(f"Audio file {audio_file_path} not found")
             raise ValueError(f"Please check whether the ppt has notes.")
@@ -65,8 +72,59 @@ def create_video_from_images_and_audio(ppt_file_path, setting):
     final_clip = concatenate_videoclips(clips)
     # Write the clips to a video file
     logger.info(f"Writing video to {setting.video_path}")
-    final_clip.write_videofile(setting.video_path, codec=setting.video_codec,
-                               audio_codec=setting.audio_codec, fps=setting.video_fps,
-                               threads=setting.video_processing_threads, logger=None)
+
+    # final_clip.write_videofile(setting.video_path, codec=setting.video_codec,
+    #                            audio_codec=setting.audio_codec, fps=setting.video_fps,
+    #                            threads=setting.video_processing_threads, logger=None)
+    asyncio.run(write_video_async(final_clip, setting, progress_tracker))
+    if progress_tracker:
+        # Map progress from 0-1 to 70-100%
+        progress_tracker.complete_step()
     # Release resources
     final_clip.close()
+
+
+# 目标函数包装：接受位置参数和关键字参数
+def write_video_with_kwargs(final_clip, setting):
+    """
+    包装 final_clip.write_videofile，支持通过关键字参数调用
+    """
+    kwargs = {
+        "filename": setting.video_path,
+        "codec": setting.video_codec,
+        "audio_codec": setting.audio_codec,
+        "fps": float(setting.video_fps),  # 确保 fps 是 float 类型
+        "threads": setting.video_processing_threads,
+        "logger": None,
+    }
+    # 调用原始方法，传递剩余的关键字参数
+    final_clip.write_videofile(**kwargs)
+
+
+# 进度更新函数
+async def update_progress_tracker(progress_tracker, start, end, step=0.01):
+    current = start
+    while current < end:
+        progress_tracker.update_step(current)
+        current += step
+        await asyncio.sleep(0.1)
+
+
+# 异步写视频函数
+async def write_video_async(final_clip, setting, progress_tracker):
+    loop = asyncio.get_event_loop()
+
+    with ThreadPoolExecutor() as executor:
+        # 使用线程池异步写视频
+        write_video_future = loop.run_in_executor(
+            executor,
+            write_video_with_kwargs,  # 调用包装函数
+            final_clip,  # 传递 final_clip 作为第一个参数
+            setting,  # 传递 setting 作为第二个参数
+        )
+
+        # 同时更新进度条从 0.7 到 0.99
+        await asyncio.gather(
+            update_progress_tracker(progress_tracker, 0.7, 0.99),
+            write_video_future
+        )
