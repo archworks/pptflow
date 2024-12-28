@@ -60,13 +60,13 @@ jobs:
     - name: Copy DLL or other dependencies for PyInstaller
       run: |
         ls /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/azure/cognitiveservices/speech/
-        dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'Microsoft.CognitiveServices.Speech.core.dll'))")
+        dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'libMicrosoft.CognitiveServices.Speech.core.dylib'))")
         mkdir -p azure/cognitiveservices/speech
         cp "$dll_path" "azure/cognitiveservices/speech/"
     # 7. 打包 Python 项目为 macOS 可执行文件
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile --add-data "azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll;azure/cognitiveservices/speech" --add-data "locales;locales" --noconsole --hidden-import azure.cognitiveservices.speech main.py --name pptflow
+        pyinstaller --onefile --add-data "azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib;azure/cognitiveservices/speech" --add-data "locales;locales" --noconsole --hidden-import azure.cognitiveservices.speech main.py --name pptflow
 
     # 8. 创建 DMG 安装包
     - name: Create DMG
