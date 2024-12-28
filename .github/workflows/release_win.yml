@@ -114,7 +114,13 @@ jobs:
         iscc /dMyAppVersion=${{ env.tag_name }} installer.iss
 
     # 12. 创建 GitHub Release
+    - name: Check if release already exists
+      id: check_release
+      run: |
+        gh release view ${{ env.tag_name }} --repo ${{ github.repository }} >/dev/null 2>&1 && echo "exists=true" >> $GITHUB_ENV || echo "exists=false" >> $GITHUB_ENV
+
     - name: Create Release
+      if: ${{ env.exists == 'false' }}
       id: create_release
       uses: actions/create-release@v1.1.4
       env:
