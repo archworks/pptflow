@@ -119,13 +119,13 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 配置 GitHub Token
       run: |
-        $release_info = gh release view $env:GITHUB_REPOSITORY@$env:tag_name --json uploadUrl -q ".uploadUrl" 2>$null
+        gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>$null
         if ($release_info) {
           Write-Host "Release already exists, upload_url: $release_info"
-          echo "upload_url=$release_info" >> $env:GITHUB_ENV
+          echo "upload_url=$release_info" >> $GITHUB_ENV
         } else {
           Write-Host "Release not found"
-          echo "upload_url=null" >> $env:GITHUB_ENV
+          echo "upload_url=null" >> $GITHUB_ENV
         }
 
     - name: Create Release
@@ -146,10 +146,10 @@ jobs:
     - name: Get final upload_url
       id: get_upload_url
       run: |
-        if ($env:upload_url -eq "null") {
+        if (${{ env.upload_url }} -eq "null") {
           echo "upload_url=$($steps.create_release.outputs.upload_url)" >> $GITHUB_ENV
         } else {
-          echo "upload_url=$env:upload_url" >> $GITHUB_ENV
+          echo "upload_url=${{ env.upload_url }} >> $GITHUB_ENV
         }
 
     # 13. 上传安装包到 GitHub Releases
