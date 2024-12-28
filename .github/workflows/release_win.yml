@@ -117,8 +117,15 @@ jobs:
     - name: Check if release already exists
       id: check_release
       run: |
-        gh release view ${{ env.tag_name }} --repo ${{ github.repository }} >/dev/null 2>&1 && echo "exists=true" >> $GITHUB_ENV || echo "exists=false" >> $GITHUB_ENV
-
+        try {
+          # 尝试获取该 tag 的 Release 信息
+          $release = gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json tagName
+          Write-Host "Release ${{ env.tag_name }} found."
+          echo "exists=true" >> $GITHUB_ENV
+        } catch {
+          Write-Host "Release ${{ env.tag_name }} not found."
+          echo "exists=false" >> $GITHUB_ENV
+        }
     - name: Create Release
       if: ${{ env.exists == 'false' }}
       id: create_release
