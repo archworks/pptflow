@@ -89,8 +89,9 @@ jobs:
     # 7. 手动复制 DLL 文件
     - name: Copy DLL file for PyInstaller
       run: |
+        dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'Microsoft.CognitiveServices.Speech.core.dll'))")
         mkdir -p azure/cognitiveservices/speech
-        copy "C:\hostedtoolcache\windows\Python\3.9.13\x64\Lib\site-packages\azure\cognitiveservices\speech\Microsoft.CognitiveServices.Speech.core.dll" "azure/cognitiveservices/speech/"
+        copy "$dll_path" "azure/cognitiveservices/speech/"
 
     # 8. 打包 Python 项目为可执行文件
     - name: Build executable with PyInstaller

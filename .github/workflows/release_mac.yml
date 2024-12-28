@@ -59,12 +59,10 @@ jobs:
     # 6. 手动复制 macOS 依赖文件
     - name: Copy DLL or other dependencies for PyInstaller
       run: |
-        # 假设需要的 DLL 或其他资源文件路径为 `azure/cognitiveservices/speech/`
+        ls /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/azure/cognitiveservices/speech/
+        dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'Microsoft.CognitiveServices.Speech.core.dll'))")
         mkdir -p azure/cognitiveservices/speech
-        # 根据实际情况进行调整，如复制其他依赖文件到 `azure/cognitiveservices/speech/`
-        # 示例：将文件复制到目标文件夹
-        cp /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dylib azure/cognitiveservices/speech/
-
+        cp "$dll_path" "azure/cognitiveservices/speech/"
     # 7. 打包 Python 项目为 macOS 可执行文件
     - name: Build executable with PyInstaller
       run: |
