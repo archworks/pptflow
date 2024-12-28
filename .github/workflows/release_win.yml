@@ -116,6 +116,8 @@ jobs:
     # 12. 创建 GitHub Release
     - name: Check if release already exists
       id: check_release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 配置 GitHub Token
       run: |
         try {
           # 尝试获取该 tag 的 Release 信息
@@ -126,6 +128,7 @@ jobs:
           Write-Host "Release ${{ env.tag_name }} not found."
           echo "exists=false" >> $GITHUB_ENV
         }
+
     - name: Create Release
       if: ${{ env.exists == 'false' }}
       id: create_release
