@@ -119,7 +119,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 配置 GitHub Token
       run: |
-        gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>$null
+        $release_info = gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>$null
         if ($release_info) {
           Write-Host "Release already exists, upload_url: $release_info"
           echo "upload_url=$release_info" >> $GITHUB_ENV
