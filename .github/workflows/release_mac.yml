@@ -66,15 +66,12 @@ jobs:
     # 7. 打包 Python 项目为 macOS 可执行文件
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data locales:locales --noconsole --hidden-import azure.cognitiveservices.speech main.py --name pptflow
+        pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data locales:locales --hidden-import azure.cognitiveservices.speech --name pptflow main.py
 
-    # 8. 创建 DMG 安装包
-    - name: Create DMG
+    # 8. 创建 pkg 安装包
+    - name: Create Pkg
       run: |
-        brew install create-dmg
-        mkdir -p dist/output
-        create-dmg --volname "PPTFlow" --dmg-title "pptflow-${{ env.tag_name }}" dist/pptflow dist/output/pptflow-${{ env.tag_name }}.dmg
-
+        pkgbuild --root dist --identifier com.archworks.pptflow --install-location /Applications dist/pptflow-${{ env.tag_name }}.pkg
     # 9. 创建 GitHub Release
     - name: Create Release
       id: create_release
@@ -97,6 +94,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: "dist/output/pptflow-${{ env.tag_name }}.dmg"
-        asset_name: "pptflow-${{ env.tag_name }}.dmg"
+        asset_path: "dist/output/pptflow-${{ env.tag_name }}.pkg"
+        asset_name: "pptflow-${{ env.tag_name }}.pkg"
         asset_content_type: application/octet-stream
