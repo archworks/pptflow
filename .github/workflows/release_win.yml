@@ -123,14 +123,15 @@ jobs:
           # 尝试获取该 tag 的 Release 信息
           $release = gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json tagName
           Write-Host "Release ${{ env.tag_name }} found."
-          echo "exists=true" >> $GITHUB_ENV
+          Write-Host "Release already exists, upload_url: $release_info"
+          echo "upload_url=$release_info" >> $GITHUB_ENV
         } catch {
-          Write-Host "Release ${{ env.tag_name }} not found."
-          echo "exists=false" >> $GITHUB_ENV
+          Write-Host "Release not found."
+          echo "upload_url=null" >> $GITHUB_ENV
         }
 
     - name: Create Release
-      if: ${{ env.exists == 'false' }}
+      if: ${{ env.upload_url == 'null' }}
       id: create_release
       uses: actions/create-release@v1.1.4
       env:
@@ -143,6 +144,15 @@ jobs:
           - Auto-generated Windows release
         draft: false
         prerelease: ${{ github.event_name != 'workflow_dispatch' }}
+
+    - name: Get final upload_url
+        id: get_upload_url
+        run: |
+          if ($env:upload_url -eq "null") {
+            echo "upload_url=$($steps.create_release.outputs.upload_url)" >> $GITHUB_ENV
+          } else {
+            echo "upload_url=$env:upload_url" >> $GITHUB_ENV
+          }
 
     # 13. 上传安装包到 GitHub Releases
     - name: Upload Release Asset
