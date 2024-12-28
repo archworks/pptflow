@@ -119,15 +119,13 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 配置 GitHub Token
       run: |
-        try {
-          # 尝试获取该 tag 的 Release 信息
-          $release = gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json tagName
-          Write-Host "Release ${{ env.tag_name }} found."
+        $release_info = gh release view $env:GITHUB_REPOSITORY@$env:tag_name --json uploadUrl -q ".uploadUrl" 2>$null
+        if ($release_info) {
           Write-Host "Release already exists, upload_url: $release_info"
-          echo "upload_url=$release_info" >> $GITHUB_ENV
-        } catch {
-          Write-Host "Release not found."
-          echo "upload_url=null" >> $GITHUB_ENV
+          echo "upload_url=$release_info" >> $env:GITHUB_ENV
+        } else {
+          Write-Host "Release not found"
+          echo "upload_url=null" >> $env:GITHUB_ENV
         }
 
     - name: Create Release
