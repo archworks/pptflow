@@ -56,30 +56,21 @@ jobs:
         python3 -m pip install -r requirements_unix.txt
         python3 -m pip install pyinstaller
 
-    - name: Debug installation of azure-cognitiveservices-speech
-      run: |
-        # 查看 azure-cognitiveservices-speech 包的安装路径
-        echo "Checking installation path for azure-cognitiveservices-speech..."
-        pip show azure-cognitiveservices-speech
-
-        # 如果安装的路径在 site-packages 中，可以打印出路径以便后续引用
-        python -c "import azure.cognitiveservices.speech; print(azure.cognitiveservices.speech.__file__)"
-
-      # 7. 手动复制 macOS 依赖文件
+    # 6. 手动复制 macOS 依赖文件
     - name: Copy DLL or other dependencies for PyInstaller
       run: |
         # 假设需要的 DLL 或其他资源文件路径为 `azure/cognitiveservices/speech/`
         mkdir -p azure/cognitiveservices/speech
         # 根据实际情况进行调整，如复制其他依赖文件到 `azure/cognitiveservices/speech/`
         # 示例：将文件复制到目标文件夹
-        cp /path/to/your/Microsoft.CognitiveServices.Speech.core.dylib azure/cognitiveservices/speech/
+        cp /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dylib azure/cognitiveservices/speech/
 
-    # 8. 打包 Python 项目为 macOS 可执行文件
+    # 7. 打包 Python 项目为 macOS 可执行文件
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile --windowed --add-data "azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech" --add-data "locales:locales" --hidden-import azure.cognitiveservices.speech main.py --name pptflow
+        pyinstaller --onefile --add-data "azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll;azure/cognitiveservices/speech" --add-data "locales;locales" --noconsole --hidden-import azure.cognitiveservices.speech main.py --name pptflow
 
-    # 7. 创建 DMG 安装包
+    # 8. 创建 DMG 安装包
     - name: Create DMG
       run: |
         brew install create-dmg
@@ -90,7 +81,7 @@ jobs:
           dist/pptflow \  # 源文件目录
           dist/output     # 输出目录
 
-    # 8. 创建 GitHub Release
+    # 9. 创建 GitHub Release
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1.1.4
@@ -105,7 +96,7 @@ jobs:
         draft: false
         prerelease: ${{ github.event_name != 'workflow_dispatch' }}
 
-    # 9. 上传安装包到 GitHub Releases
+    # 10. 上传安装包到 GitHub Releases
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
