@@ -73,11 +73,7 @@ jobs:
       run: |
         brew install create-dmg
         mkdir -p dist/output
-        create-dmg \
-          --volname "PPTFlow" \  # 设置卷标名称
-          --dmg-title "pptflow-${{ env.tag_name }}" \  # 自定义生成的 DMG 文件名
-          dist/pptflow \  # 源文件目录
-          dist/output     # 输出目录
+        create-dmg --volname "PPTFlow" --dmg-title "pptflow-${{ env.tag_name }}" dist/pptflow dist/output/pptflow-${{ env.tag_name }}.dmg
 
     # 9. 创建 GitHub Release
     - name: Create Release
