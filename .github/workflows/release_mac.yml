@@ -53,13 +53,31 @@ jobs:
     # 5. 安装 Python 依赖
     - name: Install dependencies
       run: |
-        python3 -m pip install -r requirements.txt
+        python3 -m pip install -r requirements_unix.txt
         python3 -m pip install pyinstaller
 
-    # 6. 打包 Python 项目为 macOS 可执行文件
+    - name: Debug installation of azure-cognitiveservices-speech
+      run: |
+        # 查看 azure-cognitiveservices-speech 包的安装路径
+        echo "Checking installation path for azure-cognitiveservices-speech..."
+        pip show azure-cognitiveservices-speech
+
+        # 如果安装的路径在 site-packages 中，可以打印出路径以便后续引用
+        python -c "import azure.cognitiveservices.speech; print(azure.cognitiveservices.speech.__file__)"
+
+      # 7. 手动复制 macOS 依赖文件
+    - name: Copy DLL or other dependencies for PyInstaller
+      run: |
+        # 假设需要的 DLL 或其他资源文件路径为 `azure/cognitiveservices/speech/`
+        mkdir -p azure/cognitiveservices/speech
+        # 根据实际情况进行调整，如复制其他依赖文件到 `azure/cognitiveservices/speech/`
+        # 示例：将文件复制到目标文件夹
+        cp /path/to/your/Microsoft.CognitiveServices.Speech.core.dylib azure/cognitiveservices/speech/
+
+    # 8. 打包 Python 项目为 macOS 可执行文件
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile --windowed main.py --name pptflow
+        pyinstaller --onefile --windowed --add-data "azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech" --add-data "locales:locales" --hidden-import azure.cognitiveservices.speech main.py --name pptflow
 
     # 7. 创建 DMG 安装包
     - name: Create DMG
