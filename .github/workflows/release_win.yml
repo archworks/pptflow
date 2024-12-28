@@ -122,7 +122,7 @@ jobs:
         $release_info = gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>$null
         if ($release_info) {
           Write-Host "Release already exists, upload_url: $release_info"
-          Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$release_info"
+          Add-Content -Path $env:GITHUB_ENV -Value "upload_url='$release_info'"
         } else {
           Write-Host "Release not found"
           Add-Content -Path $env:GITHUB_ENV -Value "upload_url=null"
@@ -147,9 +147,9 @@ jobs:
       id: get_upload_url
       run: |
         if (${{ env.upload_url }} -eq "null") {
-          Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$($steps.create_release.outputs.upload_url)"
+          Add-Content -Path $env:GITHUB_ENV -Value "upload_url='$($steps.create_release.outputs.upload_url)'"
         } else {
-          Add-Content -Path $env:GITHUB_ENV -Value "upload_url=${{ env.upload_url }}"
+          Add-Content -Path $env:GITHUB_ENV -Value "upload_url='${{ env.upload_url }}'"
         }
 
     # 13. 上传安装包到 GitHub Releases
