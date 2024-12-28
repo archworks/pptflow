@@ -73,7 +73,23 @@ jobs:
       run: |
         pkgbuild --root dist --identifier com.archworks.pptflow --install-location /Applications dist/pptflow-${{ env.tag_name }}.pkg
     # 9. 创建 GitHub Release
+    - name: Check if release already exists
+      id: check_release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 配置 GitHub Token
+      run: |
+        release_info=$(gh release view "${GITHUB_REPOSITORY}@${tag_name}" --json uploadUrl -q ".uploadUrl" 2>/dev/null)
+    
+        if [ -n "$release_info" ]; then
+          echo "Release already exists, upload_url: $release_info"
+          echo "upload_url=$release_info" >> $GITHUB_ENV
+        else
+          echo "Release not found"
+          echo "upload_url=null" >> $GITHUB_ENV
+        fi
+
     - name: Create Release
+      if: ${{ env.upload_url == 'null' }}
       id: create_release
       uses: actions/create-release@v1.1.4
       env:
@@ -86,6 +102,17 @@ jobs:
           - Auto-generated macOS release
         draft: false
         prerelease: ${{ github.event_name != 'workflow_dispatch' }}
+
+    - name: Get final upload_url
+        id: get_upload_url
+        run: |
+          if [ "$upload_url" = "null" ]; then
+            echo "upload_url=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+          else
+            echo "upload_url=$upload_url" >> $GITHUB_ENV
+          fi
+        env:
+          upload_url: ${{ env.upload_url }}
 
     # 10. 上传安装包到 GitHub Releases
     - name: Upload Release Asset
