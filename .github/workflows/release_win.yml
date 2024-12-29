@@ -127,6 +127,9 @@ jobs:
           } else {
             Write-Host "Release not found"
             Add-Content -Path $env:GITHUB_ENV -Value "upload_url='null'"
+            # 输出调试信息
+            Write-Host "Final upload_url value:"
+            Get-Content $env:GITHUB_ENV
           }
         } catch {
           Write-Host "Error occurred while attempting to check release: $_"

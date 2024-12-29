@@ -74,7 +74,6 @@ jobs:
         pkgbuild --root dist --identifier com.archworks.pptflow --install-location /Applications dist/pptflow-${{ env.tag_name }}.pkg
     # 9. 创建 GitHub Release
     - name: Create Release
-      if: ${{ env.upload_url == 'null' }}
       id: create_release
       uses: actions/create-release@v1.1.4
       env:
