@@ -119,12 +119,17 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 配置 GitHub Token
       run: |
-        $release_info = gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>$null
-        if ($release_info) {
-          Write-Host "Release already exists, upload_url: $release_info"
-          Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$release_info"
-        } else {
-          Write-Host "Release not found"
+        try {
+          $release_info = gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>$null
+          if ($release_info) {
+            Write-Host "Release already exists, upload_url: $release_info"
+            Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$release_info"
+          } else {
+            Write-Host "Release not found"
+            Add-Content -Path $env:GITHUB_ENV -Value "upload_url='null'"
+          }
+        } catch {
+          Write-Host "Error occurred while attempting to check release: $_"
           Add-Content -Path $env:GITHUB_ENV -Value "upload_url='null'"
         }
 
