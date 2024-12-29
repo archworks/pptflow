@@ -154,7 +154,7 @@ jobs:
     - name: Get final upload_url
       id: get_upload_url
       run: |
-        if ([string]::IsNullOrEmpty(${{ env.upload_url }})) {
+        if ([string]::IsNullOrEmpty('${{ env.upload_url }}')) {
           Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$($steps.create_release.outputs.upload_url)"
         } 
 
