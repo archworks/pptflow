@@ -156,12 +156,7 @@ jobs:
       run: |
         if (${{ env.upload_url }} -eq "null") {
           Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$($steps.create_release.outputs.upload_url)"
-        } else {
-          $uploadUrl = ${{ env.upload_url }}
-          Add-Content -Path $env:GITHUB_ENV -Value ("upload_url=$uploadUrl")
-        }
-      env:
-          upload_url: ${{ env.upload_url }}
+        } 
 
     # 13. 上传安装包到 GitHub Releases
     - name: Upload Release Asset
