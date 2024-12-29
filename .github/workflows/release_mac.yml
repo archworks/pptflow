@@ -104,15 +104,15 @@ jobs:
         prerelease: ${{ github.event_name != 'workflow_dispatch' }}
 
     - name: Get final upload_url
-        id: get_upload_url
-        run: |
-          if [ "$upload_url" = "null" ]; then
-            echo "upload_url=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
-          else
-            echo "upload_url=$upload_url" >> $GITHUB_ENV
-          fi
-        env:
-          upload_url: ${{ env.upload_url }}
+      id: get_upload_url
+      run: |
+        if [ "$upload_url" = "null" ]; then
+          echo "upload_url=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+        else
+          echo "upload_url=$upload_url" >> $GITHUB_ENV
+        fi
+      env:
+        upload_url: ${{ env.upload_url }}
 
     # 10. 上传安装包到 GitHub Releases
     - name: Upload Release Asset

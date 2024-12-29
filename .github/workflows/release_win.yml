@@ -125,7 +125,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$release_info"
         } else {
           Write-Host "Release not found"
-          Add-Content -Path $env:GITHUB_ENV -Value "upload_url=null"
+          Add-Content -Path $env:GITHUB_ENV -Value "upload_url='null'"
         }
 
     - name: Create Release
