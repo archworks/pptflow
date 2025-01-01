@@ -8,4 +8,3 @@ customtkinter
 matplotlib
 edge-tts
 pyttsx3
-TTS
