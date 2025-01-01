@@ -11,8 +11,8 @@ on:
 
   # 自动触发：当代码合并到 master 分支时
   push:
-    branches:
-      - master
+    tags:
+      - 'v*.*.*'
 
 permissions:
   contents: write
@@ -30,14 +30,9 @@ jobs:
     - name: Get latest tag
       id: get_tag
       run: |
-        git fetch --tags
-        latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1) || echo "v0.0.0")
-        echo "Latest tag: $latest_tag"
-        base_tag=$(echo "$latest_tag" | sed -E 's/(^v?[0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-        echo "Base tag: $base_tag"
-        new_tag="$base_tag.dev"
-        echo "Generated new tag: $new_tag"
-        echo "tag_name=$new_tag" >> $GITHUB_ENV
+        echo "Tag name: $GITHUB_REF"
+        echo "tag_name=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+        echo "Tag without refs/tags/ prefix: ${{ env.tag_name }}"
 
     # 3. 设置手动触发时的 tag_name
     - name: Set manual tag_name

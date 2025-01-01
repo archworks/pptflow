@@ -11,7 +11,7 @@ class Setting:
     ppt_path: str = None
     ppt_total_slides: int = None
     # Audio settings
-    tts_service_provider: str = 'AZURE'
+    tts_service_provider: str = 'pyttsx3'
     tts_api_key: str = None
     tts_azure_api_key = "917b9e6040b4466caa22c6f62227af35"
     tts_speech_region = "eastasia"
@@ -29,6 +29,7 @@ class Setting:
     subtitle_height: int = None
     max_height_ratio: float = 0.1
     subtitle_font: str = 'Microsoft YaHei'
+    subtitle_font_path: str = 'C:/Windows/Fonts/msyhbd.ttc'
     subtitle_font_size: int = 24
     subtitle_color: str = 'white'
     subtitle_stroke_color: str = 'black'  # subtitle outline color
@@ -41,6 +42,7 @@ class Setting:
     audio_codec: str = 'aac'
     audio_local_cache_enabled: bool = True
     audio_path: str = None
+    audio_language = 'en'
     # Video settings
     video_codec: str = 'libx264'
     video_processing_threads: int = 4

@@ -67,7 +67,7 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
                 progress_tracker.update_step(progress)
         else:
             logger.warning(f"Audio file {audio_file_path} not found")
-            raise ValueError(f"Please check whether the ppt has notes.")
+            # raise ValueError(f"Please check whether the ppt has notes.")
     # Synthesize all video clips
     final_clip = concatenate_videoclips(clips)
     # Write the clips to a video file

@@ -7,3 +7,5 @@ Pillow==9.5.0
 customtkinter
 matplotlib
 edge-tts
+pyttsx3
+TTS

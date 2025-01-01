@@ -46,7 +46,7 @@ def get_installed_fonts():
 
 
 # tts setting
-tts_service_providers = ["AZURE", "xunfei", "edge-tts"]
+tts_service_providers = ["azure", "xunfei", "edge-tts", "coqui-tts", "pyttsx3"]
 tts_speech_regions = ["eastasia", "northeurope", "southeastasia", "westus"]
 tts_speech_voices = get_voice_list()
 # Video settings
@@ -61,7 +61,7 @@ audio_codecs = ['AAC', 'MP3', 'WAV']
 audio_bitrates = ['128kbps', '256kbps', '320kbps']
 audio_voice_type = ["zh-CN-YunjianNeural", "zh-CN-XiaoxiaoNeural"]
 audio_speeds = ["1.0x", "0.8x", "1.2x", "1.5x"]
-audio_languages = ['zh', 'en', 'jp']
+audio_languages = ['zh', 'en']
 # Subtitle settings
 subtitle_font_dict = get_installed_fonts()
 font_colors = ['white', 'black', 'red', 'blue', 'yellow', 'green']

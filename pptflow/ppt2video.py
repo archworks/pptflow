@@ -39,6 +39,13 @@ def load_tts(setting: Setting):
         logger.info(f"tts service provider: {tts_service_provider}")
     elif tts_service_provider.lower() == "xunfei":
         from .tts_xunfei import tts
+        logger.info(f"tts service provider: {tts_service_provider}")
+    elif tts_service_provider.lower() == "pyttsx3":
+        from .tts_pyttsx3 import tts
+        logger.info(f"tts service provider: {tts_service_provider}")
+    elif tts_service_provider.lower() == "coqui-tts":
+        from .tts_Coqui_tts import tts
+        logger.info(f"tts service provider: {tts_service_provider}")
     else:
         logger.error(f"不支持的tts: {tts_service_provider}")
         raise NotImplementedError(f"不支持的tts: {tts_service_provider}")
