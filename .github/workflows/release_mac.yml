@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build-and-release:
-    runs-on: macos-10.15.7  # 指定 macOS 版本为 10.15.7
+    runs-on: macos-latest
 
     steps:
     # 1. 检出代码
