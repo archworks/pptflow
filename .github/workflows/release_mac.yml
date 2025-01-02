@@ -9,35 +9,30 @@ on:
         required: true
         default: ''
 
-  # 自动触发：当代码合并到 master 分支时
+  # 自动触发：当推送的标签符合 v1.0.0 格式时
   push:
-    branches:
-      - master
+    tags:
+      - 'v*.*.*'  # 当提交的标签符合 v1.0.0 格式时触发
 
 permissions:
   contents: write
 
 jobs:
   build-and-release:
-    runs-on: macos-latest
+    runs-on: macos-10.15.7  # 指定 macOS 版本为 10.15.7
 
     steps:
     # 1. 检出代码
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 2. 获取最新的 tag
+    # 2. 获取提交的 tag（只在自动触发时）
     - name: Get latest tag
       id: get_tag
       run: |
-        git fetch --tags
-        latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1) || echo "v0.0.0")
-        echo "Latest tag: $latest_tag"
-        base_tag=$(echo "$latest_tag" | sed -E 's/(^v?[0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-        echo "Base tag: $base_tag"
-        new_tag="$base_tag.dev"
-        echo "Generated new tag: $new_tag"
-        echo "tag_name=$new_tag" >> $GITHUB_ENV
+        echo "Tag name: $GITHUB_REF"
+        echo "tag_name=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+        echo "Tag without refs/tags/ prefix: ${{ env.tag_name }}"
 
     # 3. 设置手动触发时的 tag_name
     - name: Set manual tag_name
@@ -59,7 +54,6 @@ jobs:
     # 6. 手动复制 macOS 依赖文件
     - name: Copy DLL or other dependencies for PyInstaller
       run: |
-        ls /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/azure/cognitiveservices/speech/
         dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'libMicrosoft.CognitiveServices.Speech.core.dylib'))")
         mkdir -p azure/cognitiveservices/speech
         cp "$dll_path" "azure/cognitiveservices/speech/"
@@ -68,10 +62,11 @@ jobs:
       run: |
         pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data locales:locales --hidden-import azure.cognitiveservices.speech --name pptflow main.py
 
-    # 8. 创建 pkg 安装包
-    - name: Create Pkg
+    # 8. 创建 DMG 安装包
+    - name: Create DMG
       run: |
-        pkgbuild --root dist --identifier com.archworks.pptflow --install-location /Applications dist/pptflow-${{ env.tag_name }}.pkg
+        hdiutil create -volname "PPTFlow" -srcfolder dist/ -ov -format UDZO dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg
+
     # 9. 创建 GitHub Release
     - name: Create Release
       id: create_release
@@ -85,7 +80,7 @@ jobs:
           **Changelog:**
           - Auto-generated macOS release
         draft: false
-        prerelease: ${{ github.event_name != 'workflow_dispatch' }}
+        prerelease: false
 
     # 10. 上传安装包到 GitHub Releases
     - name: Upload Release Asset
@@ -94,6 +89,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: "dist/pptflow-${{ env.tag_name }}.pkg"
-        asset_name: "pptflow-${{ env.tag_name }}.pkg"
+        asset_path: "dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
+        asset_name: "pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
         asset_content_type: application/octet-stream

@@ -9,10 +9,10 @@ on:
         required: true  # 强制手动输入
         default: ''
 
-  # 自动触发：当代码合并到 master 分支时
+  # 自动触发：当推送的标签符合 v1.0.0 格式时
   push:
-    branches:
-      - master
+    tags:
+      - 'v*.*.*'  # 当提交的标签符合 v1.0.0 格式时触发
 
 permissions:
   contents: write  # 允许创建和上传 Release
@@ -26,26 +26,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 2. 获取最新的 tag
+    # 2. 获取提交的 tag（只在自动触发时）
     - name: Get latest tag
       id: get_tag
       run: |
-        # 获取最新的 tag
-        git fetch --tags
-        $latest_tag=git describe --tags $(git rev-list --tags --max-count=1)
-        echo "Latest tag: $latest_tag"
-        # 如果是自动触发，生成新的 tag_name（加 .dev）
-        if ([string]::IsNullOrEmpty($latest_tag)){
-          # 没有 tag，使用默认值
-          $latest_tag = "v0.0.0"
-        } else {
-          # 提取主版本号（去掉 beta 或其他后缀）
-          $base_tag = $latest_tag -replace '(^v?\d+\.\d+\.\d+).*', '$1'
-        }
-        Write-Host "base_tag: $base_tag"
-        $new_tag="$base_tag.dev"
-        Write-Host "Generated new tag: $new_tag"
-        Add-Content -Path $env:GITHUB_ENV -Value "tag_name=$new_tag"
+        # 使用 PowerShell 方式获取 tag_name
+        $tag_name = $env:GITHUB_REF -replace '^refs/tags/', ''
+        echo "tag_name=$tag_name" >> $env:GITHUB_ENV
+        echo "Tag without refs/tags/ prefix: ${{ env.tag_name }}"
 
     # 3. 设置手动触发时的 tag_name
     - name: Set manual tag_name
@@ -111,7 +99,7 @@ jobs:
     # 11. 使用 Inno Setup 打包为安装包
     - name: Build installer
       run: |
-        iscc /dMyAppVersion=${{ env.tag_name }} installer.iss
+        iscc /dMyAppVersion=${{ env.tag_name }}-win-x86-installer installer.iss
 
     # 12. 创建 GitHub Release
     - name: Check if release already exists
@@ -127,9 +115,6 @@ jobs:
           } else {
             Write-Host "Release not found"
             Add-Content -Path $env:GITHUB_ENV -Value "upload_url='null'"
-            # 输出调试信息
-            Write-Host "Final upload_url value:"
-            Get-Content $env:GITHUB_ENV
           }
         } catch {
           Write-Host "Error occurred while attempting to check release: $_"
@@ -149,7 +134,7 @@ jobs:
           **Changelog:**
           - Auto-generated Windows release
         draft: false
-        prerelease: ${{ github.event_name != 'workflow_dispatch' }}
+        prerelease: false
 
     - name: Get final upload_url
       id: get_upload_url
@@ -165,6 +150,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ env.upload_url }}
-        asset_path: "output/pptflow-${{ env.tag_name }}.exe"
-        asset_name: "pptflow-${{ env.tag_name }}.exe"
+        asset_path: "output/pptflow-${{ env.tag_name }}-win-x86-installer.exe"
+        asset_name: "pptflow-${{ env.tag_name }}-win-x86-installer.exe"
         asset_content_type: application/octet-stream
