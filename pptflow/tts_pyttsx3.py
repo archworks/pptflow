@@ -9,14 +9,15 @@ from utils import mylogger
 logger = mylogger.get_logger(__name__)
 
 
-async def tts(text, file_path, setting):
+async def tts(text, file_path, setting=None):
     try:
         # 初始化 pyttsx3 引擎
         engine = pyttsx3.init()
 
         # 设置语速（可选）
         rate = engine.getProperty('rate')  # 获取当前语速
-        engine.setProperty('rate', (rate - 50))  # 设置为比默认更慢
+        logger.info(f"Current Rate: {rate}")
+        engine.setProperty('rate', setting.pytts_voice_rate)
 
         # 设置音量（可选）
         volume = engine.getProperty('volume')  # 获取当前音量
@@ -45,3 +46,9 @@ async def tts(text, file_path, setting):
     except Exception as e:
         logger.error(f"Error occurred during TTS: {e}", exc_info=True)
 
+if __name__ == '__main__':
+    class Setting:
+        audio_language = 'zh'
+        pytts_voice_rate = 150
+    setting = Setting()
+    asyncio.run(tts("This is a test text", "test.mp3", setting))

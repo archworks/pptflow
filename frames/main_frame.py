@@ -248,6 +248,33 @@ class App(ctk.CTk):
             shutil.rmtree(self.setting.image_dir_path)
         logger.info("Clear image cache")
 
+    def load_tts(self, tts_service_provider):
+        # import tts module according to service provider
+        if not tts_service_provider:
+            logger.error("tts服务未配置")
+            raise NotImplementedError(f"tts服务未配置")
+        if tts_service_provider.lower() == "azure":
+            from pptflow.tts_azure import tts, get_voice_list
+            sd.tts_speech_voices = get_voice_list(self.setting)
+            logger.info(f"tts service provider: {tts_service_provider}")
+        elif tts_service_provider.lower() == "edge-tts":
+            from pptflow.tts_edge_tts import tts, get_voice_list
+            sd.tts_speech_voices = get_voice_list()
+            logger.info(f"tts service provider: {tts_service_provider}")
+        # elif tts_service_provider.lower() == "xunfei":
+        #     from .tts_xunfei import tts
+        #     logger.info(f"tts service provider: {tts_service_provider}")
+        elif tts_service_provider.lower() == "pyttsx3":
+            from pptflow.tts_pyttsx3 import tts
+            logger.info(f"tts service provider: {tts_service_provider}")
+        elif tts_service_provider.lower() == "coqui-tts":
+            from pptflow.tts_Coqui_tts import tts
+            logger.info(f"tts service provider: {tts_service_provider}")
+        else:
+            logger.error(f"不支持的tts: {tts_service_provider}")
+            raise NotImplementedError(f"不支持的tts: {tts_service_provider}")
+        return tts
+
 
 def resource_path(relative_path):
     """获取资源文件的绝对路径"""

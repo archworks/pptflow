@@ -74,7 +74,7 @@ def del_file_text_del_cache(audio_file_path):
         os.remove(note_text_path)
 
 
-async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None):
+async def ppt_note_to_audio(input_ppt_path, setting, progress_tracker=None):
     try:
         presentation = Presentation(input_ppt_path)
         file_name_without_ext = os.path.basename(input_ppt_path).split('.')[0]
@@ -99,7 +99,7 @@ async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None)
                 note_text = notes_slide.notes_text_frame.text
                 # Generate audio and subtitles
                 start_time = time.time()
-                await generate_audio_and_subtitles(tts, note_text, len(presentation.slides), idx,
+                await generate_audio_and_subtitles(note_text, len(presentation.slides), idx,
                                                    file_name_without_ext, setting)
 
                 processed_slides += 1
@@ -153,7 +153,7 @@ def split_text(text, max_chars=100):
     return result
 
 
-async def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_prefix, setting):
+async def generate_audio_and_subtitles(text, page_length, page_index, filename_prefix, setting):
     subtitle_file, audio_clips = None, []
     text_segments = split_text(text, max_chars=setting.subtitle_text_length)
     logger.info(f'text_segments: {text_segments}')
@@ -182,7 +182,7 @@ async def generate_audio_and_subtitles(tts, text, page_length, page_index, filen
 
             # Add the task to the list
             tasks.append(
-                generate_audio_clip(tts, speech_text, segment_audio_file_path, setting)
+                generate_audio_clip(speech_text, segment_audio_file_path, setting)
             )
 
         # Run the tasks concurrently
@@ -222,9 +222,9 @@ async def generate_audio_and_subtitles(tts, text, page_length, page_index, filen
                 os.remove(segment_audio_file_path)
 
 
-async def generate_audio_clip(tts, text, output_file, setting):
+async def generate_audio_clip(text, output_file, setting):
     try:
-        await tts(text, output_file, setting)
+        await setting.tts(text, output_file, setting)
         return output_file  # Return the path of the generated file
     except Exception as e:
         logger.error(f"Error occurred: {e}", exc_info=True)

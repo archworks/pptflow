@@ -17,25 +17,6 @@ if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
-async def list_voices():
-    # List all voices
-    voices = await edge_tts.list_voices()
-    # Get the key information
-    voice_list = [{"Locale": voice["Locale"], "Gender": voice["Gender"], "ShortName": voice["ShortName"]} for voice in voices]
-    with open("voice_list.json", "w", encoding="utf-8") as file:
-        json.dump(voice_list, file, ensure_ascii=False, indent=4)
-        logger.info("Voice list has been saved to voice_list.json")
-
-
-def get_voice_list():
-    if not os.path.exists("voice_list.json"):
-        asyncio.run(list_voices())
-    with open("voice_list.json", "r", encoding="utf-8") as file:
-        voice_list = json.load(file)
-        logger.info("Voice list has been loaded from voice_list.json")
-    return [f'{voice["ShortName"]} ({voice["Locale"]}, {voice["Gender"]})' for voice in voice_list]
-
-
 # Get all installed fonts
 def get_installed_fonts():
     fonts = fm.findSystemFonts(fontpaths=None, fontext='ttf')
@@ -46,9 +27,10 @@ def get_installed_fonts():
 
 
 # tts setting
-tts_service_providers = ["azure", "xunfei", "edge-tts", "coqui-tts", "pyttsx3"]
+# tts_service_providers = ["azure", "edge-tts", "coqui-tts", "pyttsx3"]
+tts_service_providers = ["azure", "pyttsx3"]
 tts_speech_regions = ["eastasia", "northeurope", "southeastasia", "westus"]
-tts_speech_voices = get_voice_list()
+tts_speech_voices = []
 # Video settings
 video_formats = ['MP4', 'AVI', 'MKV']
 video_codecs = ['H.264', 'H.265', 'VP9']

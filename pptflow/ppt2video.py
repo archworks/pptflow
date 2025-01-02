@@ -24,36 +24,7 @@ else:
 logger.info(f"OS:{os_name}")
 
 
-def load_tts(setting: Setting):
-    # import tts module according to service provider
-    tts_service_provider = setting.tts_service_provider
-
-    if not tts_service_provider:
-        logger.error("tts服务未配置")
-        raise NotImplementedError(f"tts服务未配置")
-    if tts_service_provider.lower() == "azure":
-        from .tts_azure import tts
-        logger.info(f"tts service provider: {tts_service_provider}")
-    elif tts_service_provider.lower() == "edge-tts":
-        from .tts_edge_tts import tts
-        logger.info(f"tts service provider: {tts_service_provider}")
-    elif tts_service_provider.lower() == "xunfei":
-        from .tts_xunfei import tts
-        logger.info(f"tts service provider: {tts_service_provider}")
-    elif tts_service_provider.lower() == "pyttsx3":
-        from .tts_pyttsx3 import tts
-        logger.info(f"tts service provider: {tts_service_provider}")
-    elif tts_service_provider.lower() == "coqui-tts":
-        from .tts_Coqui_tts import tts
-        logger.info(f"tts service provider: {tts_service_provider}")
-    else:
-        logger.error(f"不支持的tts: {tts_service_provider}")
-        raise NotImplementedError(f"不支持的tts: {tts_service_provider}")
-    return tts
-
-
 def ppt_to_video(ppt_path, setting: Setting, progress_tracker=None):
-    tts = load_tts(setting)
     # Check whether the ppt_path is None or Valid
     if ppt_path is None or not os.path.exists(ppt_path):
         logger.error("ppt_path is None or invalid")
@@ -78,7 +49,7 @@ def ppt_to_video(ppt_path, setting: Setting, progress_tracker=None):
     # Generate audio from notes
     if progress_tracker:
         progress_tracker.start_step('ppt_note_to_audio')
-    asyncio.run(ppt_note_to_audio(tts, ppt_path, setting, progress_tracker))
+    asyncio.run(ppt_note_to_audio(ppt_path, setting, progress_tracker))
     if progress_tracker:
         progress_tracker.complete_step()
     end_time_ppt_note_to_audio = time.time()

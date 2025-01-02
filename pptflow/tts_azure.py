@@ -1,6 +1,9 @@
-import azure.cognitiveservices.speech as speechsdk
+import json
 import os
+import azure.cognitiveservices.speech as speechsdk
 from utils import mylogger
+import asyncio
+from .setting import Setting
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -50,3 +53,40 @@ async def tts(text, output_audio_filename, setting):
                 logger.error("Error details: {}".format(cancellation_details.error_details))
                 logger.error("Did you set the speech resource key and region values?")
         return False
+
+
+async def list_voices(setting):
+    # 初始化 Speech Config
+    speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
+                                           region=setting.tts_speech_region)
+    # 创建语音列表客户端
+    synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
+    try:
+        # 查询可用语音列表
+        voices = synthesizer.get_voices_async().get().voices
+        # Get the key information
+        voice_list = [{"Locale": voice.locale, "Gender": voice.gender.name, "ShortName": voice.short_name,
+                       "LocalName": voice.local_name} for voice in voices]
+        with open("azure_voice_list.json", "w", encoding="utf-8") as file:
+            json.dump(voice_list, file, ensure_ascii=False, indent=4)
+            logger.info("Voice list has been saved to azure_voice_list.json")
+    except Exception as e:
+        logger.error(f"Error occurred: {e}", exc_info=True)
+        logger.error("An error occurred while retrieving the voice list. Please check the status of your network.")
+        return []
+
+
+def get_voice_list(setting):
+    if not os.path.exists("azure_voice_list.json"):
+        asyncio.run(list_voices(setting))
+    with open("azure_voice_list.json", "r", encoding="utf-8") as file:
+        voice_list = json.load(file)
+        logger.info("Voice list has been loaded from azure_voice_list.json")
+    return [f'{voice["ShortName"]} ({voice["Locale"]}, {voice["Gender"]})' for voice in voice_list]
+
+
+if __name__ == '__main__':
+    # 初始化 Speech Config
+    setting = Setting()
+    get_voice_list(setting)
+

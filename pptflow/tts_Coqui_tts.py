@@ -3,8 +3,7 @@
 # Description:
 from TTS.api import TTS
 import warnings
-import subprocess
-import os
+from TTS.utils.manage import ModelManager
 from utils import mylogger
 
 # 创建日志纪录实例
@@ -36,4 +35,10 @@ async def tts(text, file_path, setting):
         logger.error(f"Error occurred during TTS: {e}", exc_info=True)
 
 # coqui_tts = TTS(model_name="tts_models/en/vctk/vits", gpu=False)
-# coqui_tts.tts_to_file(text="hello, this world", speaker=coqui_tts.speakers[1], file_path="output.mp3")
+# print(coqui_tts.languages)
+# coqui_tts.tts_to_file(text="Hello, this is a test text", speaker=coqui_tts.speakers[1], file_path="output.mp3")
+# model_manager = ModelManager()
+# models = model_manager.list_models()
+#
+# for model in models:
+#     print(model)

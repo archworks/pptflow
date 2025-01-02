@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pptflow.tts_pyttsx3 import tts
 import os
 
 
@@ -11,6 +12,7 @@ class Setting:
     ppt_path: str = None
     ppt_total_slides: int = None
     # Audio settings
+    tts = tts
     tts_service_provider: str = 'pyttsx3'
     tts_api_key: str = None
     tts_azure_api_key = "917b9e6040b4466caa22c6f62227af35"
@@ -18,6 +20,7 @@ class Setting:
     tts_voice_name: str = 'zh-CN-YunjianNeural'
     tts_voice_type: str = 'zh-CN-YunjianNeural (zh-CN, Male)'
     tts_voice_rate: str = '+0%'
+    pytts_voice_rate: int = 150
     # Video settings
     video_format = 'MP4'
     video_width: int = 1280
