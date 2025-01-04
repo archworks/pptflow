@@ -1,9 +1,9 @@
 import os, sys, platform
 
-# 获取所在目录的父级目录
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-# 将父级目录添加到模块搜索路径
+# Add parent directory to the module search path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
+
 from dotenv import load_dotenv
 load_dotenv()
 os_name = platform.system()
