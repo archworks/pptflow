@@ -3,20 +3,21 @@
 # Description:
 import pyttsx3
 import asyncio
-from utils import mylogger
+from pptflow.utils import mylogger
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
 
 
 async def tts(text, file_path, setting=None):
+    logger.info(f"Using pyttsx3")
     try:
         # 初始化 pyttsx3 引擎
         engine = pyttsx3.init()
 
         # 设置语速（可选）
-        rate = engine.getProperty('rate')  # 获取当前语速
-        logger.info(f"Current Rate: {rate}")
+        # rate = engine.getProperty('rate')  # 获取当前语速
+        # logger.info(f"Current Rate: {rate}")
         engine.setProperty('rate', setting.pytts_voice_rate)
 
         # 设置音量（可选）
@@ -28,12 +29,11 @@ async def tts(text, file_path, setting=None):
         # 列出所有语音
         # for voice in voices:
         #     print(f"Voice: {voice.name}, Language: {voice.languages}")
-
-        # 设置语音
-        if setting.audio_language == 'zh':
+        logger.info(f"setting.audio_language: {setting.audio_language}")
+        voice = voices[1].id
+        if is_chinese(text):
+            logger.info(f"Chinese text detected, using Chinese voice")
             voice = voices[0].id
-        else:
-            voice = voices[1].id
         # voices[0]为中文语言，voices[1]为英文语言
         engine.setProperty('voice', voice)  # 设置为女性声音
 
@@ -46,9 +46,19 @@ async def tts(text, file_path, setting=None):
     except Exception as e:
         logger.error(f"Error occurred during TTS: {e}", exc_info=True)
 
+
+def is_chinese(text):
+    for char in text:
+        if '\u4e00' <= char <= '\u9fff':
+            return True
+    return False
+
+
 if __name__ == '__main__':
     class Setting:
         audio_language = 'zh'
         pytts_voice_rate = 150
+
+
     setting = Setting()
-    asyncio.run(tts("This is a test text", "test.mp3", setting))
+    asyncio.run(tts("这是一个测试文本", "test.mp3", setting))

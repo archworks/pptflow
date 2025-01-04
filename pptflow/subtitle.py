@@ -1,8 +1,6 @@
-from gtts import gTTS
-from pydub import AudioSegment
 from moviepy.editor import *
 import re
-from .tts_azure import tts
+from pptflow.tts.tts_azure import tts
 
 def text_to_speech(text, output_file):
     # 将文字转换为语音

@@ -3,8 +3,7 @@
 # Description:
 from TTS.api import TTS
 import warnings
-from TTS.utils.manage import ModelManager
-from utils import mylogger
+from pptflow.utils import mylogger
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)

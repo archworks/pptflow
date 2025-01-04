@@ -1,7 +1,6 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
-from utils import mylogger
-from utils import setting_dic as sd
+from pptflow.utils import mylogger, setting_dic as sd
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -122,7 +121,7 @@ class ExportSection(ctk.CTkFrame):
         }
         create_combo_box(frame, 1, tts_settings, self.tts_settings_vars)
         self.tts_settings_vars[self.app.get_text("audio_language")].set(
-            self.app.get_text(self.app.setting.audio_language))
+            self.app.get_text(self.app.text_to_key(self.app.setting.audio_language)))
 
     def create_azure_settings(self, frame):
         tts_settings = {
@@ -264,12 +263,13 @@ class ExportSection(ctk.CTkFrame):
         logger.info(f"Settings saved successfully!")
 
     def update_tts_settings(self):
+        tts_voice_type = tts_voice_rate = None
         tts_service_provider = self.tts_providers_var.get()
         self.app.setting.tts_service_provider = tts_service_provider
         logger.info(f"Updated TTS service provider: {tts_service_provider}")
-        if tts_service_provider == "pyttsx3" or tts_service_provider == "coqui-tts":
+        if tts_service_provider == "pyttsx3":
             audio_language = self.tts_settings_vars[self.app.get_text("audio_language")].get()
-            self.app.setting.audio_language = audio_language
+            self.app.setting.audio_language = self.app.text_to_key(audio_language)
             logger.info(f"Updated audio language: {audio_language}")
         if tts_service_provider == "azure":
             tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
@@ -284,9 +284,10 @@ class ExportSection(ctk.CTkFrame):
         if tts_service_provider == "edge-tts":
             tts_voice_rate = f'{int(self.rate_slider.get() * 100):+d}%'
             self.app.setting.tts_voice_rate = tts_voice_rate
-        if tts_voice_type != self.app.setting.tts_voice_type or tts_voice_rate != self.app.setting.tts_voice_rate:
+        if tts_voice_type is not None and tts_voice_type != self.app.setting.tts_voice_type \
+                or tts_voice_rate is not None and tts_voice_rate != self.app.setting.tts_voice_rate:
             self.app.clear_audio_cache()
-        self.app.load_tts(self.app.setting.tts_service_provider)
+        self.app.tts = self.app.load_tts(self.app.setting.tts_service_provider)
 
     # def update_audio_settings(self):
         # Gets the currently selected value for each ComboBox by variable

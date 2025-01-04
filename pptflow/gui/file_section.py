@@ -4,10 +4,9 @@ import threading
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from pptflow import ppt2video
-from utils.progress_tracker import ProgressTracker
-from utils import mylogger
+from pptflow.utils.progress_tracker import ProgressTracker
+from pptflow.utils import mylogger, setting_dic as sd
 from pptx import Presentation
-from utils import setting_dic as sd
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -190,7 +189,7 @@ class FileSection(ctk.CTkFrame):
             if self.app.setting.end_page_num < self.app.setting.start_page_num:
                 messagebox.showerror("Error", "End page number must be greater than or equal to start page number.")
                 return
-            elapsed_time = ppt2video.ppt_to_video(self.file_display, self.app.setting, self.progress_tracker)
+            elapsed_time = ppt2video.ppt_to_video(self.app.tts, self.file_display, self.app.setting, self.progress_tracker)
             self.generate_button.configure(state=ctk.NORMAL)
             self.elapsed_time = elapsed_time
             messagebox.showinfo(self.loading_title,

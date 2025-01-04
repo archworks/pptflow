@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from pptflow.tts_pyttsx3 import tts
 import os
 
 
@@ -12,7 +11,6 @@ class Setting:
     ppt_path: str = None
     ppt_total_slides: int = None
     # Audio settings
-    tts = tts
     tts_service_provider: str = 'pyttsx3'
     tts_api_key: str = None
     tts_azure_api_key = "917b9e6040b4466caa22c6f62227af35"

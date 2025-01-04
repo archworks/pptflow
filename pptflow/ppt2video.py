@@ -3,10 +3,10 @@ import os
 import platform
 import re
 import time
-from utils import mylogger
+from .utils import mylogger
 from .clip2video import create_video_from_images_and_audio
 from .ppt2audio import ppt_note_to_audio
-from .setting import Setting
+from pptflow.config.setting import Setting
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -24,7 +24,7 @@ else:
 logger.info(f"OS:{os_name}")
 
 
-def ppt_to_video(ppt_path, setting: Setting, progress_tracker=None):
+def ppt_to_video(tts, ppt_path, setting: Setting, progress_tracker=None):
     # Check whether the ppt_path is None or Valid
     if ppt_path is None or not os.path.exists(ppt_path):
         logger.error("ppt_path is None or invalid")
@@ -49,7 +49,7 @@ def ppt_to_video(ppt_path, setting: Setting, progress_tracker=None):
     # Generate audio from notes
     if progress_tracker:
         progress_tracker.start_step('ppt_note_to_audio')
-    asyncio.run(ppt_note_to_audio(ppt_path, setting, progress_tracker))
+    asyncio.run(ppt_note_to_audio(tts, ppt_path, setting, progress_tracker))
     if progress_tracker:
         progress_tracker.complete_step()
     end_time_ppt_note_to_audio = time.time()

@@ -1,9 +1,9 @@
 import json
 import os
 import azure.cognitiveservices.speech as speechsdk
-from utils import mylogger
+from pptflow.utils import mylogger
 import asyncio
-from .setting import Setting
+from pptflow.config.setting import Setting
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -23,6 +23,7 @@ async def tts(text, output_audio_filename, setting):
     # Initializes the speech configuration using the Azure Speech SDK, obtaining the key and region from environment variables.
     # speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('TTS_AZURE_SPEECH_KEY'),
     #                                        region=os.environ.get('TTS_AZURE_SPEECH_REGION'))
+    logger.info("Using Azure TTS")
     speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
                                            region=setting.tts_speech_region)
     # The language of the voice that speaks.
@@ -55,7 +56,7 @@ async def tts(text, output_audio_filename, setting):
         return False
 
 
-async def list_voices(setting):
+async def list_voices(setting, filename):
     # 初始化 Speech Config
     speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
                                            region=setting.tts_speech_region)
@@ -67,9 +68,9 @@ async def list_voices(setting):
         # Get the key information
         voice_list = [{"Locale": voice.locale, "Gender": voice.gender.name, "ShortName": voice.short_name,
                        "LocalName": voice.local_name} for voice in voices]
-        with open("azure_voice_list.json", "w", encoding="utf-8") as file:
+        with open(filename, "w", encoding="utf-8") as file:
             json.dump(voice_list, file, ensure_ascii=False, indent=4)
-            logger.info("Voice list has been saved to azure_voice_list.json")
+            logger.info(f"Voice list has been saved to {filename}")
     except Exception as e:
         logger.error(f"Error occurred: {e}", exc_info=True)
         logger.error("An error occurred while retrieving the voice list. Please check the status of your network.")
@@ -77,11 +78,14 @@ async def list_voices(setting):
 
 
 def get_voice_list(setting):
-    if not os.path.exists("azure_voice_list.json"):
-        asyncio.run(list_voices(setting))
-    with open("azure_voice_list.json", "r", encoding="utf-8") as file:
+    voice_dir = os.path.join(os.getcwd(), 'voice')
+    os.makedirs(voice_dir, exist_ok=True)
+    filename = os.path.join(voice_dir, 'azure_voice_list.json')
+    if not os.path.exists(filename):
+        asyncio.run(list_voices(setting, filename))
+    with open(filename, "r", encoding="utf-8") as file:
         voice_list = json.load(file)
-        logger.info("Voice list has been loaded from azure_voice_list.json")
+        logger.info(f"Voice list has been loaded from {filename}")
     return [f'{voice["ShortName"]} ({voice["Locale"]}, {voice["Gender"]})' for voice in voice_list]
 
 

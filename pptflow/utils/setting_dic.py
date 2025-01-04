@@ -2,12 +2,9 @@
 # Date: 2024/12/16  
 # Description:
 import matplotlib.font_manager as fm
-import edge_tts
 import asyncio
-import json
 import sys
-import os
-from utils import mylogger
+from pptflow.utils import mylogger
 
 # Setup logger
 logger = mylogger.get_logger(__name__)
@@ -43,7 +40,7 @@ audio_codecs = ['AAC', 'MP3', 'WAV']
 audio_bitrates = ['128kbps', '256kbps', '320kbps']
 audio_voice_type = ["zh-CN-YunjianNeural", "zh-CN-XiaoxiaoNeural"]
 audio_speeds = ["1.0x", "0.8x", "1.2x", "1.5x"]
-audio_languages = ['zh', 'en']
+audio_languages = ['en', 'zh']
 # Subtitle settings
 subtitle_font_dict = get_installed_fonts()
 font_colors = ['white', 'black', 'red', 'blue', 'yellow', 'green']

@@ -5,7 +5,7 @@ from moviepy import CompositeVideoClip, concatenate_videoclips
 from moviepy.video.VideoClip import ImageClip, TextClip
 from moviepy.video.tools.subtitles import SubtitlesClip
 import os
-from utils import mylogger
+from pptflow.utils import mylogger
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -24,10 +24,11 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
 
     # Sort the images extracted from the ppt
     image_files = sorted(
-        [f for f in os.listdir(setting.image_dir_path) if f.endswith((".jpg", ".png")) and file_name_raw in f],
+        [f for f in os.listdir(setting.image_dir_path) if
+         f.endswith((".jpg", ".png")) and file_name_raw == f.split('.')[0].split('-P')[0]],
         key=lambda x: int(x.split('.')[0].split('-P')[1])
     )
-
+    logger.info(f'image files: {image_files}')
     if len(image_files) == 0:
         logger.error(f"image files don't exist in {setting.image_dir_path}")
         raise ValueError("image files don't exist")

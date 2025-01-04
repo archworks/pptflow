@@ -2,17 +2,15 @@
 # Date: 2024/12/18  
 # Description:
 import shutil
-
 from dotenv import load_dotenv
 import os
 import customtkinter as ctk
-from pptflow.setting import Setting
-from utils import setting_dic as sd
+from pptflow.config.setting import Setting
 from .file_section import FileSection
 from .export_section import ExportSection
 import json
 import sys
-from utils import mylogger
+from pptflow.utils import mylogger, setting_dic as sd
 
 # Load environment variables
 load_dotenv()
@@ -25,6 +23,7 @@ class App(ctk.CTk):
         super().__init__()
         self.setting = Setting()
         logger.info("Initializing Configuration")
+        self.tts = self.load_tts(self.setting.tts_service_provider)
         self.current_language = self.setting.language
         self.language_modes = get_locales_subdirectories() if len(
             get_locales_subdirectories()) > 0 else sd.language_mode
@@ -52,7 +51,7 @@ class App(ctk.CTk):
         self.main_frame.grid_columnconfigure(0, weight=1)
         self.main_frame.grid_rowconfigure(0, weight=1)
 
-        # Initialize frames
+        # Initialize gui
         self.frames = {}
         frame_classes = {
             "video_generation": FileSection,
@@ -205,7 +204,7 @@ class App(ctk.CTk):
             logger.info(f"Language changed to {language}")
             for button, item in self.nav_buttons:
                 button.configure(text=self.get_text(item))
-            # Update all frames
+            # Update all gui
             for frame in self.frames.values():
                 frame.update_language()
             # Update others
@@ -220,11 +219,11 @@ class App(ctk.CTk):
         if self.current_language in self._translations_cache:
             return self._translations_cache[self.current_language]
 
-        locale_dir = resource_path(os.path.join('locales', self.current_language))
+        locale_dir = resource_path(os.path.join('pptflow', os.path.join('locales', self.current_language)))
         translation_file = os.path.join(locale_dir, 'messages.json')
 
         if not os.path.exists(translation_file):
-            locale_dir = resource_path(os.path.join('locales', self.language_modes[0]))
+            locale_dir = resource_path(os.path.join('pptflow', os.path.join('locales', self.language_modes[0])))
             translation_file = os.path.join(locale_dir, 'messages.json')
 
         with open(translation_file, 'r', encoding='utf-8') as f:
@@ -254,21 +253,21 @@ class App(ctk.CTk):
             logger.error("tts服务未配置")
             raise NotImplementedError(f"tts服务未配置")
         if tts_service_provider.lower() == "azure":
-            from pptflow.tts_azure import tts, get_voice_list
+            from pptflow.tts.tts_azure import tts, get_voice_list
             sd.tts_speech_voices = get_voice_list(self.setting)
             logger.info(f"tts service provider: {tts_service_provider}")
         elif tts_service_provider.lower() == "edge-tts":
-            from pptflow.tts_edge_tts import tts, get_voice_list
+            from pptflow.tts.tts_edge_tts import tts, get_voice_list
             sd.tts_speech_voices = get_voice_list()
             logger.info(f"tts service provider: {tts_service_provider}")
         # elif tts_service_provider.lower() == "xunfei":
         #     from .tts_xunfei import tts
         #     logger.info(f"tts service provider: {tts_service_provider}")
         elif tts_service_provider.lower() == "pyttsx3":
-            from pptflow.tts_pyttsx3 import tts
+            from pptflow.tts.tts_pyttsx3 import tts
             logger.info(f"tts service provider: {tts_service_provider}")
         elif tts_service_provider.lower() == "coqui-tts":
-            from pptflow.tts_Coqui_tts import tts
+            from pptflow.tts.tts_Coqui_tts import tts
             logger.info(f"tts service provider: {tts_service_provider}")
         else:
             logger.error(f"不支持的tts: {tts_service_provider}")
@@ -280,7 +279,7 @@ def resource_path(relative_path):
     """获取资源文件的绝对路径"""
     if hasattr(sys, '_MEIPASS'):  # 打包后运行环境
         return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
+    return os.path.join(os.path.abspath(""), relative_path)
 
 
 def get_locales_subdirectories():
