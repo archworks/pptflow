@@ -17,7 +17,13 @@ if sys.platform == "win32":
 # Get all installed fonts
 def get_installed_fonts():
     fonts = fm.findSystemFonts(fontpaths=None, fontext='ttf')
-    font_dict = {fm.FontProperties(fname=font).get_name(): font for font in fonts}
+    font_dict = {}
+    for font in fonts:
+        try:
+            font_name = fm.FontProperties(fname=font).get_name()
+            font_dict[font_name] = font
+        except Exception as e:
+            logger.warning(f"Error processing font {font}: {e}")
     sorted_font_dict = dict(sorted(font_dict.items()))  # Sort the dictionary by keys
     logger.info("Installed fonts have been loaded")
     return sorted_font_dict
@@ -48,3 +54,5 @@ border_colors = ['black', 'white', 'no_color']
 border_widths = ["0", "1", "2", "3", "4"]
 # Language Settings
 language_mode = ['en', 'zh']
+
+print(get_installed_fonts())
