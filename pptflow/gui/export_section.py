@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
-from pptflow.utils import mylogger, setting_dic as sd
+from pptflow.utils import mylogger, font, setting_dic as sd
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -157,91 +157,127 @@ class ExportSection(ctk.CTkFrame):
         self.reset_button.grid(row=2, column=3, padx=5, pady=10)
 
     # def create_audio_settings(self):
-        # frame = ctk.CTkFrame(self.scrollable_frame)
-        # frame.grid(row=2, column=0, padx=0, pady=(0, 10), sticky="ew")
-        #
-        # title = ctk.CTkLabel(
-        #     frame,
-        #     text=self.app.get_text("audio_settings"),
-        #     font=ctk.CTkFont(size=16, weight="bold")
-        # )
-        # title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
-        #
-        # self.audio_settings = {
-        #     self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
-            # self.app.get_text("audio_voice_type"): sd.audio_voice_type,
-            # self.app.get_text("audio_speed"): sd.audio_speeds
-        # }
+    # frame = ctk.CTkFrame(self.scrollable_frame)
+    # frame.grid(row=2, column=0, padx=0, pady=(0, 10), sticky="ew")
+    #
+    # title = ctk.CTkLabel(
+    #     frame,
+    #     text=self.app.get_text("audio_settings"),
+    #     font=ctk.CTkFont(size=16, weight="bold")
+    # )
+    # title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+    #
+    # self.audio_settings = {
+    #     self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
+    # self.app.get_text("audio_voice_type"): sd.audio_voice_type,
+    # self.app.get_text("audio_speed"): sd.audio_speeds
+    # }
 
-        # create_combo_box(frame, 0, self.audio_settings, self.audio_settings_vars)
-        # self.audio_settings_vars[self.app.get_text("audio_language")].set(self.app.get_text(self.app.setting.audio_language))
-        # self.audio_settings_vars[self.app.get_text("audio_voice_type")].set(self.app.setting.tts_voice_type)
-        # self.audio_settings_vars[self.app.get_text("audio_speed")].set(self.app.setting.narration_voice_speed)
+    # create_combo_box(frame, 0, self.audio_settings, self.audio_settings_vars)
+    # self.audio_settings_vars[self.app.get_text("audio_language")].set(self.app.get_text(self.app.setting.audio_language))
+    # self.audio_settings_vars[self.app.get_text("audio_voice_type")].set(self.app.setting.tts_voice_type)
+    # self.audio_settings_vars[self.app.get_text("audio_speed")].set(self.app.setting.narration_voice_speed)
 
     def create_video_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
         frame.grid(row=3, column=0, padx=0, pady=(0, 10), sticky="ew")
 
-        title = ctk.CTkLabel(
+        self.video_settings_frame = None  # 添加一个实例变量来存储设置面板的frame
+        self.is_video_settings_visible = False  # 添加一个状态变量来跟踪设置面板的可见性
+
+        title = ctk.CTkButton(
             frame,
             text=self.app.get_text("video_settings"),
-            font=ctk.CTkFont(size=16, weight="bold")
+            command=lambda: self.toggle_video_settings(frame)
         )
         title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        # Export path
-        self.path_label = ctk.CTkLabel(frame, text=self.app.get_text("export_path"))
-        self.path_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
+    def toggle_video_settings(self, frame):
+        if self.is_video_settings_visible:
+            # 如果设置面板是可见的，则隐藏它
+            self.video_settings_frame.grid_remove()
+            self.is_video_settings_visible = False
+        else:
+            # 如果设置面板是隐藏的，则显示它
+            if self.video_settings_frame is None:
+                self.video_settings_frame = ctk.CTkFrame(frame)
+                self.video_settings_frame.grid(row=2, column=0, padx=0, pady=(0, 10), sticky="ew")
+                # Export path
+                self.path_label = ctk.CTkLabel(self.video_settings_frame, text=self.app.get_text("export_path"))
+                self.path_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
 
-        self.export_path = ctk.CTkEntry(frame, width=300, textvariable=self.export_path_var)
-        self.export_path.grid(row=1, column=1, padx=5, pady=10, sticky="ew")
+                self.export_path = ctk.CTkEntry(self.video_settings_frame, width=300, textvariable=self.export_path_var)
+                self.export_path.grid(row=1, column=1, padx=5, pady=10, sticky="ew")
 
-        self.browse_btn = ctk.CTkButton(
-            frame, width=100,
-            text=self.app.get_text("browse"),
-            command=self.browse_export_path
-        )
-        self.browse_btn.grid(row=1, column=2, padx=20, pady=10)
+                self.browse_btn = ctk.CTkButton(
+                    self.video_settings_frame, width=100,
+                    text=self.app.get_text("browse"),
+                    command=self.browse_export_path
+                )
+                self.browse_btn.grid(row=1, column=2, padx=20, pady=10)
 
-        self.video_settings = {
-            self.app.get_text("video_format"): sd.video_formats,
-            self.app.get_text("video_size"): sd.video_sizes,
-            self.app.get_text("video_fps"): sd.video_fps,
-            self.app.get_text("video_threads"): sd.video_processing_threads
-        }
-        create_combo_box(frame, 1, self.video_settings, self.video_settings_vars)
-        self.video_settings_vars[self.app.get_text("video_format")].set(self.app.setting.video_format)
-        self.video_settings_vars[self.app.get_text("video_size")].set(
-            f'{self.app.setting.video_width}x{self.app.setting.video_height}')
-        self.video_settings_vars[self.app.get_text("video_fps")].set(self.app.setting.video_fps)
-        self.video_settings_vars[self.app.get_text("video_threads")].set(self.app.setting.video_processing_threads)
+                self.video_settings = {
+                    self.app.get_text("video_format"): sd.video_formats,
+                    self.app.get_text("video_size"): sd.video_sizes,
+                    self.app.get_text("video_fps"): sd.video_fps,
+                    self.app.get_text("video_threads"): sd.video_processing_threads
+                }
+                create_combo_box(self.video_settings_frame, 1, self.video_settings, self.video_settings_vars)
+                self.video_settings_vars[self.app.get_text("video_format")].set(self.app.setting.video_format)
+                self.video_settings_vars[self.app.get_text("video_size")].set(
+                    f'{self.app.setting.video_width}x{self.app.setting.video_height}')
+                self.video_settings_vars[self.app.get_text("video_fps")].set(self.app.setting.video_fps)
+                self.video_settings_vars[self.app.get_text("video_threads")].set(
+                    self.app.setting.video_processing_threads)
+
+            self.video_settings_frame.grid()
+            self.is_video_settings_visible = True
 
     def create_subtitle_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
         frame.grid(row=4, column=0, padx=0, pady=(0, 10), sticky="ew")
 
-        title = ctk.CTkLabel(
+        self.subtitle_settings_frame = None  # 添加一个实例变量来存储设置面板的frame
+        self.is_subtitle_settings_visible = False  # 添加一个状态变量来跟踪设置面板的可见性
+
+        title = ctk.CTkButton(
             frame,
             text=self.app.get_text("subtitle_settings"),
-            font=ctk.CTkFont(size=16, weight="bold")
+            command=lambda: self.toggle_subtitle_settings(frame)
         )
         title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        self.subtitle_settings = {
-            self.app.get_text("font_type"): [key for key in sd.subtitle_font_dict],
-            self.app.get_text("font_size"): [str(i) for i in range(18, 49, 2)],
-            self.app.get_text("font_color"): [self.app.get_text(s) for s in sd.font_colors],
-            self.app.get_text("border_color"): [self.app.get_text(s) for s in sd.border_colors],
-            self.app.get_text("border_width"): sd.border_widths
-        }
-        create_combo_box(frame, 0, self.subtitle_settings, self.subtitle_settings_vars)
-        self.subtitle_settings_vars[self.app.get_text("font_type")].set(self.app.setting.subtitle_font)
-        self.subtitle_settings_vars[self.app.get_text("font_size")].set(self.app.setting.subtitle_font_size)
-        self.subtitle_settings_vars[self.app.get_text("font_color")].set(
-            self.app.get_text(self.app.setting.subtitle_color))
-        self.subtitle_settings_vars[self.app.get_text("border_color")].set(
-            self.app.get_text(self.app.setting.subtitle_stroke_color))
-        self.subtitle_settings_vars[self.app.get_text("border_width")].set(self.app.setting.subtitle_stroke_width)
+    def toggle_subtitle_settings(self, frame):
+        if self.is_subtitle_settings_visible:
+            # 如果设置面板是可见的，则隐藏它
+            self.subtitle_settings_frame.grid_remove()
+            self.is_subtitle_settings_visible = False
+        else:
+            # 如果设置面板是隐藏的，则显示它
+            if self.subtitle_settings_frame is None:
+                self.subtitle_settings_frame = ctk.CTkFrame(frame)
+                self.subtitle_settings_frame.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+
+                sd.subtitle_font_dict = font.get_or_load_fonts()
+                self.subtitle_settings = {
+                    self.app.get_text("font_type"): [key for key in sd.subtitle_font_dict],
+                    self.app.get_text("font_size"): [str(i) for i in range(18, 49, 2)],
+                    self.app.get_text("font_color"): [self.app.get_text(s) for s in sd.font_colors],
+                    self.app.get_text("border_color"): [self.app.get_text(s) for s in sd.border_colors],
+                    self.app.get_text("border_width"): sd.border_widths
+                }
+                create_combo_box(self.subtitle_settings_frame, 0, self.subtitle_settings, self.subtitle_settings_vars)
+                self.subtitle_settings_vars[self.app.get_text("font_type")].set(self.app.setting.subtitle_font)
+                self.subtitle_settings_vars[self.app.get_text("font_size")].set(self.app.setting.subtitle_font_size)
+                self.subtitle_settings_vars[self.app.get_text("font_color")].set(
+                    self.app.get_text(self.app.setting.subtitle_color))
+                self.subtitle_settings_vars[self.app.get_text("border_color")].set(
+                    self.app.get_text(self.app.setting.subtitle_stroke_color))
+                self.subtitle_settings_vars[self.app.get_text("border_width")].set(
+                    self.app.setting.subtitle_stroke_width)
+
+            self.subtitle_settings_frame.grid()
+            self.is_subtitle_settings_visible = True
 
     def create_save_button(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
@@ -257,8 +293,10 @@ class ExportSection(ctk.CTkFrame):
             logger.warning(self.app.get_text("path_invalid"))
         self.update_tts_settings()
         # self.update_audio_settings()
-        self.update_video_settings()
-        self.update_subtitle_settings()
+        if self.is_video_settings_visible:
+            self.update_video_settings()
+        if self.is_subtitle_settings_visible:
+            self.update_subtitle_settings()
         messagebox.showinfo("Success", "Settings saved successfully!")
         logger.info(f"Settings saved successfully!")
 
@@ -290,19 +328,19 @@ class ExportSection(ctk.CTkFrame):
         self.app.tts = self.app.load_tts(self.app.setting.tts_service_provider)
 
     # def update_audio_settings(self):
-        # Gets the currently selected value for each ComboBox by variable
-        # audio_language = self.audio_settings_vars[self.app.get_text("audio_language")].get()
-        # audio_voice_type = self.audio_settings_vars[self.app.get_text("audio_voice_type")].get()
-        # audio_speed = float(self.audio_settings_vars[self.app.get_text("audio_speed")].get().split("x")[0])
+    # Gets the currently selected value for each ComboBox by variable
+    # audio_language = self.audio_settings_vars[self.app.get_text("audio_language")].get()
+    # audio_voice_type = self.audio_settings_vars[self.app.get_text("audio_voice_type")].get()
+    # audio_speed = float(self.audio_settings_vars[self.app.get_text("audio_speed")].get().split("x")[0])
 
-        # update the app setting
-        # self.app.setting.audio_language = self.app.text_to_key(audio_language)
-        # self.app.setting.audio_voice_type = audio_voice_type
-        # self.app.setting.audio_speed = audio_speed
+    # update the app setting
+    # self.app.setting.audio_language = self.app.text_to_key(audio_language)
+    # self.app.setting.audio_voice_type = audio_voice_type
+    # self.app.setting.audio_speed = audio_speed
 
-        # logger.info(
-        #     f"Updated audio settings - Language: {audio_language}, "
-        # f"Voice Type: {audio_voice_type}, Speed: {audio_speed}")
+    # logger.info(
+    #     f"Updated audio settings - Language: {audio_language}, "
+    # f"Voice Type: {audio_voice_type}, Speed: {audio_speed}")
 
     def update_video_settings(self):
         video_format = self.video_settings_vars[self.app.get_text("video_format")].get()
@@ -325,8 +363,9 @@ class ExportSection(ctk.CTkFrame):
         subtitle_font_color = self.subtitle_settings_vars[self.app.get_text("font_color")].get().lower()
         subtitle_border_color = self.subtitle_settings_vars[self.app.get_text("border_color")].get().lower()
         subtitle_border_width = self.subtitle_settings_vars[self.app.get_text("border_width")].get()
-        self.app.setting.subtitle_font = subtitle_font
-        self.app.setting.subtitle_font_path = sd.subtitle_font_dict[subtitle_font]
+        # self.app.setting.subtitle_font = subtitle_font
+        self.app.setting.subtitle_font_path = sd.subtitle_font_dict[subtitle_font] if \
+            len(sd.subtitle_font_dict) > 0 else font.get_or_load_fonts()[subtitle_font]
         self.app.setting.subtitle_font_size = int(subtitle_font_size)
         self.app.setting.subtitle_color = self.app.text_to_key(subtitle_font_color)
         self.app.setting.subtitle_stroke_color = self.app.text_to_key(subtitle_border_color)

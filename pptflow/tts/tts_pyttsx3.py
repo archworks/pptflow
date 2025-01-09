@@ -4,6 +4,7 @@
 import pyttsx3
 import asyncio
 from pptflow.utils import mylogger
+import sys
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -27,20 +28,21 @@ async def tts(text, file_path, setting=None):
         # 设置语音（可选）
         voices = engine.getProperty('voices')
         # 列出所有语音
+        # 打印所有语音信息
         # for voice in voices:
-        #     print(f"Voice: {voice.name}, Language: {voice.languages}")
-        logger.info(f"setting.audio_language: {setting.audio_language}")
-        voice = voices[1].id
+        #     logger.info(voice)
+        # logger.info(f"setting.audio_language: {setting.audio_language}")
+        voice = voices[1]
         if is_chinese(text):
             logger.info(f"Chinese text detected, using Chinese voice")
-            voice = voices[0].id
+            voice = get_chinese_voices(voices)
         # voices[0]为中文语言，voices[1]为英文语言
-        engine.setProperty('voice', voice)  # 设置为女性声音
+        engine.setProperty('voice', voice.id)  # 设置为女性声音
 
         # 将文本转换为语音并播放
         # engine.say(text)
         # 保存为音频文件（可选）
-        engine.save_to_file(text=text, filename=file_path, name=voices[0].name)
+        engine.save_to_file(text=text, filename=file_path, name=voice.name)
         # 等待语音生成完成
         engine.runAndWait()
     except Exception as e:
@@ -52,6 +54,17 @@ def is_chinese(text):
         if '\u4e00' <= char <= '\u9fff':
             return True
     return False
+
+
+def get_chinese_voices(voices):
+    # 判断操作系统
+    if sys.platform == 'win32':
+        return voices[0]
+    elif sys.platform == 'darwin':
+        language = 'zh_CN'
+        for voice in voices:
+            if voice.languages and voice.languages[0] == language:
+                return voice
 
 
 if __name__ == '__main__':

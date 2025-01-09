@@ -1,6 +1,7 @@
 # Author: Valley-e
 # Date: 2024/12/18  
 # Description:
+import platform
 import shutil
 from dotenv import load_dotenv
 import os
@@ -273,6 +274,16 @@ class App(ctk.CTk):
             logger.error(f"不支持的tts: {tts_service_provider}")
             raise NotImplementedError(f"不支持的tts: {tts_service_provider}")
         return tts
+
+    def get_default_subtitle_font(self):
+        current_platform = platform.system().lower()
+        if current_platform == 'windows':
+            return self.setting.win_subtitle_font
+        elif current_platform == 'darwin':  # macOS
+            return self.setting.mac_subtitle_font
+        else:
+            logger.info(f"Unsupported platform: {current_platform}. Using default font.")
+            return 'Arial'
 
 
 def resource_path(relative_path):

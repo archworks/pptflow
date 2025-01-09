@@ -29,8 +29,10 @@ class Setting:
     subtitle_width: int = None
     subtitle_height: int = None
     max_height_ratio: float = 0.1
-    subtitle_font: str = 'Microsoft YaHei'
-    subtitle_font_path: str = 'C:/Windows/Fonts/msyhbd.ttc'
+    win_subtitle_font: str = 'Microsoft YaHei'
+    mac_subtitle_font: str = 'Times New Roman'
+    subtitle_font_path: str = ''
+    # subtitle_font_path: str = 'C:/Windows/Fonts/timesbi.ttf'
     subtitle_font_size: int = 24
     subtitle_color: str = 'white'
     subtitle_stroke_color: str = 'black'  # subtitle outline color

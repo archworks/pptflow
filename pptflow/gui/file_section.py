@@ -5,7 +5,7 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from pptflow import ppt2video
 from pptflow.utils.progress_tracker import ProgressTracker
-from pptflow.utils import mylogger, setting_dic as sd
+from pptflow.utils import mylogger, font, setting_dic as sd
 from pptx import Presentation
 
 # 创建日志纪录实例
@@ -215,8 +215,8 @@ class FileSection(ctk.CTkFrame):
     def start_video_generation(self):
         # forbid to press generate button when generating video
         self.generate_button.configure(state=ctk.DISABLED)
-        if not os.path.exists(self.app.setting.subtitle_font):
-            self.app.setting.subtitle_font = sd.subtitle_font_dict[self.app.setting.subtitle_font]
+        if not self.app.setting.subtitle_font_path:
+            self.app.setting.subtitle_font_path = font.find_font_path(self.app.get_default_subtitle_font())
         if not self.file_display:
             messagebox.showerror(self.loading_title, self.app.get_text("no_file_selected"))
             return

@@ -51,7 +51,7 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
             video_clip = image_clip.with_audio(audio_clip)
             # Add subtitles
             if os.path.exists(subtitle_file_path):
-                generator = lambda txt: TextClip(font=setting.subtitle_font, text=txt,
+                generator = lambda txt: TextClip(font=setting.subtitle_font_path, text=txt,
                                                  font_size=setting.subtitle_font_size,
                                                  color=setting.subtitle_color,
                                                  stroke_color=setting.subtitle_stroke_color,
@@ -112,7 +112,7 @@ async def update_progress_tracker(progress_tracker, start, end, step=0.01):
 
 
 # 异步写视频函数
-async def write_video_async(final_clip, setting, progress_tracker):
+async def write_video_async(final_clip, setting, progress_tracker=None):
     loop = asyncio.get_event_loop()
 
     with ThreadPoolExecutor() as executor:
@@ -125,7 +125,11 @@ async def write_video_async(final_clip, setting, progress_tracker):
         )
 
         # 同时更新进度条从 0.7 到 0.99
-        await asyncio.gather(
-            update_progress_tracker(progress_tracker, 0.7, 0.99),
-            write_video_future
-        )
+        if progress_tracker:
+            progress_tracker.update_step(0.7)
+            await asyncio.gather(
+                update_progress_tracker(progress_tracker, 0.7, 0.99),
+                write_video_future
+            )
+        else:
+            await write_video_future

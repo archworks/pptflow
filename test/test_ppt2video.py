@@ -38,7 +38,7 @@ class TestPptToVideo(unittest.TestCase):
         from pptflow.tts.tts_pyttsx3 import tts
         setting = Setting()
         # for macOS only
-        setting.subtitle_font = '/System/Library/Fonts/Supplemental/Songti.ttc'
+        setting.subtitle_font = 'C:/Windows/Fonts/timesi.ttf'
         ppt_path = os.path.join(parent_dir, "test/test.pptx")
         
         ppt_to_video(tts, ppt_path, setting)
@@ -47,7 +47,7 @@ class TestPptToVideo(unittest.TestCase):
         from pptflow.tts.tts_azure import tts
         setting = Setting()
         # for macOS only
-        setting.subtitle_font = '/System/Library/Fonts/Supplemental/Songti.ttc'
+        setting.subtitle_font = 'C:/Windows/Fonts/timesi.ttf'
         ppt_path = os.path.join(parent_dir, "test/test.pptx")
         
         ppt_to_video(tts, ppt_path, setting)
