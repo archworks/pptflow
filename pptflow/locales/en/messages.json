@@ -76,6 +76,7 @@
         "email": "Email",
         "phone": "Phone",
         "save_settings": "Save Settings",
+        "cancel_settings": "Cancel",
         "system_title": "System Settings",
         "ui_language": "UI Language:",
         "cache_path": "Cache Path:",

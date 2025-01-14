@@ -76,6 +76,7 @@
     "email": "邮箱",
     "phone": "手机号码",
     "save_settings": "保存设置",
+    "cancel_settings": "取消设置",
     "system_title": "系统设置",
     "ui_language": "界面语言：",
     "cache_path": "缓存路径：",
