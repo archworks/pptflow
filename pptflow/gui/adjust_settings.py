@@ -1,6 +1,8 @@
 # Author: Valley-e
 # Date: 2025/1/14  
 # Description:
+import os
+
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from pptflow.utils import mylogger, font, setting_dic as sd
@@ -11,14 +13,14 @@ logger = mylogger.get_logger(__name__)
 
 def create_combo_box(parent, index, options, variable, command=None):
     for i, (key, values) in enumerate(options.items()):
-        label = ctk.CTkLabel(parent, text=f"{key}:")
+        label = ctk.CTkLabel(parent, text=f"{key}:", font=ctk.CTkFont(size=12, weight="normal"))
         label.grid(row=index + i + 1, column=0, padx=20, pady=5, sticky="w")
 
         # Create a StringVar variable for each ComboBox
         var = ctk.StringVar(value=values[0])
         variable[key] = var
 
-        combo = ctk.CTkComboBox(parent, values=values, variable=var)
+        combo = ctk.CTkComboBox(parent, values=values, variable=var, font=ctk.CTkFont(size=12, weight="normal"))
         combo.grid(row=index + i + 1, column=1, padx=20, pady=5)
 
 
@@ -33,13 +35,17 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.title = ctk.CTkLabel(
             self,
             text=self.app.get_text("export_settings"),
-            font=ctk.CTkFont(size=24, weight="bold")
+            font=ctk.CTkFont(size=12, weight="bold")
         )
         self.title.grid(row=0, column=0, padx=20, pady=20)
+        self.title.grid_remove()
+
+        self.font_size = 12
+        self.font = ctk.CTkFont(size=self.font_size, weight="normal")
 
         # Create scrollable frame for settings
         self.scrollable_frame = ctk.CTkScrollableFrame(self)
-        self.scrollable_frame.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)
+        self.scrollable_frame.grid(row=1, column=0, sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
         # Create a dict for audio/video/subtitle settings
@@ -59,42 +65,45 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
     def create_cache_path(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
-        frame.grid(row=0, column=0, padx=0, pady=(0, 10), sticky="ew")
+        frame.grid(row=0, column=0, padx=20, pady=(0, 10), sticky="ew")
         # Cache path
-        self.cache_label = ctk.CTkLabel(frame, text=self.app.get_text("cache_path"))
-        self.cache_label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+        self.cache_label = ctk.CTkLabel(frame, text=self.app.get_text("cache_path"),
+                                        font=self.font)
+        self.cache_label.grid(row=0, column=0, padx=5, pady=10, sticky="w")
 
         self.cache_path_var = ctk.StringVar(value=self.app.setting.temp_dir)
-        self.cache_path = ctk.CTkEntry(frame, width=300, textvariable=self.cache_path_var)
+        self.cache_path = ctk.CTkEntry(frame, width=200, textvariable=self.cache_path_var,
+                                       font=self.font)
         self.cache_path.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
 
-        self.browse_button = ctk.CTkButton(frame, width=100,
-                                           text=self.app.get_text("browse"),
+        self.browse_button = ctk.CTkButton(frame, width=50,
+                                           text=self.app.get_text("browse"), font=self.font,
                                            command=self.browse_cache_path)
-        self.browse_button.grid(row=0, column=2, padx=20, pady=10)
+        self.browse_button.grid(row=0, column=2, padx=5, pady=10)
 
-        self.clear_cache_button = ctk.CTkButton(frame, width=100,
+        self.clear_cache_button = ctk.CTkButton(frame, width=50, font=self.font,
                                                 text=self.app.get_text("clear_cache"),
                                                 command=self.app.clear_temp_cache)
-        self.clear_cache_button.grid(row=0, column=3, padx=(0, 20), pady=10)
+        self.clear_cache_button.grid(row=0, column=3, padx=5, pady=10)
 
     def create_tts_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
-        frame.grid(row=1, column=0, padx=0, pady=(0, 10), sticky="ew")
+        frame.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="ew")
 
         title = ctk.CTkLabel(
             frame,
             text=self.app.get_text("tts_settings"),
-            font=ctk.CTkFont(size=16, weight="bold")
+            font=self.font
         )
-        title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+        title.grid(row=0, column=0, padx=5, pady=10, sticky="w")
         self.tts_providers_label = ctk.CTkLabel(
             frame,
-            text=self.app.get_text("tts_service_provider"),
+            text=self.app.get_text("tts_service_provider"), font=self.font
         )
-        self.tts_providers_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
+        self.tts_providers_label.grid(row=1, column=0, padx=5, pady=10, sticky="w")
         self.tts_providers_var = ctk.StringVar(value=self.app.setting.tts_service_provider)
-        self.tts_providers = ctk.CTkComboBox(frame, values=sd.tts_service_providers, variable=self.tts_providers_var)
+        self.tts_providers = ctk.CTkComboBox(frame, values=sd.tts_service_providers,
+                                             variable=self.tts_providers_var, font=self.font)
         self.tts_providers.grid(row=1, column=1, padx=5, pady=10)
         # 绑定选择变化的事件
         # self.tts_providers.bind("<<ComboboxSelected>>", lambda event: self.on_tts_provider_change)
@@ -136,26 +145,26 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.tts_settings_vars[self.app.get_text("tts_speech_region")].set(self.app.setting.tts_speech_region)
         self.tts_settings_vars[self.app.get_text("tts_voice_type")].set(self.app.setting.tts_voice_type)
         # api key
-        self.api_key_label = ctk.CTkLabel(frame, text=self.app.get_text("tts_api_key"))
-        self.api_key_label.grid(row=2 + len(tts_settings), column=0, padx=20, pady=10, sticky="w")
+        self.api_key_label = ctk.CTkLabel(frame, text=self.app.get_text("tts_api_key"), font=self.font)
+        self.api_key_label.grid(row=2 + len(tts_settings), column=0, padx=5, pady=10, sticky="w")
         self.api_key_var = ctk.StringVar(value=self.app.setting.tts_azure_api_key)
-        self.api_key = ctk.CTkEntry(frame, width=300, textvariable=self.api_key_var)
+        self.api_key = ctk.CTkEntry(frame, width=200, textvariable=self.api_key_var, font=self.font)
         self.api_key.grid(row=2 + len(tts_settings), column=1, padx=5, pady=10, sticky="ew")
 
     def create_edge_tts_settings(self, frame):
         # tts voice rate
-        self.rate_slider_label = ctk.CTkLabel(frame, text=self.app.get_text("tts_voice_rate"))
-        self.rate_slider_label.grid(row=2, column=0, padx=20, pady=10, sticky="w")
+        self.rate_slider_label = ctk.CTkLabel(frame, text=self.app.get_text("tts_voice_rate"), font=self.font)
+        self.rate_slider_label.grid(row=2, column=0, padx=5, pady=10, sticky="w")
         # 创建滑动条
         self.rate_slider = ctk.CTkSlider(frame, from_=-1, to=1, orientation="horizontal", command=self.update_progress)
         self.rate_slider.grid(row=2, column=1, padx=5, pady=10, sticky="ew")
         self.rate_slider.set(0)  # 初始滑动条值设置为 0（中间）
         # 创建显示进度的标签
-        self.voice_rate = ctk.CTkLabel(frame, text="0%")
+        self.voice_rate = ctk.CTkLabel(frame, text="0%", font=self.font)
         self.voice_rate.grid(row=2, column=2, padx=5, pady=10, sticky="w")
 
         # 创建复位按钮
-        self.reset_button = ctk.CTkButton(frame, width=100, text=self.app.get_text("reset"),
+        self.reset_button = ctk.CTkButton(frame, width=100, text=self.app.get_text("reset"), font=self.font,
                                           command=self.reset_progress)
         self.reset_button.grid(row=2, column=3, padx=5, pady=10)
 
@@ -183,41 +192,48 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
     def create_video_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
-        frame.grid(row=3, column=0, padx=0, pady=(0, 10), sticky="ew")
+        frame.grid(row=3, column=0, padx=20, pady=(0, 10), sticky="nsew")
 
         self.video_settings_frame = None  # 添加一个实例变量来存储设置面板的frame
         self.is_video_settings_visible = False  # 添加一个状态变量来跟踪设置面板的可见性
 
-        title = ctk.CTkButton(
-            frame,
-            text=self.app.get_text("video_settings"),
+        self.video_settings_button = ctk.CTkButton(
+            frame, image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "down-arrow.png"), 20),
+            text=self.app.get_text("video_settings"), font=self.font,
+            bg_color="transparent", fg_color="gray70", hover_color="gray",
             command=lambda: self.toggle_video_settings(frame)
         )
-        title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+        self.video_settings_button.grid(row=0, column=0, padx=5, pady=10, sticky="w")
 
     def toggle_video_settings(self, frame):
         if self.is_video_settings_visible:
             # 如果设置面板是可见的，则隐藏它
             self.video_settings_frame.grid_remove()
             self.is_video_settings_visible = False
+            self.video_settings_button.configure(
+                image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "down-arrow.png"), 20))
         else:
             # 如果设置面板是隐藏的，则显示它
             if self.video_settings_frame is None:
                 self.video_settings_frame = ctk.CTkFrame(frame)
-                self.video_settings_frame.grid(row=2, column=0, padx=0, pady=(0, 10), sticky="ew")
+                self.video_settings_frame.grid(row=2, column=0, padx=20, pady=(0, 10), sticky="ew")
+                self.video_settings_button.configure(
+                    image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "up-arrow.png"), 20))
                 # Export path
-                self.path_label = ctk.CTkLabel(self.video_settings_frame, text=self.app.get_text("export_path"))
-                self.path_label.grid(row=1, column=0, padx=20, pady=10, sticky="w")
+                self.path_label = ctk.CTkLabel(self.video_settings_frame, font=self.font,
+                                               text=self.app.get_text("export_path"))
+                self.path_label.grid(row=1, column=0, padx=5, pady=10, sticky="w")
 
-                self.export_path = ctk.CTkEntry(self.video_settings_frame, width=300, textvariable=self.export_path_var)
+                self.export_path = ctk.CTkEntry(self.video_settings_frame, width=200,
+                                                textvariable=self.export_path_var, font=self.font)
                 self.export_path.grid(row=1, column=1, padx=5, pady=10, sticky="ew")
 
                 self.browse_btn = ctk.CTkButton(
-                    self.video_settings_frame, width=100,
-                    text=self.app.get_text("browse"),
+                    self.video_settings_frame, width=50,
+                    text=self.app.get_text("browse"), font=self.font,
                     command=self.browse_export_path
                 )
-                self.browse_btn.grid(row=1, column=2, padx=20, pady=10)
+                self.browse_btn.grid(row=1, column=2, padx=5, pady=10)
 
                 self.video_settings = {
                     self.app.get_text("video_format"): sd.video_formats,
@@ -238,28 +254,33 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
     def create_subtitle_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
-        frame.grid(row=4, column=0, padx=0, pady=(0, 10), sticky="ew")
+        frame.grid(row=4, column=0, padx=20, pady=(0, 10), sticky="nsew")
 
         self.subtitle_settings_frame = None  # 添加一个实例变量来存储设置面板的frame
         self.is_subtitle_settings_visible = False  # 添加一个状态变量来跟踪设置面板的可见性
 
-        title = ctk.CTkButton(
-            frame,
-            text=self.app.get_text("subtitle_settings"),
+        self.subtitle_settings_button = ctk.CTkButton(
+            frame, image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "down-arrow.png"), 20),
+            text=self.app.get_text("subtitle_settings"), font=self.font,
+            bg_color="transparent", fg_color="gray70", hover_color="gray",
             command=lambda: self.toggle_subtitle_settings(frame)
         )
-        title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+        self.subtitle_settings_button.grid(row=0, column=0, padx=5, pady=10, sticky="w")
 
     def toggle_subtitle_settings(self, frame):
         if self.is_subtitle_settings_visible:
             # 如果设置面板是可见的，则隐藏它
             self.subtitle_settings_frame.grid_remove()
             self.is_subtitle_settings_visible = False
+            self.subtitle_settings_button.configure(
+                image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "down-arrow.png"), 20))
         else:
             # 如果设置面板是隐藏的，则显示它
             if self.subtitle_settings_frame is None:
                 self.subtitle_settings_frame = ctk.CTkFrame(frame)
                 self.subtitle_settings_frame.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+                self.subtitle_settings_button.configure(
+                    image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "up-arrow.png"), 20))
 
                 sd.subtitle_font_dict = font.get_or_load_fonts()
                 self.subtitle_settings = {
@@ -284,14 +305,14 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
     def create_save_cancel_button(self):
         frame = ctk.CTkFrame(self.scrollable_frame)
-        frame.grid(row=5, column=0, padx=0, pady=(0, 10), sticky="ew")
-        self.save_button = ctk.CTkButton(frame, text=self.app.get_text("save_settings"),
+        frame.grid(row=5, column=0, padx=20, pady=(0, 10), sticky="ew")
+        self.save_button = ctk.CTkButton(frame, text=self.app.get_text("save_settings"), font=self.font,
                                          command=self.save_settings, width=100)
-        self.save_button.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
-        self.cancel_button = ctk.CTkButton(frame, text=self.app.get_text("cancel_settings"),
+        self.save_button.grid(row=0, column=0, padx=5, pady=10, sticky="ew")
+        self.cancel_button = ctk.CTkButton(frame, text=self.app.get_text("cancel_settings"), font=self.font,
                                            fg_color="gray70", hover_color="gray",
                                            command=self.cancel_settings, width=100)
-        self.cancel_button.grid(row=0, column=1, padx=20, pady=10, sticky="ew")
+        self.cancel_button.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
 
     def save_settings(self):
         if self.cache_path_var.get():
@@ -306,6 +327,13 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         if self.is_subtitle_settings_visible:
             self.update_subtitle_settings()
         messagebox.showinfo("Success", "Settings saved successfully!")
+        self.app.step += 1
+        self.app.setting_flow_2(1)
+        # self.app.adjust_button.grid_remove()
+        # self.app.skip_button.grid_remove()
+        self.app.reconfigure_button.grid()
+        self.app.generation_flow_3(2)
+        self.cancel_settings()
         logger.info(f"Settings saved successfully!")
 
     def cancel_settings(self):
