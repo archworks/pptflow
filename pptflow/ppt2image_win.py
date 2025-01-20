@@ -36,7 +36,7 @@ def ppt_to_image(input_ppt_path, setting, progress_tracker=None):
                 setting.image_dir_path, f"{file_name_without_ext}-P{idx + 1}.png"
             )
             # Export the slide as an image
-            slide.Export(image_file_path, "PNG", 1280, 720)
+            slide.Export(image_file_path, "PNG", setting.video_width, setting.video_height)
 
             # Update progress
             if progress_tracker:
