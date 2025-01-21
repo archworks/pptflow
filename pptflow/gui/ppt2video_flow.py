@@ -84,11 +84,11 @@ class PPTFlowApp(ctk.CTk):
         title_frame.grid(row=0, column=0, padx=(100, 0), pady=20)
 
         # 加粗的 PPT
-        ppt_label = ctk.CTkLabel(title_frame, text="PPT", font=ctk.CTkFont(size=24, weight="bold", slant="italic"))
+        ppt_label = ctk.CTkLabel(title_frame, text="PPT", font=ctk.CTkFont(size=24, weight="bold"))
         ppt_label.grid(row=0, column=0)
 
         # 正常的 Flow
-        flow_label = ctk.CTkLabel(title_frame, text="Flow", font=ctk.CTkFont(size=24, weight="normal", slant="italic"))
+        flow_label = ctk.CTkLabel(title_frame, text="Flow", font=ctk.CTkFont(size=24, weight="normal"))
         flow_label.grid(row=0, column=1)
         # self.title_label = ctk.CTkLabel(self.top_frame, text="PPTFlow",
         #                                 font=ctk.CTkFont(size=24, weight="bold", slant="italic"))
@@ -151,15 +151,16 @@ class PPTFlowApp(ctk.CTk):
                                        font=ctk.CTkFont(size=12), width=100)
         self.file_label.grid(row=row_offset + 1, column=i * 2, padx=5, pady=5)
 
-        self.cancel_button = ctk.CTkButton(self.flow_frame, text="Cancel", font=ctk.CTkFont(size=12), width=50,
-                                           fg_color="transparent", hover_color="gray", text_color="#0d6efd",
-                                           command=lambda: self.on_button_click("Cancel"))
-        self.cancel_button.grid(row=row_offset + 2, column=i * 2, padx=5, pady=0)
+        self.cancel_file = ctk.CTkButton(self.flow_frame, text=self.get_text("cancel"),
+                                         font=ctk.CTkFont(size=12), width=50,
+                                         fg_color="transparent", hover_color="gray", text_color="#0d6efd",
+                                         command=lambda: self.on_button_click("Cancel File"))
+        self.cancel_file.grid(row=row_offset + 2, column=i * 2, padx=5, pady=0)
         self.file_label.grid_remove()
-        self.cancel_button.grid_remove()
+        self.cancel_file.grid_remove()
 
-        self.select_button = ctk.CTkButton(self.flow_frame, text="Select PPT File", font=ctk.CTkFont(size=12),
-                                           width=100,
+        self.select_button = ctk.CTkButton(self.flow_frame, text="Select PPT File",
+                                           font=ctk.CTkFont(size=12), width=100,
                                            command=lambda: self.on_button_click("Select PPT File"))
         self.select_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.update_flow(i, self.select_button)
@@ -173,11 +174,12 @@ class PPTFlowApp(ctk.CTk):
                                          command=lambda: self.on_button_click("Skip Settings"))
         self.adjust_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.skip_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
-        self.reconfigure_button = ctk.CTkButton(self.flow_frame, text="Reconfigure Settings",
-                                                font=ctk.CTkFont(size=12), width=100,
-                                                command=lambda: self.on_button_click("Reconfigure Settings"))
-        self.reconfigure_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
-        self.reconfigure_button.grid_remove()
+        self.cancel_settings = ctk.CTkButton(self.flow_frame, text=self.get_text("cancel"),
+                                             font=ctk.CTkFont(size=12), width=100,
+                                             fg_color="transparent", hover_color="gray", text_color="#0d6efd",
+                                             command=lambda: self.on_button_click("Cancel Settings"))
+        self.cancel_settings.grid(row=row_offset + 3, column=i * 2, pady=5, padx=(5, 5))
+        self.cancel_settings.grid_remove()
         self.update_flow(i, self.adjust_button)
         self.update_flow(i, self.skip_button)
 
@@ -338,7 +340,7 @@ class PPTFlowApp(ctk.CTk):
         logger.info(f"Button clicked! Text:{label_text}")
         if label_text == "Select PPT File":
             self.browse_file()
-        elif label_text == "Cancel":
+        elif label_text == "Cancel File":
             self.reselect_file()
         elif label_text == "Adjust Settings":
             self.select_frame("Adjust Settings")
@@ -347,11 +349,11 @@ class PPTFlowApp(ctk.CTk):
             self.adjust_button.grid_remove()
             self.skip_button.grid_remove()
             self.setting_flow_2(1)
-            self.reconfigure_button.grid()
+            self.cancel_settings.grid()
             self.generation_flow_3(2)
-        elif label_text == "Reconfigure Settings":
+        elif label_text == "Cancel Settings":
             self.step -= 1
-            self.select_frame("Adjust Settings")
+            self.cancel_settings.grid_remove()
             self.setting_flow_2(1)
             self.generation_flow_3(2)
             self.review_flow_4(3)
@@ -370,7 +372,7 @@ class PPTFlowApp(ctk.CTk):
 
     def browse_file(self):
         self.file_display = filedialog.askopenfilename(
-            filetypes=[("PowerPoint files", "*.ppt;*.pptx")]
+            filetypes=[("PowerPoint files", "*.ppt"), ("PowerPoint files", "*.pptx")]
         )
         if self.file_display:
             logger.info(f"Selected file: {self.file_display}")
@@ -391,15 +393,16 @@ class PPTFlowApp(ctk.CTk):
             self.tooltip = CustomTooltip(self.file_label, os.path.basename(self.file_display))
             self.file_label_var.set(display_text)
             self.file_label.configure(state=ctk.DISABLED)
-            self.cancel_button.grid()
+            self.cancel_file.grid()
 
             self.select_button.grid_remove()
             self.step += 1
             self.setting_flow_2(1)
 
     def select_frame(self, name):
-        for widget in self.main_frame.winfo_children():
-            widget.grid_remove()  # 确保组件从布局中移除
+        # for widget in self.main_frame.winfo_children():
+        #     widget.grid_remove()  # 确保组件从布局中移除
+        self.flow_frame.grid_remove()
         if name == "Adjust Settings":
             from .adjust_settings import AdjustSettingsFrame
             # 显示 ExportSection
@@ -475,6 +478,9 @@ class PPTFlowApp(ctk.CTk):
 
             messagebox.showinfo(self.loading_title,
                                 f'{self.get_text("video_generated")}{self.setting.video_path}')
+            self.step += 1
+            self.generation_flow_3(2)
+            self.review_flow_4(3)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate video: {str(e)}")
             logger.error(e, exc_info=True)

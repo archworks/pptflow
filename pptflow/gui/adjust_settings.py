@@ -29,23 +29,23 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         super().__init__(app)
         self.app = app
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
         # Title
-        self.title = ctk.CTkLabel(
-            self,
-            text=self.app.get_text("export_settings"),
-            font=ctk.CTkFont(size=12, weight="bold")
-        )
-        self.title.grid(row=0, column=0, padx=20, pady=20)
-        self.title.grid_remove()
-
-        self.font_size = 12
-        self.font = ctk.CTkFont(size=self.font_size, weight="normal")
+        # self.title = ctk.CTkLabel(
+        #     self,
+        #     text=self.app.get_text("export_settings"),
+        #     font=ctk.CTkFont(size=12, weight="bold")
+        # )
+        # self.title.grid(row=0, column=0, padx=20, pady=20)
+        # self.title.grid_remove()
+        #
+        # self.font_size = 12
+        # self.font = ctk.CTkFont(size=self.font_size, weight="normal")
 
         # Create scrollable frame for settings
         self.scrollable_frame = ctk.CTkScrollableFrame(self)
-        self.scrollable_frame.grid(row=1, column=0, sticky="nsew")
+        self.scrollable_frame.grid(row=0, column=0, sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
         # Create a dict for audio/video/subtitle settings
@@ -331,7 +331,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.app.setting_flow_2(1)
         # self.app.adjust_button.grid_remove()
         # self.app.skip_button.grid_remove()
-        self.app.reconfigure_button.grid()
+        self.app.cancel_settings.grid()
         self.app.generation_flow_3(2)
         self.cancel_settings()
         logger.info(f"Settings saved successfully!")
@@ -339,9 +339,11 @@ class AdjustSettingsFrame(ctk.CTkFrame):
     def cancel_settings(self):
         for widget in self.winfo_children():
             widget.destroy()
-        for widget in self.app.main_frame.winfo_children():
-            widget.grid()
-        self.app.main_frame.tkraise()
+        # for widget in self.app.main_frame.winfo_children():
+        #     widget.grid()
+        self.app.adjust_settings.grid_remove()
+        self.app.flow_frame.grid()
+        self.app.flow_frame.tkraise()
 
     def update_tts_settings(self):
         tts_voice_type = tts_voice_rate = None

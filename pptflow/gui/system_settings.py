@@ -9,20 +9,19 @@ class SystemSettingsFrame(ctk.CTkFrame):
         super().__init__(app)
         self.app = app
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
         self.font_size = 12
         self.font = ctk.CTkFont(size=self.font_size, weight="normal")
 
-        self.title = ctk.CTkLabel(
-            self,
-            text=self.app.get_text("system_settings"),
-            font=ctk.CTkFont(size=12, weight="bold")
-        )
-        self.title.grid(row=0, column=0, padx=20, pady=20)
-        self.title.grid_remove()
+        # self.title = ctk.CTkLabel(
+        #     self,
+        #     text=self.app.get_text("system_settings"),
+        #     font=ctk.CTkFont(size=12, weight="bold")
+        # )
+        # self.title.grid(row=0, column=0, padx=20, pady=20)
+        # self.title.grid_remove()
 
-        self.setting_frame = ctk.CTkFrame(self)
-        self.setting_frame.grid(row=1, column=0, padx=20, sticky="nsew")
+        self.setting_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.setting_frame.grid(row=0, column=0, padx=20, sticky="nsew")
         self.setting_frame.grid_columnconfigure(0, weight=1)
 
         self.create_language_mode()
@@ -76,12 +75,14 @@ class SystemSettingsFrame(ctk.CTkFrame):
 
     def cancel_settings(self):
         for widget in self.winfo_children():
-            widget.destroy()
-        for widget in self.app.main_frame.winfo_children():
-            widget.grid()
-            # self.app.create_top_section()
-            # self.app.create_workflow_section()
-        self.app.main_frame.tkraise()
+            widget.grid_forget()
+        self.app.system_settings.grid_remove()
+        # for widget in self.app.main_frame.winfo_children():
+        #     widget.grid()
+        self.app.flow_frame.grid()
+        # self.app.create_top_section()
+        # self.app.create_workflow_section()
+        self.app.flow_frame.tkraise()
 
     def on_language_change(self, language_value):
         # Dynamically generate the mapping based on the language list

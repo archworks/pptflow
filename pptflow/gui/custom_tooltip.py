@@ -27,7 +27,7 @@ class CustomTooltip:
         if self.tooltip:
             return
         x, y, _, _ = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + self.widget.winfo_width() // 2 - 100
+        x += self.widget.winfo_rootx() + self.widget.winfo_width() // 2 - 50
         y = self.widget.winfo_rooty() - 30  # 组件上方，留点空间
 
         self.tooltip = ctk.CTkToplevel(self.widget)
