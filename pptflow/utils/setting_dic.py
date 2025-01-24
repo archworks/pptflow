@@ -20,7 +20,7 @@ tts_speech_voices = []
 # Video settings
 video_formats = ['MP4', 'AVI', 'MKV']
 video_codecs = ['H.264', 'H.265', 'VP9']
-video_sizes = ["1280x720", "1920x1080", "854x480"]
+video_sizes = ["1280x720", "1920x1080", "2560x1440", "3840x2160","720x480"]
 video_fps = ["10fps", "30fps", "24fps"]
 video_processing_threads = ["1", "2", "4", "8", "16"]
 # Audio settings

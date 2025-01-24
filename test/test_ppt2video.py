@@ -1,4 +1,4 @@
-import os
+import os,platform
 import sys
 import unittest
 from unittest.mock import patch, MagicMock
@@ -36,22 +36,23 @@ class TestPptToVideo(unittest.TestCase):
 
     def test_ppt_to_video_with_pytttsx3(self):
         from pptflow.tts.tts_pyttsx3 import tts
-        setting = Setting()
-        #setting.subtitle_font_path = 'C:/Windows/Fonts/timesi.ttf' # for windows only
-        setting.subtitle_font_path = '/System/Library/Fonts/Supplemental/Songti.ttc' # for macOS only
+        os_name = platform.system()
+        setting = Setting(os_name)
         ppt_path = os.path.join(parent_dir, "test/test-zh.pptx")
         
         ppt_to_video(tts, ppt_path, setting)
+        assert os.path.exists(setting.video_path)
     
     def test_ppt_to_video_with_azure(self):
         from pptflow.tts.tts_azure import tts
         setting = Setting()
-        #setting.subtitle_font_path = 'C:/Windows/Fonts/timesi.ttf' # for windows only
-        setting.tts_voice_name = "en-US-AndrewMultilingualNeural"
-        setting.subtitle_font_path = '/System/Library/Fonts/Supplemental/Arial.ttf' # for macOS only
+        os_name = platform.system()
+        setting = Setting(os_name)
+        setting.end_page_num = 2
         ppt_path = os.path.join(parent_dir, "test/test-en.pptx")
         
         ppt_to_video(tts, ppt_path, setting)
+        assert os.path.exists(setting.video_path)
 
 if __name__ == '__main__':
     unittest.main()
