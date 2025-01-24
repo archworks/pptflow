@@ -45,10 +45,8 @@ class TestPptToVideo(unittest.TestCase):
     
     def test_ppt_to_video_with_azure(self):
         from pptflow.tts.tts_azure import tts
-        setting = Setting()
         os_name = platform.system()
         setting = Setting(os_name)
-        setting.end_page_num = 2
         ppt_path = os.path.join(parent_dir, "test/test-en.pptx")
         
         ppt_to_video(tts, ppt_path, setting)
