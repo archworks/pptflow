@@ -18,7 +18,7 @@ class TestPptToVideo(unittest.TestCase):
     def test_ppt_to_video_mock_all(self, mock_create_video, mock_ppt_note_to_audio, mock_ppt_to_image):
         tts = MagicMock()
         setting = Setting()
-        ppt_path = os.path.join(parent_dir, "test-en.pptx")
+        ppt_path = os.path.join(parent_dir, "test/test-en.pptx")
         
         ppt_to_video(tts, ppt_path, setting)
         

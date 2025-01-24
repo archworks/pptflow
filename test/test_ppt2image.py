@@ -14,7 +14,7 @@ elif os_name == "Linux":
 elif os_name == "Darwin":  # macOS
     from pptflow.ppt2image_mac import ppt_to_image
 else:
-    raise NotImplementedError(f"不支持的操作系统: {os_name}")
+    raise NotImplementedError(f"Unsupported OS: {os_name}")
 from pptflow.config.setting import Setting
 
 test_path = os.path.join(parent_dir, "test")
