@@ -18,7 +18,7 @@ class TestPptToVideo(unittest.TestCase):
     def test_ppt_to_video_mock_all(self, mock_create_video, mock_ppt_note_to_audio, mock_ppt_to_image):
         tts = MagicMock()
         setting = Setting()
-        ppt_path = os.path.join(parent_dir, "test/test.pptx")
+        ppt_path = os.path.join(parent_dir, "test-en.pptx")
         
         ppt_to_video(tts, ppt_path, setting)
         
@@ -37,18 +37,19 @@ class TestPptToVideo(unittest.TestCase):
     def test_ppt_to_video_with_pytttsx3(self):
         from pptflow.tts.tts_pyttsx3 import tts
         setting = Setting()
-        # for macOS only
-        setting.subtitle_font = 'C:/Windows/Fonts/timesi.ttf'
-        ppt_path = os.path.join(parent_dir, "test/test.pptx")
+        #setting.subtitle_font_path = 'C:/Windows/Fonts/timesi.ttf' # for windows only
+        setting.subtitle_font_path = '/System/Library/Fonts/Supplemental/Songti.ttc' # for macOS only
+        ppt_path = os.path.join(parent_dir, "test/test-zh.pptx")
         
         ppt_to_video(tts, ppt_path, setting)
     
     def test_ppt_to_video_with_azure(self):
         from pptflow.tts.tts_azure import tts
         setting = Setting()
-        # for macOS only
-        setting.subtitle_font = 'C:/Windows/Fonts/timesi.ttf'
-        ppt_path = os.path.join(parent_dir, "test/test.pptx")
+        #setting.subtitle_font_path = 'C:/Windows/Fonts/timesi.ttf' # for windows only
+        setting.tts_voice_name = "en-US-AndrewMultilingualNeural"
+        setting.subtitle_font_path = '/System/Library/Fonts/Supplemental/Arial.ttf' # for macOS only
+        ppt_path = os.path.join(parent_dir, "test/test-en.pptx")
         
         ppt_to_video(tts, ppt_path, setting)
 

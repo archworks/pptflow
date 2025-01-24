@@ -18,6 +18,6 @@ else:
 from pptflow.config.setting import Setting
 
 test_path = os.path.join(parent_dir, "test")
-ppt_path = os.path.join(test_path, "test.pptx")
+ppt_path = os.path.join(test_path, "test-en.pptx")
 image_dir_path = os.path.join(os.path.join(parent_dir, "temp"), "image")
 ppt_to_image(ppt_path, Setting())
