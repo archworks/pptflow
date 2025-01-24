@@ -6,7 +6,8 @@ def ppt_to_image(input_ppt_path, setting, progress_tracker=None):
     file_name_without_ext = os.path.basename(input_ppt_path).split(".")[0]
     temp_pdf_path = os.path.join(setting.image_dir_path, f'{file_name_without_ext}.pdf')
     ppt_to_pdf(input_ppt_path, setting.image_dir_path)
-    pdf_to_image(temp_pdf_path, setting.image_dir_path, setting.video_width, setting.video_height)
+    pdf_to_image(temp_pdf_path, setting.image_dir_path, setting.video_width, setting.video_height, \
+                 setting.start_page_num, setting.end_page_num)
 
     # remove the temporary pdf file
     if os.path.exists(temp_pdf_path):
