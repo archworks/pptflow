@@ -6,18 +6,13 @@ sys.path.append(parent_dir)
 
 from dotenv import load_dotenv
 load_dotenv()
-os_name = platform.system()
-if os_name == "Windows":
-    from pptflow.ppt2image_win import ppt_to_image
-elif os_name == "Linux":
-    from pptflow.ppt2image_linux import ppt_to_image
-elif os_name == "Darwin":  # macOS
-    from pptflow.ppt2image_mac import ppt_to_image
-else:
-    raise NotImplementedError(f"Unsupported OS: {os_name}")
 from pptflow.config.setting import Setting
+from pptflow.ppt2image_factory import get_ppt_to_image
+
 
 test_path = os.path.join(parent_dir, "test")
 ppt_path = os.path.join(test_path, "test-en.pptx")
 image_dir_path = os.path.join(os.path.join(parent_dir, "temp"), "image")
-ppt_to_image(ppt_path, Setting())
+setting = Setting()
+ppt_to_image = get_ppt_to_image()
+ppt_to_image.convert(ppt_path, setting)
