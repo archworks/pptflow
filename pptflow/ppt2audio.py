@@ -114,7 +114,7 @@ async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None)
 
 
 def split_text(text, max_chars=100):
-    delimiters = r'([,.;!?，。；！？\n])'
+    delimiters = r'([,.;:!?，。；：！？\n])'
     # 分割文本并保留分隔符
     sentences = re.split(delimiters, text)
     # 将分隔符与句子合并
