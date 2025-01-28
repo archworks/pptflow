@@ -59,12 +59,18 @@ class PPTFlowApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         # Create main frame
-        self.main_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.main_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#F6F7F9")
         self.main_frame.grid(row=0, column=0, sticky="nsew")
+
         self.main_frame.grid_columnconfigure(0, weight=1)
         self.main_frame.grid_rowconfigure(0, weight=1)
         self.main_frame.grid_rowconfigure(1, weight=3)
         self.main_frame.grid_rowconfigure(2, weight=1)
+
+        # Load and set background image
+        bg_image = ctk.CTkImage(Image.open(os.path.join("assets/icons", "header-background.png")), size=(800, 173))
+        self.bg_label = ctk.CTkLabel(self.main_frame, image=bg_image, text="")
+        self.bg_label.place(x=0, y=0, anchor="nw")
 
         # 顶部标题和图标部分
         self.create_top_section()
@@ -76,41 +82,42 @@ class PPTFlowApp(ctk.CTk):
         # self.create_bottom_section()
 
     def create_top_section(self):
-        self.top_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="transparent")
-        self.top_frame.grid(row=0, column=0, columnspan=7, sticky="nsew")
-        self.top_frame.grid_columnconfigure(0, weight=7)
+        # self.top_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="transparent")
+        # self.top_frame.grid(row=0, column=0, columnspan=7, sticky="nsew")
+        # self.top_frame.grid_columnconfigure(0, weight=7)
+        
         # 标题部分
-        title_frame = ctk.CTkFrame(self.top_frame, fg_color="transparent")
+        title_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         title_frame.grid(row=0, column=0, padx=(100, 0), pady=20)
 
         # 加粗的 PPT
-        ppt_label = ctk.CTkLabel(title_frame, text="PPT", font=ctk.CTkFont(size=24, weight="bold"))
+        ppt_label = ctk.CTkLabel(title_frame, text="PPT", font=ctk.CTkFont(size=24, weight="bold"), anchor="e", text_color="white", fg_color="#2359FF")
         ppt_label.grid(row=0, column=0)
 
         # 正常的 Flow
-        flow_label = ctk.CTkLabel(title_frame, text="Flow", font=ctk.CTkFont(size=24, weight="normal"))
+        flow_label = ctk.CTkLabel(title_frame, text="Flow", font=ctk.CTkFont(size=24, weight="normal"), anchor="w", text_color="white", fg_color="#2359FF")
         flow_label.grid(row=0, column=1)
         # self.title_label = ctk.CTkLabel(self.top_frame, text="PPTFlow",
         #                                 font=ctk.CTkFont(size=24, weight="bold", slant="italic"))
         # self.title_label.grid(row=0, column=0, padx=(60, 0), pady=20, sticky="nsew")
 
         # 右上角的图标按钮（设置和GitHub）
-        self.settings_button = ctk.CTkButton(self.top_frame, text="",
-                                             image=self.load_ctk_image(os.path.join(self.icon_dir, "settings1.png"),
+        self.settings_button = ctk.CTkButton(self.main_frame, text="",
+                                             image=self.load_ctk_image(os.path.join(self.icon_dir, "system-setting.png"),
                                                                        size=20),
-                                             width=20, height=20, fg_color="transparent",
+                                             width=20, height=20, fg_color="#2359FF",corner_radius=0,
                                              hover_color=("gray70", "gray30"),
                                              command=lambda: self.select_frame("System Settings"))
-        self.github_button = ctk.CTkButton(self.top_frame, text="",
+        self.github_button = ctk.CTkButton(self.main_frame, text="",
                                            image=self.load_ctk_image(os.path.join(self.icon_dir, "github.png"),
                                                                      size=20),
-                                           width=20, height=20, fg_color="transparent",
+                                           width=20, height=20, fg_color="#2359FF",corner_radius=0,
                                            hover_color=("gray70", "gray30"),
                                            command=lambda: self.on_button_click("Github"))
-        self.discord_button = ctk.CTkButton(self.top_frame, text="",
+        self.discord_button = ctk.CTkButton(self.main_frame, text="",
                                             image=self.load_ctk_image(os.path.join(self.icon_dir, "discord.png"),
                                                                       size=20),
-                                            width=20, height=20, fg_color="transparent",
+                                            width=20, height=20, fg_color="#2359FF",corner_radius=0,
                                             hover_color=("gray70", "gray30"),
                                             command=lambda: self.on_button_click("Discord"))
 
@@ -119,8 +126,8 @@ class PPTFlowApp(ctk.CTk):
         self.discord_button.grid(row=0, column=3, padx=0, pady=10, sticky="ne")
 
     def create_workflow_section(self):
-        self.flow_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="transparent")
-        self.flow_frame.grid(row=1, column=0, columnspan=7, padx=100, sticky="nsew")
+        self.flow_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="white")
+        self.flow_frame.grid(row=1, column=0, columnspan=7, padx=100, pady=(40, 50), sticky="nsew")
         for i in range(7):
             self.flow_frame.grid_columnconfigure(i, weight=1)
         # 流程图布局
@@ -135,13 +142,13 @@ class PPTFlowApp(ctk.CTk):
             # 图标
             icon_image = self.load_ctk_image(icon, size=50)  # 调整图标大小
             icon_button = ctk.CTkButton(self.flow_frame, image=icon_image, text="", width=80, height=80,
-                                        fg_color="transparent", hover_color="gray")
-            icon_button.grid(row=row_offset, column=i * 2, padx=5, pady=(20, 10))
+                                        fg_color="transparent", hover=False)
+            icon_button.grid(row=row_offset, column=i * 2, padx=5, pady=(50, 0))
 
             # 流程连接线
             if i < len(self.icons) - 1:
                 line = ctk.CTkLabel(self.flow_frame, text="─" * 3, font=ctk.CTkFont(size=20), text_color="gray")
-                line.grid(row=row_offset, column=i * 2 + 1, pady=10)
+                line.grid(row=row_offset, column=i * 2 + 1, pady=(50, 0))
 
     def select_flow_1(self, i, row_offset=1):
         # self.file_frame = ctk.CTkFrame(self.flow_frame)
@@ -160,17 +167,17 @@ class PPTFlowApp(ctk.CTk):
         self.cancel_file.grid_remove()
 
         self.select_button = ctk.CTkButton(self.flow_frame, text="Select PPT File",
-                                           font=ctk.CTkFont(size=12), width=100,
+                                           font=ctk.CTkFont(size=12), width=120,
                                            command=lambda: self.on_button_click("Select PPT File"))
         self.select_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.update_flow(i, self.select_button)
 
     def setting_flow_2(self, i, row_offset=1):
         self.adjust_button = ctk.CTkButton(self.flow_frame, text="Adjust Settings",
-                                           font=ctk.CTkFont(size=12), width=100,
+                                           font=ctk.CTkFont(size=12), width=120, text_color="white", text_color_disabled="white",
                                            command=lambda: self.select_frame("Adjust Settings"))
         self.skip_button = ctk.CTkButton(self.flow_frame, text="Skip Settings",
-                                         font=ctk.CTkFont(size=12), width=100,
+                                         font=ctk.CTkFont(size=12), width=120, text_color="white", text_color_disabled="white",
                                          command=lambda: self.on_button_click("Skip Settings"))
         self.adjust_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.skip_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
@@ -200,17 +207,17 @@ class PPTFlowApp(ctk.CTk):
         self.progress_frame.grid_remove()
 
         self.generate_button = ctk.CTkButton(self.flow_frame, text="Generate Video", font=ctk.CTkFont(size=12),
-                                             width=100,
+                                             width=120, text_color="white", text_color_disabled="white",
                                              command=lambda label="Generate Video": self.on_button_click(label))
         self.generate_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.update_flow(i, self.generate_button)
 
     def review_flow_4(self, i, row_offset=1):
         self.play_button = ctk.CTkButton(self.flow_frame, text="Preview and Play",
-                                         font=ctk.CTkFont(size=12), width=100,
+                                         font=ctk.CTkFont(size=12), width=120, text_color="white", text_color_disabled="white",
                                          command=lambda: self.on_button_click("Preview and Play"))
         self.reselect_button = ctk.CTkButton(self.flow_frame, text="Reselect PPT",
-                                             font=ctk.CTkFont(size=12), width=100,
+                                             font=ctk.CTkFont(size=12), width=120, text_color="white", text_color_disabled="white",
                                              command=lambda: self.on_button_click("Reselect PPT"))
         self.play_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.reselect_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
@@ -244,14 +251,14 @@ class PPTFlowApp(ctk.CTk):
             icon_image = self.load_ctk_image(self.completed_icons[icon_index], size=50)
         elif icon_index == self.step:
             # 当前步骤
-            button.configure(state="normal")
+            button.configure(state="normal", fg_color="#2563EB", text_color="white")
             if icon_index == len(self.completed_icons) - 1:
                 icon_image = self.load_ctk_image(self.completed_icons[icon_index], size=50)
             else:
                 icon_image = self.load_ctk_image(self.icons[icon_index], size=50)
         else:
             # 后续步骤，禁用
-            button.configure(state="disabled", fg_color="gray")
+            button.configure(state="disabled", fg_color="#B7B7B7")
             icon_image = self.load_ctk_image(self.disabled_icons[icon_index], size=50)
         return icon_image
 
@@ -284,10 +291,12 @@ class PPTFlowApp(ctk.CTk):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         window_width = 800
-        window_height = 400
+        window_height = 450
         x = (screen_width - window_width) // 2
         y = (screen_height - window_height) // 2
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        
+        self.resizable(False, False)
 
     def get_text(self, key):
         return self.translations.get(key, key)
@@ -410,13 +419,15 @@ class PPTFlowApp(ctk.CTk):
             self.adjust_settings.grid(row=0, column=0, padx=100, sticky="nsew")
             self.adjust_settings.refresh()
             self.adjust_settings.tkraise()
+            self.adjust_settings.grab_set()
         elif name == "Skip Settings":
             self.next_step()
         elif name == "System Settings":
             from .system_settings import SystemSettingsFrame
             self.system_settings = SystemSettingsFrame(self)
-            self.system_settings.grid(row=0, column=0, padx=200, sticky="nsew")
+            self.system_settings.grid(row=0, column=0, padx=100, pady=(100, 50),sticky="nsew")
             self.system_settings.tkraise()
+            self.system_settings.grab_set()
 
     def load_tts(self, tts_service_provider):
         # import tts module according to service provider

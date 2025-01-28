@@ -40,8 +40,8 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         # self.title.grid(row=0, column=0, padx=20, pady=20)
         # self.title.grid_remove()
         #
-        # self.font_size = 12
-        # self.font = ctk.CTkFont(size=self.font_size, weight="normal")
+        self.font_size = 12
+        self.font = ctk.CTkFont(size=self.font_size, weight="normal")
 
         # Create scrollable frame for settings
         self.scrollable_frame = ctk.CTkScrollableFrame(self)

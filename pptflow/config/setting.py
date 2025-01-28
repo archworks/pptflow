@@ -32,7 +32,7 @@ class Setting:
     win_subtitle_font: str = 'Microsoft YaHei' # @金枫 注意以subtitle_font_path为准，需要重构
     mac_subtitle_font: str = 'Times New Roman'
     subtitle_font_path: str = None
-    subtitle_font_size: int = 24
+    subtitle_font_size: int = 28
     subtitle_color: str = 'white'
     subtitle_stroke_color: str = 'black'  # subtitle outline color
     subtitle_stroke_width: int = 1  # subtitle outline width
