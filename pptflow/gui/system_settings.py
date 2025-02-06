@@ -26,7 +26,7 @@ class SystemSettingsFrame(ctk.CTkFrame):
 
         self.create_language_mode()
         self.create_theme_mode()
-        self.create_scale_mode()
+        # self.create_scale_mode()
         self.create_confirm_cancel_button()
 
     def create_language_mode(self):
@@ -39,28 +39,29 @@ class SystemSettingsFrame(ctk.CTkFrame):
                                                 values=self.language_list,
                                                 command=self.on_language_change)
         self.language_setting.grid(row=0, column=1, padx=20, pady=10)
+        self.language_setting.set(self.app.get_text(self.app.current_language))
 
     def create_theme_mode(self):
         # Theme selection
         self.theme_label = ctk.CTkLabel(self.setting_frame, text=self.app.get_text("theme"), font=self.font)
         self.theme_label.grid(row=1, column=0, padx=20, pady=10)
 
-        self.theme = ctk.CTkComboBox(self.setting_frame, values=[self.app.get_text("dark"),
-                                                                 self.app.get_text("light"),
+        self.theme = ctk.CTkComboBox(self.setting_frame, values=[self.app.get_text("light"),
+                                                                 self.app.get_text("dark"),
                                                                  self.app.get_text("system")],
                                      font=self.font,
                                      command=self.change_appearance_mode_event)
         self.theme.grid(row=1, column=1, padx=20, pady=10)
-        self.theme_map = {self.app.translations[key]: key for key in ['dark', 'light', 'system']}
+        self.theme_map = {self.app.translations[key]: key for key in ['light', 'dark', 'system']}
 
-    def create_scale_mode(self):
-        # Scaling selection
-        self.scaling_label = ctk.CTkLabel(self.setting_frame, text=self.app.get_text("ui_scaling"), font=self.font)
-        self.scaling_label.grid(row=2, column=0, padx=20, pady=10)
-        self.scaling_optionemenu = ctk.CTkComboBox(self.setting_frame, values=["80%", "90%", "100%", "110%", "120%"],
-                                                   command=self.change_scaling_event, font=self.font)
-        self.scaling_optionemenu.set("100%")
-        self.scaling_optionemenu.grid(row=2, column=1, padx=20, pady=10)
+    # def create_scale_mode(self):
+    #     # Scaling selection
+    #     self.scaling_label = ctk.CTkLabel(self.setting_frame, text=self.app.get_text("ui_scaling"), font=self.font)
+    #     self.scaling_label.grid(row=2, column=0, padx=20, pady=10)
+    #     self.scaling_optionemenu = ctk.CTkComboBox(self.setting_frame, values=["80%", "90%", "100%", "110%", "120%"],
+    #                                                command=self.change_scaling_event, font=self.font)
+    #     self.scaling_optionemenu.set("100%")
+    #     self.scaling_optionemenu.grid(row=2, column=1, padx=20, pady=10)
 
     def create_confirm_cancel_button(self):
         self.confirm_button = ctk.CTkButton(self.setting_frame, text=self.app.get_text("confirm"),
@@ -90,9 +91,11 @@ class SystemSettingsFrame(ctk.CTkFrame):
         self.app.change_language(language)
         self.update_language()
         self.create_language_mode()
-        self.app.create_top_section()
-        self.app.create_workflow_section()
-        self.language_setting.set(self.app.get_text(self.app.current_language))
+        self.app.update_language()
+
+        # self.app.create_top_section()
+        # self.app.create_workflow_section()
+        # self.language_setting.set(self.app.get_text(self.app.current_language))
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         new_mode = self.theme_map[new_appearance_mode]
@@ -108,6 +111,6 @@ class SystemSettingsFrame(ctk.CTkFrame):
         self.theme_label.configure(text=self.app.get_text("theme"))
         self.theme.set(self.app.get_text(self.theme_map[self.theme.get()]))
         self.theme_map = {self.app.translations[key]: key for key in ['dark', 'light', 'system']}
-        self.scaling_label.configure(text=self.app.get_text("ui_scaling"))
+        # self.scaling_label.configure(text=self.app.get_text("ui_scaling"))
         self.confirm_button.configure(text=self.app.get_text("confirm"))
         self.return_button.configure(text=self.app.get_text("return"))

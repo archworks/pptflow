@@ -50,6 +50,11 @@ class PPTFlowApp(ctk.CTk):
         self.loading_title = self.get_text("generate_video")
         self.file_display = ""
         self.tooltip = None
+        self.cancel_file = None
+        self.select_button = None
+        self.adjust_settings = None
+        self.cancel_settings = None
+        self.generate_button = None
 
         # Configure window
         self.title("PPTFlow")
@@ -57,14 +62,16 @@ class PPTFlowApp(ctk.CTk):
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=3)
+        self.grid_rowconfigure(2, weight=1)
 
         # Create main frame
-        self.main_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.main_frame.grid(row=0, column=0, sticky="nsew")
-        self.main_frame.grid_columnconfigure(0, weight=1)
-        self.main_frame.grid_rowconfigure(0, weight=1)
-        self.main_frame.grid_rowconfigure(1, weight=3)
-        self.main_frame.grid_rowconfigure(2, weight=1)
+        # self.main_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        # self.main_frame.grid(row=0, column=0, sticky="nsew")
+        # self.main_frame.grid_columnconfigure(0, weight=1)
+        # self.main_frame.grid_rowconfigure(0, weight=1)
+        # self.main_frame.grid_rowconfigure(1, weight=3)
+        # self.main_frame.grid_rowconfigure(2, weight=1)
 
         # 顶部标题和图标部分
         self.create_top_section()
@@ -76,7 +83,7 @@ class PPTFlowApp(ctk.CTk):
         # self.create_bottom_section()
 
     def create_top_section(self):
-        self.top_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="transparent")
+        self.top_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.top_frame.grid(row=0, column=0, columnspan=7, sticky="nsew")
         self.top_frame.grid_columnconfigure(0, weight=7)
         # 标题部分
@@ -119,31 +126,31 @@ class PPTFlowApp(ctk.CTk):
         self.discord_button.grid(row=0, column=3, padx=0, pady=10, sticky="ne")
 
     def create_workflow_section(self):
-        self.flow_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="transparent")
+        self.flow_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.flow_frame.grid(row=1, column=0, columnspan=7, padx=100, sticky="nsew")
         for i in range(7):
             self.flow_frame.grid_columnconfigure(i, weight=1)
         # 流程图布局
-        row_offset = 1  # 从第1行开始布局
+        # row_offset = 1  # 从第1行开始布局
 
-        self.select_flow_1(0, row_offset)
-        self.setting_flow_2(1, row_offset)
-        self.generation_flow_3(2, row_offset)
-        self.review_flow_4(3, row_offset)
+        self.select_flow_0(0)
+        self.setting_flow_1(1)
+        self.generation_flow_2(2)
+        self.review_flow_3(3)
 
         for i, (icon, label_text) in enumerate(zip(self.icons, self.labels)):
             # 图标
             icon_image = self.load_ctk_image(icon, size=50)  # 调整图标大小
             icon_button = ctk.CTkButton(self.flow_frame, image=icon_image, text="", width=80, height=80,
                                         fg_color="transparent", hover_color="gray")
-            icon_button.grid(row=row_offset, column=i * 2, padx=5, pady=(20, 10))
+            icon_button.grid(row=1, column=i * 2, padx=5, pady=(20, 10))
 
             # 流程连接线
             if i < len(self.icons) - 1:
                 line = ctk.CTkLabel(self.flow_frame, text="─" * 3, font=ctk.CTkFont(size=20), text_color="gray")
-                line.grid(row=row_offset, column=i * 2 + 1, pady=10)
+                line.grid(row=1, column=i * 2 + 1, pady=10)
 
-    def select_flow_1(self, i, row_offset=1):
+    def select_flow_0(self, i, row_offset=1):
         # self.file_frame = ctk.CTkFrame(self.flow_frame)
         # self.file_frame.grid(row=row_offset + 1, column=i * 2)
         self.file_label_var = ctk.StringVar()
@@ -159,17 +166,17 @@ class PPTFlowApp(ctk.CTk):
         self.file_label.grid_remove()
         self.cancel_file.grid_remove()
 
-        self.select_button = ctk.CTkButton(self.flow_frame, text="Select PPT File",
+        self.select_button = ctk.CTkButton(self.flow_frame, text=self.get_text("select_ppt"),
                                            font=ctk.CTkFont(size=12), width=100,
                                            command=lambda: self.on_button_click("Select PPT File"))
-        self.select_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
-        self.update_flow(i, self.select_button)
+        self.select_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=5)
+        self.update_button(i, self.select_button)
 
-    def setting_flow_2(self, i, row_offset=1):
-        self.adjust_button = ctk.CTkButton(self.flow_frame, text="Adjust Settings",
+    def setting_flow_1(self, i, row_offset=1):
+        self.adjust_button = ctk.CTkButton(self.flow_frame, text=self.get_text("adjust_settings"),
                                            font=ctk.CTkFont(size=12), width=100,
                                            command=lambda: self.select_frame("Adjust Settings"))
-        self.skip_button = ctk.CTkButton(self.flow_frame, text="Skip Settings",
+        self.skip_button = ctk.CTkButton(self.flow_frame, text=self.get_text("skip_settings"),
                                          font=ctk.CTkFont(size=12), width=100,
                                          command=lambda: self.on_button_click("Skip Settings"))
         self.adjust_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
@@ -180,45 +187,45 @@ class PPTFlowApp(ctk.CTk):
                                              command=lambda: self.on_button_click("Cancel Settings"))
         self.cancel_settings.grid(row=row_offset + 3, column=i * 2, pady=5, padx=(5, 5))
         self.cancel_settings.grid_remove()
-        self.update_flow(i, self.adjust_button)
-        self.update_flow(i, self.skip_button)
+        self.update_button(i, self.adjust_button)
+        self.update_button(i, self.skip_button)
 
-    def generation_flow_3(self, i, row_offset=1):
+    def generation_flow_2(self, i, row_offset=1):
         # Progress bar and status
-        self.progress_frame = ctk.CTkFrame(self.flow_frame, width=100)
-        self.progress_frame.grid(row=row_offset + 1, column=i * 2)
-        self.progress_frame.grid_columnconfigure(0, weight=1)
+        # self.progress_frame = ctk.CTkFrame(self.flow_frame, width=100, height=28)
+        # self.progress_frame.grid(row=row_offset + 1, column=i * 2)
+        # self.progress_frame.grid_columnconfigure(0, weight=1)
 
-        self.progress_bar = ctk.CTkProgressBar(self.progress_frame, width=100)
-        self.progress_bar.grid(row=0, column=0, padx=5, pady=(0, 5), sticky="ew")
+        self.progress_bar = ctk.CTkProgressBar(self.flow_frame, width=100, height=12)
+        self.progress_bar.grid(row=row_offset + 1, column=i * 2, padx=5, pady=5)
         self.progress_bar.set(0)
 
-        self.status_label = ctk.CTkLabel(self.progress_frame, text="")
-        self.status_label.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="ew")
+        # self.status_label = ctk.CTkLabel(self.progress_frame, text="")
+        # self.status_label.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="ew")
 
         # Hide progress frame initially
-        self.progress_frame.grid_remove()
+        self.progress_bar.grid_remove()
 
-        self.generate_button = ctk.CTkButton(self.flow_frame, text="Generate Video", font=ctk.CTkFont(size=12),
+        self.generate_button = ctk.CTkButton(self.flow_frame, text=self.get_text("generate_video"), font=ctk.CTkFont(size=12),
                                              width=100,
                                              command=lambda label="Generate Video": self.on_button_click(label))
-        self.generate_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
-        self.update_flow(i, self.generate_button)
+        self.generate_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=5)
+        self.update_button(i, self.generate_button)
 
-    def review_flow_4(self, i, row_offset=1):
-        self.play_button = ctk.CTkButton(self.flow_frame, text="Preview and Play",
+    def review_flow_3(self, i, row_offset=1):
+        self.play_button = ctk.CTkButton(self.flow_frame, text=self.get_text("preview_and_play"),
                                          font=ctk.CTkFont(size=12), width=100,
                                          command=lambda: self.on_button_click("Preview and Play"))
-        self.reselect_button = ctk.CTkButton(self.flow_frame, text="Reselect PPT",
+        self.reselect_button = ctk.CTkButton(self.flow_frame, text=self.get_text("reselect_ppt"),
                                              font=ctk.CTkFont(size=12), width=100,
                                              command=lambda: self.on_button_click("Reselect PPT"))
         self.play_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.reselect_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
-        self.update_flow(i, self.play_button)
-        self.update_flow(i, self.reselect_button)
+        self.update_button(i, self.play_button)
+        self.update_button(i, self.reselect_button)
 
     def create_bottom_section(self):
-        self.bottom_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="transparent")
+        self.bottom_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.bottom_frame.grid(row=2, column=0)
         # 显示进度
         progress_label = ctk.CTkLabel(self.bottom_frame, text=f"Step {self.step + 1}/{len(self.icons)}",
@@ -236,7 +243,7 @@ class PPTFlowApp(ctk.CTk):
         prev_button.grid(row=0, column=0, padx=0, pady=10)
         next_button.grid(row=0, column=2, padx=0, pady=10)
 
-    def update_flow(self, icon_index, button):
+    def update_button(self, icon_index, button):
         # 根据步骤更新图标和按钮状态
         if icon_index < self.step:
             # 完成的步骤
@@ -259,7 +266,7 @@ class PPTFlowApp(ctk.CTk):
         logger.info(f"Current Step: {self.step}")
         if self.step > 0:
             self.step -= 1
-            self.update_ui()
+            self.update_flow()
         logger.info(f"Go previous Step: {self.step}")
 
     def next_step(self):
@@ -272,12 +279,16 @@ class PPTFlowApp(ctk.CTk):
         #     return
         if self.step < len(self.icons) - 1:
             self.step += 1
-            self.update_ui()
+            self.update_flow()
         logger.info(f"Go next Step: {self.step}")
 
-    def update_ui(self):
-        self.create_workflow_section()  # 更新流程部分
+    def update_flow(self):
+        # self.create_workflow_section()  # 更新流程部分
         # self.create_bottom_section()  # 更新底部导航
+        self.select_flow_0(0)
+        self.setting_flow_1(1)
+        self.generation_flow_2(2)
+        self.review_flow_3(3)
 
     def center_window(self):
         """Center the window on the screen."""
@@ -348,15 +359,15 @@ class PPTFlowApp(ctk.CTk):
             self.step += 1
             self.adjust_button.grid_remove()
             self.skip_button.grid_remove()
-            self.setting_flow_2(1)
+            self.setting_flow_1(1)
             self.cancel_settings.grid()
-            self.generation_flow_3(2)
+            self.generation_flow_2(2)
         elif label_text == "Cancel Settings":
-            self.step -= 1
+            self.step = 1
             self.cancel_settings.grid_remove()
-            self.setting_flow_2(1)
-            self.generation_flow_3(2)
-            self.review_flow_4(3)
+            self.setting_flow_1(1)
+            self.generation_flow_2(2)
+            self.review_flow_3(3)
         elif label_text == "Generate Video":
             threading.Thread(target=self.generate_video).start()
         elif label_text == "Preview and Play":
@@ -364,7 +375,7 @@ class PPTFlowApp(ctk.CTk):
         elif label_text == "Reselect PPT":
             self.step = 0
             self.file_display = ""
-            self.update_ui()
+            self.update_flow()
         elif label_text == "Github":
             webbrowser.open("https://github.com/archworks/pptflow")
         elif label_text == "Discord":
@@ -397,7 +408,7 @@ class PPTFlowApp(ctk.CTk):
 
             self.select_button.grid_remove()
             self.step += 1
-            self.setting_flow_2(1)
+            self.setting_flow_1(1)
 
     def select_frame(self, name):
         # for widget in self.main_frame.winfo_children():
@@ -407,15 +418,18 @@ class PPTFlowApp(ctk.CTk):
             from .adjust_settings import AdjustSettingsFrame
             # 显示 ExportSection
             self.adjust_settings = AdjustSettingsFrame(self)
-            self.adjust_settings.grid(row=0, column=0, padx=100, sticky="nsew")
+            self.adjust_settings.grid(row=1, column=0, padx=100, sticky="nsew")
             self.adjust_settings.refresh()
             self.adjust_settings.tkraise()
         elif name == "Skip Settings":
             self.next_step()
         elif name == "System Settings":
+            if self.adjust_settings is not None:
+                self.adjust_settings.grid_remove()
+            self.flow_frame.grid_remove()
             from .system_settings import SystemSettingsFrame
             self.system_settings = SystemSettingsFrame(self)
-            self.system_settings.grid(row=0, column=0, padx=200, sticky="nsew")
+            self.system_settings.grid(row=1, column=0, padx=200, sticky="nsew")
             self.system_settings.tkraise()
 
     def load_tts(self, tts_service_provider):
@@ -458,7 +472,7 @@ class PPTFlowApp(ctk.CTk):
     def update_progress(self, progress: float, status: str):
         """Update progress bar and status label"""
         self.progress_bar.set(progress)
-        self.status_label.configure(text=status)
+        # self.status_label.configure(text=status)
 
     def generate_video(self):
         if not self.setting.subtitle_font_path:
@@ -468,29 +482,34 @@ class PPTFlowApp(ctk.CTk):
             return
         try:
             # Show progress frame
-            self.progress_frame.grid()
+            self.generate_button.grid_remove()
+            self.progress_bar.grid()
+            self.update()
+            # self.progress_bar.grid()
+            # self.generate_button.grid()
+            # self.generate_button.configure(state=ctk.DISABLED)
 
             # Initialize progress tracker
             self.progress_tracker = ProgressTracker(self.update_progress)
 
-            self.generate_button.grid_remove()
+            # self.generate_button.grid_remove()
             ppt2video.ppt_to_video(self.tts, self.file_display, self.setting, self.progress_tracker)
 
             messagebox.showinfo(self.loading_title,
                                 f'{self.get_text("video_generated")}{self.setting.video_path}')
             self.step += 1
-            self.generation_flow_3(2)
-            self.review_flow_4(3)
+            self.generation_flow_2(2)
+            self.review_flow_3(3)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate video: {str(e)}")
             logger.error(e, exc_info=True)
             return
         finally:
             # Hide progress frame
-            self.progress_frame.grid_remove()
+            self.progress_bar.grid_remove()
             self.generate_button.grid()
             self.progress_bar.set(0)
-            self.status_label.configure(text="")
+            # self.status_label.configure(text="")
 
     def play_video(self):
         logger.info(f'video_path:{self.setting.video_path}')
@@ -508,7 +527,9 @@ class PPTFlowApp(ctk.CTk):
         self.file_label_var.set("")
         self.tooltip = None
         self.setting.video_path = ""
-        self.update_ui()
+        self.cancel_file.grid_remove()
+        # self.update_flow()
+        self.create_workflow_section()
 
     def load_ctk_image(self, file_name, size):
         try:
@@ -521,6 +542,20 @@ class PPTFlowApp(ctk.CTk):
         except Exception as e:
             print(f"Error loading icon {file_name}: {e}")
             return None
+
+    def update_language(self):
+        if self.select_button:
+            self.select_button.configure(text=self.get_text("select_ppt"))
+        if self.cancel_file:
+            self.cancel_file.configure(text=self.get_text("cancel"))
+        self.adjust_button.configure(text=self.get_text("adjust_settings"))
+        self.skip_button.configure(text=self.get_text("skip_settings"))
+        if self.cancel_settings:
+            self.cancel_settings.configure(text=self.get_text("cancel"))
+        if self.generate_button:
+            self.generate_button.configure(text=self.get_text("generate_video"))
+        self.play_button.configure(text=self.get_text("preview_and_play"))
+        self.reselect_button.configure(text=self.get_text("reselect_ppt"))
 
 
 def resource_path(relative_path):

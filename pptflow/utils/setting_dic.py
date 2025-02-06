@@ -18,9 +18,9 @@ tts_service_providers = ["azure", "pyttsx3"]
 tts_speech_regions = ["eastasia", "northeurope", "southeastasia", "westus"]
 tts_speech_voices = []
 # Video settings
-video_formats = ['MP4', 'AVI', 'MKV']
+video_formats = ['MP4']
 video_codecs = ['H.264', 'H.265', 'VP9']
-video_sizes = ["1280x720", "1920x1080", "854x480"]
+video_sizes = ["1280x720", "1920x1080"]
 video_fps = ["10fps", "30fps", "24fps"]
 video_processing_threads = ["1", "2", "4", "8", "16"]
 # Audio settings
@@ -31,6 +31,7 @@ audio_voice_type = ["zh-CN-YunjianNeural", "zh-CN-XiaoxiaoNeural"]
 audio_speeds = ["1.0x", "0.8x", "1.2x", "1.5x"]
 audio_languages = ['en', 'zh']
 # Subtitle settings
+subtitle_lengths = ["15", "20", "35", "50", "70"]
 subtitle_font_dict = {}
 font_colors = ['white', 'black', 'red', 'blue', 'yellow', 'green']
 border_colors = ['black', 'white', 'no_color']

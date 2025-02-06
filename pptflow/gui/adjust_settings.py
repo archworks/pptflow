@@ -14,14 +14,14 @@ logger = mylogger.get_logger(__name__)
 def create_combo_box(parent, index, options, variable, command=None):
     for i, (key, values) in enumerate(options.items()):
         label = ctk.CTkLabel(parent, text=f"{key}:", font=ctk.CTkFont(size=12, weight="normal"))
-        label.grid(row=index + i + 1, column=0, padx=20, pady=5, sticky="w")
+        label.grid(row=index + i + 1, column=0, padx=5, pady=5, sticky="w")
 
         # Create a StringVar variable for each ComboBox
         var = ctk.StringVar(value=values[0])
         variable[key] = var
 
         combo = ctk.CTkComboBox(parent, values=values, variable=var, font=ctk.CTkFont(size=12, weight="normal"))
-        combo.grid(row=index + i + 1, column=1, padx=20, pady=5)
+        combo.grid(row=index + i + 1, column=1, padx=5, pady=5)
 
 
 class AdjustSettingsFrame(ctk.CTkFrame):
@@ -39,9 +39,9 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         # )
         # self.title.grid(row=0, column=0, padx=20, pady=20)
         # self.title.grid_remove()
-        #
-        # self.font_size = 12
-        # self.font = ctk.CTkFont(size=self.font_size, weight="normal")
+
+        self.font_size = 12
+        self.font = ctk.CTkFont(size=self.font_size, weight="normal")
 
         # Create scrollable frame for settings
         self.scrollable_frame = ctk.CTkScrollableFrame(self)
@@ -287,6 +287,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                     self.app.get_text("font_type"): [key for key in sd.subtitle_font_dict],
                     self.app.get_text("font_size"): [str(i) for i in range(18, 49, 2)],
                     self.app.get_text("font_color"): [self.app.get_text(s) for s in sd.font_colors],
+                    self.app.get_text("subtitle_length"): [self.app.get_text(s) for s in sd.subtitle_lengths],
                     self.app.get_text("border_color"): [self.app.get_text(s) for s in sd.border_colors],
                     self.app.get_text("border_width"): sd.border_widths
                 }
@@ -295,6 +296,8 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                 self.subtitle_settings_vars[self.app.get_text("font_size")].set(self.app.setting.subtitle_font_size)
                 self.subtitle_settings_vars[self.app.get_text("font_color")].set(
                     self.app.get_text(self.app.setting.subtitle_color))
+                self.subtitle_settings_vars[self.app.get_text("subtitle_length")].set(
+                    self.app.get_text(self.app.setting.subtitle_length))
                 self.subtitle_settings_vars[self.app.get_text("border_color")].set(
                     self.app.get_text(self.app.setting.subtitle_stroke_color))
                 self.subtitle_settings_vars[self.app.get_text("border_width")].set(
@@ -328,11 +331,11 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.update_subtitle_settings()
         messagebox.showinfo("Success", "Settings saved successfully!")
         self.app.step += 1
-        self.app.setting_flow_2(1)
+        self.app.setting_flow_1(1)
         # self.app.adjust_button.grid_remove()
         # self.app.skip_button.grid_remove()
         self.app.cancel_settings.grid()
-        self.app.generation_flow_3(2)
+        self.app.generation_flow_2(2)
         self.cancel_settings()
         logger.info(f"Settings saved successfully!")
 
@@ -406,6 +409,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         subtitle_font = self.subtitle_settings_vars[self.app.get_text("font_type")].get()
         subtitle_font_size = self.subtitle_settings_vars[self.app.get_text("font_size")].get()
         subtitle_font_color = self.subtitle_settings_vars[self.app.get_text("font_color")].get().lower()
+        subtitle_length = self.subtitle_settings_vars[self.app.get_text("subtitle_length")].get()
         subtitle_border_color = self.subtitle_settings_vars[self.app.get_text("border_color")].get().lower()
         subtitle_border_width = self.subtitle_settings_vars[self.app.get_text("border_width")].get()
         # self.app.setting.subtitle_font = subtitle_font
@@ -413,12 +417,13 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             len(sd.subtitle_font_dict) > 0 else font.get_or_load_fonts()[subtitle_font]
         self.app.setting.subtitle_font_size = int(subtitle_font_size)
         self.app.setting.subtitle_color = self.app.text_to_key(subtitle_font_color)
+        self.app.setting.subtitle_length = int(subtitle_length)
         self.app.setting.subtitle_stroke_color = self.app.text_to_key(subtitle_border_color)
         self.app.setting.subtitle_stroke_width = int(subtitle_border_width)
         logger.info(f"Updated subtitle settings - Font: {subtitle_font}, "
                     f"Font Path: {self.app.setting.subtitle_font_path}, Font Size: {subtitle_font_size}, "
-                    f"Font Color: {subtitle_font_color}, Border Color: {subtitle_border_color}, "
-                    f"Border Width: {subtitle_border_width}")
+                    f"Font Color: {subtitle_font_color}, Subtitle Length: {subtitle_length}, "
+                    f"Border Color: {subtitle_border_color}, Border Width: {subtitle_border_width}")
 
     def browse_cache_path(self):
         path = filedialog.askdirectory()
@@ -448,7 +453,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.voice_rate.configure(text="0%")  # 更新标签文本
 
     def update_language(self):
-        self.title.configure(text=self.app.get_text("export_settings"))
+        # self.title.configure(text=self.app.get_text("export_settings"))
         # self.cache_label.configure(text=self.app.get_text("cache_path"))
         # self.path_label.configure(text=self.app.get_text("export_path"))
         # self.browse_btn.configure(text=self.app.get_text("browse"))
