@@ -1,7 +1,7 @@
 import os
 import fitz
 
-def pdf_to_image(pdf_path, output_image_dir_path, image_width=1920, image_height=1080):
+def pdf_to_image(pdf_path, output_image_dir_path, image_width=1920, image_height=1080, start_page_num=None, end_page_num=None):
     # open the PDF file
     pdf_document = fitz.open(pdf_path)
 
@@ -9,6 +9,10 @@ def pdf_to_image(pdf_path, output_image_dir_path, image_width=1920, image_height
     file_name_without_ext = os.path.basename(pdf_path).split(".")[0]
 
     for page_number in range(len(pdf_document)):
+        if start_page_num and page_number + 1 < start_page_num:
+            continue
+        if end_page_num and page_number + 1 > end_page_num:
+            continue
         # get the page
         page = pdf_document[page_number]
 

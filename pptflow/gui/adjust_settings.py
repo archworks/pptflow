@@ -337,6 +337,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.app.cancel_settings.grid()
         self.app.generation_flow_2(2)
         self.cancel_settings()
+        self.grab_release()
         logger.info(f"Settings saved successfully!")
 
     def cancel_settings(self):
@@ -347,6 +348,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.app.adjust_settings.grid_remove()
         self.app.flow_frame.grid()
         self.app.flow_frame.tkraise()
+        self.grab_release()
 
     def update_tts_settings(self):
         tts_voice_type = tts_voice_rate = None

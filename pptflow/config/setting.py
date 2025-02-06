@@ -29,11 +29,10 @@ class Setting:
     subtitle_width: int = None
     subtitle_height: int = None
     max_height_ratio: float = 0.1
-    win_subtitle_font: str = 'Microsoft YaHei'
+    win_subtitle_font: str = 'Microsoft YaHei' # @金枫 注意以subtitle_font_path为准，需要重构
     mac_subtitle_font: str = 'Times New Roman'
-    subtitle_font_path: str = ''
-    # subtitle_font_path: str = 'C:/Windows/Fonts/timesbi.ttf'
-    subtitle_font_size: int = 24
+    subtitle_font_path: str = None
+    subtitle_font_size: int = 28
     subtitle_color: str = 'white'
     subtitle_stroke_color: str = 'black'  # subtitle outline color
     subtitle_stroke_width: int = 1  # subtitle outline width
@@ -66,4 +65,12 @@ class Setting:
     image_dir_path = os.path.join(temp_dir, 'image')
     audio_dir_path = os.path.join(temp_dir, 'audio')
 
-
+    def __init__(self, os_name: str = "Windows"):
+        if os_name == "Windows":
+            self.subtitle_font_path = 'C:/Windows/Fonts/timesi.ttf'
+        elif os_name == "Linux":
+            self.subtitle_font_path = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+        elif os_name == "Darwin":
+            self.subtitle_font_path = '/System/Library/Fonts/Supplemental/Arial.ttf'
+        else:
+            raise NotImplementedError(f"Unsupported OS: {os_name}")

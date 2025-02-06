@@ -84,6 +84,7 @@ class SystemSettingsFrame(ctk.CTkFrame):
         # self.app.create_top_section()
         # self.app.create_workflow_section()
         self.app.flow_frame.tkraise()
+        self.grab_release()
 
     def on_language_change(self, language_value):
         # Dynamically generate the mapping based on the language list

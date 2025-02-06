@@ -73,6 +73,11 @@ class PPTFlowApp(ctk.CTk):
         # self.main_frame.grid_rowconfigure(1, weight=3)
         # self.main_frame.grid_rowconfigure(2, weight=1)
 
+        # Load and set background image
+        bg_image = ctk.CTkImage(Image.open(os.path.join("assets/icons", "header-background.png")), size=(800, 173))
+        self.bg_label = ctk.CTkLabel(self, image=bg_image, text="")
+        self.bg_label.place(x=0, y=0, anchor="nw")
+
         # 顶部标题和图标部分
         self.create_top_section()
 
@@ -251,14 +256,14 @@ class PPTFlowApp(ctk.CTk):
             icon_image = self.load_ctk_image(self.completed_icons[icon_index], size=50)
         elif icon_index == self.step:
             # 当前步骤
-            button.configure(state="normal")
+            button.configure(state="normal", fg_color="#2563EB", text_color="white")
             if icon_index == len(self.completed_icons) - 1:
                 icon_image = self.load_ctk_image(self.completed_icons[icon_index], size=50)
             else:
                 icon_image = self.load_ctk_image(self.icons[icon_index], size=50)
         else:
             # 后续步骤，禁用
-            button.configure(state="disabled", fg_color="gray")
+            button.configure(state="disabled", fg_color="#B7B7B7")
             icon_image = self.load_ctk_image(self.disabled_icons[icon_index], size=50)
         return icon_image
 
@@ -295,10 +300,12 @@ class PPTFlowApp(ctk.CTk):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         window_width = 800
-        window_height = 400
+        window_height = 450
         x = (screen_width - window_width) // 2
         y = (screen_height - window_height) // 2
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+        self.resizable(False, False)
 
     def get_text(self, key):
         return self.translations.get(key, key)
@@ -421,6 +428,7 @@ class PPTFlowApp(ctk.CTk):
             self.adjust_settings.grid(row=1, column=0, padx=100, sticky="nsew")
             self.adjust_settings.refresh()
             self.adjust_settings.tkraise()
+            self.adjust_settings.grab_set()
         elif name == "Skip Settings":
             self.next_step()
         elif name == "System Settings":
@@ -431,6 +439,7 @@ class PPTFlowApp(ctk.CTk):
             self.system_settings = SystemSettingsFrame(self)
             self.system_settings.grid(row=1, column=0, padx=200, sticky="nsew")
             self.system_settings.tkraise()
+            self.system_settings.grab_set()
 
     def load_tts(self, tts_service_provider):
         # import tts module according to service provider

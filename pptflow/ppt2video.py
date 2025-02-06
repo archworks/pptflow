@@ -1,28 +1,16 @@
 import asyncio
 import os
-import platform
 import re
 import time
 from .utils import mylogger
 from .clip2video import create_video_from_images_and_audio
 from .ppt2audio import ppt_note_to_audio
 from pptflow.config.setting import Setting
+from pptflow.ppt2image_factory import get_ppt_to_image
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
-# import ppt to image module according to os platform
-os_name = platform.system()
-if os_name == "Windows":
-    from .ppt2image_win import ppt_to_image
-elif os_name == "Linux":
-    from .ppt2image_linux import ppt_to_image
-elif os_name == "Darwin":  # macOS
-    from .ppt2image_mac import ppt_to_image
-else:
-    logger.error(f"Unsupported OS: {os_name}")
-    raise NotImplementedError(f"Unsupported OS: {os_name}")
-logger.info(f"OS:{os_name}")
-
+ppt_to_image = get_ppt_to_image()
 
 def ppt_to_video(tts, ppt_path, setting: Setting, progress_tracker=None):
     # Check whether the ppt_path is None or Valid
@@ -40,7 +28,7 @@ def ppt_to_video(tts, ppt_path, setting: Setting, progress_tracker=None):
     # PPT to Image conversion
     if progress_tracker:
         progress_tracker.start_step('ppt_to_image')
-    ppt_to_image(ppt_path, setting, progress_tracker)
+    ppt_to_image.convert(ppt_path, setting, progress_tracker)
     if progress_tracker:
         progress_tracker.complete_step()
     end_time_ppt_to_image = time.time()
