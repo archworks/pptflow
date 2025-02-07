@@ -18,6 +18,7 @@ from pptflow import ppt2video
 from pptflow.config.setting import Setting
 from pptflow.utils import mylogger, font, setting_dic as sd
 from pptflow.utils.progress_tracker import ProgressTracker
+from pptflow.tts.tts_service_factory import get_tts_service
 
 logger = mylogger.get_logger(__name__)
 
@@ -444,30 +445,9 @@ class PPTFlowApp(ctk.CTk):
 
     def load_tts(self, tts_service_provider):
         # import tts module according to service provider
-        if not tts_service_provider:
-            logger.error("tts服务未配置")
-            raise NotImplementedError(f"tts服务未配置")
-        if tts_service_provider.lower() == "azure":
-            from pptflow.tts.tts_azure import tts, get_voice_list
-            sd.tts_speech_voices = get_voice_list(self.setting)
-            logger.info(f"tts service provider: {tts_service_provider}")
-        elif tts_service_provider.lower() == "edge-tts":
-            from pptflow.tts.tts_edge_tts import tts, get_voice_list
-            sd.tts_speech_voices = get_voice_list()
-            logger.info(f"tts service provider: {tts_service_provider}")
-        # elif tts_service_provider.lower() == "xunfei":
-        #     from .tts_xunfei import tts
-        #     logger.info(f"tts service provider: {tts_service_provider}")
-        elif tts_service_provider.lower() == "pyttsx3":
-            from pptflow.tts.tts_pyttsx3 import tts
-            logger.info(f"tts service provider: {tts_service_provider}")
-        elif tts_service_provider.lower() == "coqui-tts":
-            from pptflow.tts.tts_Coqui_tts import tts
-            logger.info(f"tts service provider: {tts_service_provider}")
-        else:
-            logger.error(f"不支持的tts: {tts_service_provider}")
-            raise NotImplementedError(f"不支持的tts: {tts_service_provider}")
-        return tts
+        tts_service = get_tts_service(tts_service_provider)
+        sd.tts_speech_voices = tts_service.get_voice_list(self.setting)
+        return tts_service.tts
 
     def get_default_subtitle_font(self):
         current_platform = platform.system().lower()
