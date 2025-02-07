@@ -1,10 +1,9 @@
-pywin32
+pywin32==308
 moviepy==2.1.1
-python-pptx
-azure-cognitiveservices-speech
-python-dotenv
+python-pptx==1.0.2
+azure-cognitiveservices-speech==1.41.1
+python-dotenv==1.0.1
 customtkinter==5.2.2
-matplotlib
-edge-tts
-pyttsx3
-fitz
+matplotlib==3.8.4
+edge-tts==7.0.0
+pyttsx3==2.98
