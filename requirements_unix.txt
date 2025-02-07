@@ -7,4 +7,3 @@ customtkinter==5.2.2
 matplotlib==3.9.4
 azure-cognitiveservices-speech==1.41.1
 pyttsx3==2.98
-fitz
