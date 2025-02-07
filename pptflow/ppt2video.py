@@ -12,6 +12,7 @@ from pptflow.ppt2image_factory import get_ppt_to_image
 logger = mylogger.get_logger(__name__)
 ppt_to_image = get_ppt_to_image()
 
+
 def ppt_to_video(tts, ppt_path, setting: Setting, progress_tracker=None):
     # Check whether the ppt_path is None or Valid
     if ppt_path is None or not os.path.exists(ppt_path):
@@ -50,7 +51,8 @@ def ppt_to_video(tts, ppt_path, setting: Setting, progress_tracker=None):
     if progress_tracker:
         progress_tracker.complete_step()
     end_time_create_video = time.time()
-    logger.info(f"create_video_from_images_and_audio runtime: {end_time_create_video - end_time_ppt_note_to_audio:.2f} seconds")
+    logger.info(
+        f"create_video_from_images_and_audio runtime: {end_time_create_video - end_time_ppt_note_to_audio:.2f} seconds")
 
     # Total runtime
     total_time = end_time_create_video - start_time

@@ -1,3 +1,4 @@
+import platform
 from dataclasses import dataclass
 import os
 
@@ -65,7 +66,7 @@ class Setting:
     image_dir_path = os.path.join(temp_dir, 'image')
     audio_dir_path = os.path.join(temp_dir, 'audio')
 
-    def __init__(self, os_name: str = "Windows"):
+    def __init__(self, os_name: str = platform.system()):
         if os_name == "Windows":
             self.subtitle_font_path = 'C:/Windows/Fonts/timesi.ttf'
         elif os_name == "Linux":
@@ -74,3 +75,8 @@ class Setting:
             self.subtitle_font_path = '/System/Library/Fonts/Supplemental/Arial.ttf'
         else:
             raise NotImplementedError(f"Unsupported OS: {os_name}")
+
+
+if __name__ == '__main__':
+    setting = Setting(os_name="Linux")
+    print(setting.subtitle_font_path)

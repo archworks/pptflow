@@ -2,6 +2,10 @@
 # Date: 2025/1/16  
 # Description:
 import customtkinter as ctk
+from pptflow.utils import mylogger
+
+# 创建日志纪录实例
+logger = mylogger.get_logger(__name__)
 
 
 class SystemSettingsFrame(ctk.CTkFrame):
@@ -35,24 +39,28 @@ class SystemSettingsFrame(ctk.CTkFrame):
         self.language_label.grid(row=0, column=0, padx=20, pady=10, sticky="s")
 
         self.language_list = [self.app.get_text(language) for language in self.app.language_modes]
+        self.language_var = ctk.StringVar()
         self.language_setting = ctk.CTkComboBox(self.setting_frame, font=self.font,
                                                 values=self.language_list,
-                                                command=self.on_language_change)
+                                                variable=self.language_var)
         self.language_setting.grid(row=0, column=1, padx=20, pady=10)
-        self.language_setting.set(self.app.get_text(self.app.current_language))
+        # self.language_setting.set(self.app.get_text(self.app.current_language))
+        self.language_var.set(self.app.get_text(self.app.current_language))
 
     def create_theme_mode(self):
         # Theme selection
         self.theme_label = ctk.CTkLabel(self.setting_frame, text=self.app.get_text("theme"), font=self.font)
         self.theme_label.grid(row=1, column=0, padx=20, pady=10)
 
+        self.theme_var = ctk.StringVar()
         self.theme = ctk.CTkComboBox(self.setting_frame, values=[self.app.get_text("light"),
                                                                  self.app.get_text("dark"),
                                                                  self.app.get_text("system")],
-                                     font=self.font,
-                                     command=self.change_appearance_mode_event)
+                                     variable=self.theme_var,
+                                     font=self.font)
         self.theme.grid(row=1, column=1, padx=20, pady=10)
         self.theme_map = {self.app.translations[key]: key for key in ['light', 'dark', 'system']}
+        self.theme_var.set(self.app.get_text(self.app.theme))  # 设置默认值
 
     # def create_scale_mode(self):
     #     # Scaling selection
@@ -66,13 +74,29 @@ class SystemSettingsFrame(ctk.CTkFrame):
     def create_confirm_cancel_button(self):
         self.confirm_button = ctk.CTkButton(self.setting_frame, text=self.app.get_text("confirm"),
                                             font=self.font,
-                                            command=self.cancel_settings, width=100)
+                                            command=self.confirm_settings, width=100)
         self.confirm_button.grid(row=3, column=0, padx=20, pady=10, sticky="ew")
         self.return_button = ctk.CTkButton(self.setting_frame, text=self.app.get_text("return"),
                                            font=self.font,
                                            fg_color="gray70", hover_color="gray",
                                            command=self.cancel_settings, width=100)
         self.return_button.grid(row=3, column=1, padx=20, pady=10, sticky="ew")
+
+    def confirm_settings(self):
+        if self.language_var.get() == self.app.get_text(self.app.current_language):
+            pass
+        else:
+            self.on_language_change(self.language_var.get())
+        if self.theme_var.get() == self.app.get_text(self.app.theme):
+            pass
+        else:
+            self.change_appearance_mode_event(self.theme_var.get())
+        for widget in self.winfo_children():
+            widget.grid_forget()
+        self.app.system_settings.grid_remove()
+        self.app.flow_frame.grid()
+        self.app.flow_frame.tkraise()
+        self.grab_release()
 
     def cancel_settings(self):
         for widget in self.winfo_children():
@@ -102,6 +126,7 @@ class SystemSettingsFrame(ctk.CTkFrame):
         new_mode = self.theme_map[new_appearance_mode]
         # self.theme.set()
         ctk.set_appearance_mode(new_mode)
+        self.app.theme = self.theme_var.get()
 
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
@@ -110,7 +135,10 @@ class SystemSettingsFrame(ctk.CTkFrame):
     def update_language(self):
         self.language_label.configure(text=self.app.get_text("ui_language"))
         self.theme_label.configure(text=self.app.get_text("theme"))
-        self.theme.set(self.app.get_text(self.theme_map[self.theme.get()]))
+        self.theme_var.set(self.app.get_text(self.theme_map[self.theme.get()]))
+        self.theme.configure(values=[self.app.get_text("light"),
+                                     self.app.get_text("dark"),
+                                     self.app.get_text("system")])
         self.theme_map = {self.app.translations[key]: key for key in ['dark', 'light', 'system']}
         # self.scaling_label.configure(text=self.app.get_text("ui_scaling"))
         self.confirm_button.configure(text=self.app.get_text("confirm"))

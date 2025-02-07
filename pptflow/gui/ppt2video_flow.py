@@ -19,9 +19,6 @@ from pptflow.config.setting import Setting
 from pptflow.utils import mylogger, font, setting_dic as sd
 from pptflow.utils.progress_tracker import ProgressTracker
 
-# 初始化 CustomTkinter
-ctk.set_appearance_mode("light")
-ctk.set_default_color_theme("blue")
 logger = mylogger.get_logger(__name__)
 
 
@@ -36,6 +33,10 @@ class PPTFlowApp(ctk.CTk):
             get_locales_subdirectories()) > 0 else sd.language_mode
         self._translations_cache = {}  # Add translation cache
         self.translations = self.get_translation()
+        # 初始化 CustomTkinter
+        self.theme = "light"
+        ctk.set_appearance_mode(self.theme)
+        ctk.set_default_color_theme("blue")
 
         self.step = 0
         self.icons = ["pptfile.png", "settings.png", "arrow.png", "play.png"]
@@ -167,7 +168,7 @@ class PPTFlowApp(ctk.CTk):
                                          font=ctk.CTkFont(size=12), width=50,
                                          fg_color="transparent", hover_color="gray", text_color="#0d6efd",
                                          command=lambda: self.on_button_click("Cancel File"))
-        self.cancel_file.grid(row=row_offset + 2, column=i * 2, padx=5, pady=0)
+        self.cancel_file.grid(row=row_offset + 2, column=i * 2, padx=5, pady=5)
         self.file_label.grid_remove()
         self.cancel_file.grid_remove()
 
@@ -201,7 +202,7 @@ class PPTFlowApp(ctk.CTk):
         # self.progress_frame.grid(row=row_offset + 1, column=i * 2)
         # self.progress_frame.grid_columnconfigure(0, weight=1)
 
-        self.progress_bar = ctk.CTkProgressBar(self.flow_frame, width=100, height=12)
+        self.progress_bar = ctk.CTkProgressBar(self.flow_frame, width=100)
         self.progress_bar.grid(row=row_offset + 1, column=i * 2, padx=5, pady=5)
         self.progress_bar.set(0)
 
@@ -252,7 +253,7 @@ class PPTFlowApp(ctk.CTk):
         # 根据步骤更新图标和按钮状态
         if icon_index < self.step:
             # 完成的步骤
-            button.configure(state="disabled", fg_color="#28a745")
+            button.configure(state="disabled", fg_color="#28a745", text_color="white")
             icon_image = self.load_ctk_image(self.completed_icons[icon_index], size=50)
         elif icon_index == self.step:
             # 当前步骤
@@ -263,7 +264,7 @@ class PPTFlowApp(ctk.CTk):
                 icon_image = self.load_ctk_image(self.icons[icon_index], size=50)
         else:
             # 后续步骤，禁用
-            button.configure(state="disabled", fg_color="#B7B7B7")
+            button.configure(state="disabled", fg_color="#D1D5DB", text_color="white")
             icon_image = self.load_ctk_image(self.disabled_icons[icon_index], size=50)
         return icon_image
 
@@ -491,8 +492,8 @@ class PPTFlowApp(ctk.CTk):
             return
         try:
             # Show progress frame
-            self.generate_button.grid_remove()
             self.progress_bar.grid()
+            self.generate_button.grid_remove()
             self.update()
             # self.progress_bar.grid()
             # self.generate_button.grid()
