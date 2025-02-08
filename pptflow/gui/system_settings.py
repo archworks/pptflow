@@ -9,8 +9,8 @@ logger = mylogger.get_logger(__name__)
 
 
 class SystemSettingsFrame(ctk.CTkFrame):
-    def __init__(self, app):
-        super().__init__(app)
+    def __init__(self, app, frame):
+        super().__init__(frame, fg_color="white")
         self.app = app
         self.grid_columnconfigure(0, weight=1)
         self.font_size = 12
@@ -25,7 +25,7 @@ class SystemSettingsFrame(ctk.CTkFrame):
         # self.title.grid_remove()
 
         self.setting_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.setting_frame.grid(row=0, column=0, padx=20, sticky="nsew")
+        self.setting_frame.grid(row=0, column=0, padx=100, pady=(50, 0), sticky="nsew")
         self.setting_frame.grid_columnconfigure(0, weight=1)
 
         self.create_language_mode()
@@ -73,13 +73,13 @@ class SystemSettingsFrame(ctk.CTkFrame):
 
     def create_confirm_cancel_button(self):
         self.confirm_button = ctk.CTkButton(self.setting_frame, text=self.app.get_text("confirm"),
-                                            font=self.font,
-                                            command=self.confirm_settings, width=100)
+                                            font=self.font, width=120, fg_color="#2563EB", text_color="white",
+                                            command=self.confirm_settings)
         self.confirm_button.grid(row=3, column=0, padx=20, pady=10, sticky="ew")
         self.return_button = ctk.CTkButton(self.setting_frame, text=self.app.get_text("return"),
-                                           font=self.font,
-                                           fg_color="gray70", hover_color="gray",
-                                           command=self.cancel_settings, width=100)
+                                           font=self.font, width=120, fg_color="gray70", text_color="white",
+                                           hover_color="gray",
+                                           command=self.cancel_settings)
         self.return_button.grid(row=3, column=1, padx=20, pady=10, sticky="ew")
 
     def confirm_settings(self):
