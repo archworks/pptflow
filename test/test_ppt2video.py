@@ -9,6 +9,7 @@ sys.path.append(parent_dir)
 
 from pptflow.ppt2video import ppt_to_video
 from pptflow.config.setting import Setting
+from pptflow.tts.tts_service_factory import get_tts_service
 
 class TestPptToVideo(unittest.TestCase):
 
@@ -34,23 +35,23 @@ class TestPptToVideo(unittest.TestCase):
         with self.assertRaises(ValueError):
             ppt_to_video(tts, ppt_path, setting)
 
-    def test_ppt_to_video_with_pytttsx3(self):
-        from pptflow.tts.tts_pyttsx3 import tts
+    def test_ppt_to_video_with_pyttsx3(self):
+        tts_service = get_tts_service('pyttsx3')
         os_name = platform.system()
         setting = Setting(os_name)
         ppt_path = os.path.join(parent_dir, "test/test-zh.pptx")
         
-        ppt_to_video(tts, ppt_path, setting)
+        ppt_to_video(tts_service.tts, ppt_path, setting)
         assert os.path.exists(setting.video_path)
     
     def test_ppt_to_video_with_azure(self):
-        from pptflow.tts.tts_azure import tts
+        tts_service = get_tts_service('azure')
         os_name = platform.system()
         setting = Setting(os_name)
         setting.tts_voice_name = 'en-US-AndrewMultilingualNeural'
         ppt_path = os.path.join(parent_dir, "test/test-en.pptx")
         
-        ppt_to_video(tts, ppt_path, setting)
+        ppt_to_video(tts_service.tts, ppt_path, setting)
         assert os.path.exists(setting.video_path)
 
 if __name__ == '__main__':

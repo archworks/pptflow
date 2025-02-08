@@ -6,4 +6,5 @@ Pillow==10.4.0
 customtkinter==5.2.2
 matplotlib==3.9.4
 azure-cognitiveservices-speech==1.41.1
+edge-tts==7.0.0
 pyttsx3==2.98
