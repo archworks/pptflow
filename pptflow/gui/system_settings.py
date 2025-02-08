@@ -29,7 +29,7 @@ class SystemSettingsFrame(ctk.CTkFrame):
         self.setting_frame.grid_columnconfigure(0, weight=1)
 
         self.create_language_mode()
-        self.create_theme_mode()
+        # self.create_theme_mode()
         # self.create_scale_mode()
         self.create_confirm_cancel_button()
 
@@ -87,10 +87,10 @@ class SystemSettingsFrame(ctk.CTkFrame):
             pass
         else:
             self.on_language_change(self.language_var.get())
-        if self.theme_var.get() == self.app.get_text(self.app.theme):
-            pass
-        else:
-            self.change_appearance_mode_event(self.theme_var.get())
+        # if self.theme_var.get() == self.app.get_text(self.app.theme):
+        #     pass
+        # else:
+        #     self.change_appearance_mode_event(self.theme_var.get())
         for widget in self.winfo_children():
             widget.grid_forget()
         self.app.system_settings.grid_remove()
@@ -134,12 +134,12 @@ class SystemSettingsFrame(ctk.CTkFrame):
 
     def update_language(self):
         self.language_label.configure(text=self.app.get_text("ui_language"))
-        self.theme_label.configure(text=self.app.get_text("theme"))
-        self.theme_var.set(self.app.get_text(self.theme_map[self.theme.get()]))
-        self.theme.configure(values=[self.app.get_text("light"),
-                                     self.app.get_text("dark"),
-                                     self.app.get_text("system")])
-        self.theme_map = {self.app.translations[key]: key for key in ['dark', 'light', 'system']}
+        # self.theme_label.configure(text=self.app.get_text("theme"))
+        # self.theme_var.set(self.app.get_text(self.theme_map[self.theme.get()]))
+        # self.theme.configure(values=[self.app.get_text("light"),
+        #                              self.app.get_text("dark"),
+        #                              self.app.get_text("system")])
+        # self.theme_map = {self.app.translations[key]: key for key in ['dark', 'light', 'system']}
         # self.scaling_label.configure(text=self.app.get_text("ui_scaling"))
         self.confirm_button.configure(text=self.app.get_text("confirm"))
         self.return_button.configure(text=self.app.get_text("return"))

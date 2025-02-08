@@ -8,6 +8,8 @@ import asyncio
 from pptflow.utils import mylogger
 from .tts_service import TtsService
 from ..config.setting import Setting
+
+
 class EdgeTtsService(TtsService):
     logger = mylogger.get_logger(__name__)
 
@@ -27,17 +29,18 @@ class EdgeTtsService(TtsService):
             # List all voices
             voices = await edge_tts.list_voices()
             # Get the key information
-            voice_list = [{"Locale": voice["Locale"], "Gender": voice["Gender"], "ShortName": voice["ShortName"]} for voice
-                        in voices]
+            voice_list = [{"Locale": voice["Locale"], "Gender": voice["Gender"], "ShortName": voice["ShortName"]} for
+                          voice
+                          in voices]
             with open(filename, "w", encoding="utf-8") as file:
                 json.dump(voice_list, file, ensure_ascii=False, indent=4)
                 self.logger.info(f"Voice list has been saved to {filename}")
         except Exception as e:
             self.logger.error(f"Error occurred: {e}", exc_info=True)
-            self.logger.error("An error occurred while retrieving the voice list. Please check the status of your network.")
+            self.logger.error(
+                "An error occurred while retrieving the voice list. Please check the status of your network.")
 
-
-    def get_voice_list(self):
+    def get_voice_list(self, setting: Setting = None):
         voice_dir = os.path.join(os.getcwd(), 'voice')
         os.makedirs(voice_dir, exist_ok=True)
         filename = os.path.join(voice_dir, 'edge_tts_voice_list.json')

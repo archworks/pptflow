@@ -6,6 +6,7 @@ import asyncio
 from pptflow.config.setting import Setting
 from .tts_service import TtsService
 
+
 class AzureTtsService(TtsService):
     logger = mylogger.get_logger(__name__)
 
@@ -25,13 +26,14 @@ class AzureTtsService(TtsService):
         #                                        region=os.environ.get('TTS_AZURE_SPEECH_REGION'))
         self.logger.info("Using Azure TTS")
         speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
-                                            region=setting.tts_speech_region)
+                                               region=setting.tts_speech_region)
         # The language of the voice that speaks.
         speech_config.speech_synthesis_voice_name = setting.tts_voice_name
         # Sets the synthesis output format.
         # The full list of supported format can be found here:
         # https://docs.microsoft.com/azure/cognitive-services/speech-service/rest-text-to-speech#audio-outputs
-        speech_config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3)
+        speech_config.set_speech_synthesis_output_format(
+            speechsdk.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3)
         # Configures the audio output to save to a file.
         file_config = speechsdk.audio.AudioOutputConfig(filename=output_audio_filename)
         # Creates a speech synthesizer instance with the specified configuration.
@@ -55,11 +57,10 @@ class AzureTtsService(TtsService):
                     self.logger.error("Did you set the speech resource key and region values?")
             return False
 
-
     async def list_voices(self, filename: str, setting: Setting):
         # 初始化 Speech Config
         speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
-                                            region=setting.tts_speech_region)
+                                               region=setting.tts_speech_region)
         # 创建语音列表客户端
         synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
         try:
@@ -67,24 +68,23 @@ class AzureTtsService(TtsService):
             voices = synthesizer.get_voices_async().get().voices
             # Get the key information
             voice_list = [{"Locale": voice.locale, "Gender": voice.gender.name, "ShortName": voice.short_name,
-                        "LocalName": voice.local_name} for voice in voices]
+                           "LocalName": voice.local_name} for voice in voices]
             with open(filename, "w", encoding="utf-8") as file:
                 json.dump(voice_list, file, ensure_ascii=False, indent=4)
                 self.logger.info(f"Voice list has been saved to {filename}")
         except Exception as e:
             self.logger.error(f"Error occurred: {e}", exc_info=True)
-            self.logger.error("An error occurred while retrieving the voice list. Please check the status of your network.")
+            self.logger.error(
+                "An error occurred while retrieving the voice list. Please check the status of your network.")
             return []
 
-
-    def get_voice_list(self, setting: Setting):
+    def get_voice_list(self, setting: Setting = None):
         voice_dir = os.path.join(os.getcwd(), 'voice')
         os.makedirs(voice_dir, exist_ok=True)
         filename = os.path.join(voice_dir, 'azure_voice_list.json')
         if not os.path.exists(filename):
-            asyncio.run(self.list_voices(setting, filename))
+            asyncio.run(self.list_voices(filename, setting))
         with open(filename, "r", encoding="utf-8") as file:
             voice_list = json.load(file)
             self.logger.info(f"Voice list has been loaded from {filename}")
         return [f'{voice["ShortName"]} ({voice["Locale"]}, {voice["Gender"]})' for voice in voice_list]
-

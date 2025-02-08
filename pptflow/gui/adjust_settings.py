@@ -293,7 +293,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                     self.app.get_text("border_width"): sd.border_widths
                 }
                 create_combo_box(self.subtitle_settings_frame, 0, self.subtitle_settings, self.subtitle_settings_vars)
-                self.subtitle_settings_vars[self.app.get_text("font_type")].set(self.app.get_default_subtitle_font())
+                self.subtitle_settings_vars[self.app.get_text("font_type")].set(self.app.setting.subtitle_font_name)
                 self.subtitle_settings_vars[self.app.get_text("font_size")].set(self.app.setting.subtitle_font_size)
                 self.subtitle_settings_vars[self.app.get_text("font_color")].set(
                     self.app.get_text(self.app.setting.subtitle_color))

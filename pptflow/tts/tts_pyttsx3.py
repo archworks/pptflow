@@ -7,6 +7,7 @@ from .tts_service import TtsService
 from ..config.setting import Setting
 import sys
 
+
 class Pyttsx3TtsService(TtsService):
     logger = mylogger.get_logger(__name__)
 
@@ -56,7 +57,6 @@ class Pyttsx3TtsService(TtsService):
             if '\u4e00' <= char <= '\u9fff':
                 return True
         return False
-
 
     def get_chinese_voices(self, voices):
         # 判断操作系统

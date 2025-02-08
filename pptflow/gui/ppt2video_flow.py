@@ -27,7 +27,7 @@ class PPTFlowApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         # 初始化 Setting 和 TTS
-        self.setting = Setting()
+        self.setting = Setting(os_name=platform.system())
         self.tts = self.load_tts(self.setting.tts_service_provider)
         self.current_language = self.setting.language
         self.language_modes = get_locales_subdirectories() if len(
@@ -112,7 +112,7 @@ class PPTFlowApp(ctk.CTk):
 
         # 右上角的图标按钮（设置和GitHub）
         self.settings_button = ctk.CTkButton(self.main_frame, text="",
-                                             image=self.load_ctk_image(os.path.join(self.icon_dir, "system-setting.png"),
+                                             image=self.load_ctk_image(os.path.join(self.icon_dir, "settings1.png"),
                                                                        size=20),
                                              width=20, height=20, fg_color="#2359FF", corner_radius=0,
                                              hover_color=("gray70", "gray30"),
@@ -168,7 +168,7 @@ class PPTFlowApp(ctk.CTk):
         self.file_label.grid(row=row_offset + 1, column=i * 2, padx=5, pady=5)
 
         self.cancel_file = ctk.CTkButton(self.flow_frame, text=self.get_text("cancel"),
-                                         font=ctk.CTkFont(size=12), width=50,
+                                         font=ctk.CTkFont(size=12), width=100,
                                          fg_color="transparent", hover_color="gray", text_color="#0d6efd",
                                          command=lambda: self.on_button_click("Cancel File"))
         self.cancel_file.grid(row=row_offset + 2, column=i * 2, padx=5, pady=5)
@@ -176,17 +176,19 @@ class PPTFlowApp(ctk.CTk):
         self.cancel_file.grid_remove()
 
         self.select_button = ctk.CTkButton(self.flow_frame, text=self.get_text("select_ppt"),
-                                           font=ctk.CTkFont(size=12), width=120,
+                                           font=ctk.CTkFont(size=12), width=120, hover_color="gray",
                                            command=lambda: self.on_button_click("Select PPT File"))
         self.select_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=5)
         self.update_button(i, self.select_button)
 
     def setting_flow_1(self, i, row_offset=1):
         self.adjust_button = ctk.CTkButton(self.flow_frame, text=self.get_text("adjust_settings"),
-                                           font=ctk.CTkFont(size=12), width=120, text_color="white", text_color_disabled="white",
+                                           font=ctk.CTkFont(size=12), width=120,
+                                           text_color="white", hover_color="gray", text_color_disabled="white",
                                            command=lambda: self.select_frame("Adjust Settings"))
         self.skip_button = ctk.CTkButton(self.flow_frame, text=self.get_text("skip_settings"),
-                                         font=ctk.CTkFont(size=12), width=120, text_color="white", text_color_disabled="white",
+                                         font=ctk.CTkFont(size=12), width=120,
+                                         text_color="white", hover_color="gray", text_color_disabled="white",
                                          command=lambda: self.on_button_click("Skip Settings"))
         self.adjust_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.skip_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
@@ -205,7 +207,8 @@ class PPTFlowApp(ctk.CTk):
         # self.progress_frame.grid(row=row_offset + 1, column=i * 2)
         # self.progress_frame.grid_columnconfigure(0, weight=1)
 
-        self.progress_bar = ctk.CTkProgressBar(self.flow_frame, width=100)
+        self.progress_bar = ctk.CTkProgressBar(self.flow_frame, width=100, height=12,
+                                               bg_color="transparent", progress_color="#2563EB")
         self.progress_bar.grid(row=row_offset + 1, column=i * 2, padx=5, pady=5)
         self.progress_bar.set(0)
 
@@ -215,18 +218,21 @@ class PPTFlowApp(ctk.CTk):
         # Hide progress frame initially
         self.progress_bar.grid_remove()
 
-        self.generate_button = ctk.CTkButton(self.flow_frame, text=self.get_text("generate_video"), font=ctk.CTkFont(size=12),
-                                             width=120, text_color="white", text_color_disabled="white",
+        self.generate_button = ctk.CTkButton(self.flow_frame, text=self.get_text("generate_video"),
+                                             font=ctk.CTkFont(size=12), width=120, text_color="white",
+                                             hover_color="gray", text_color_disabled="white",
                                              command=lambda label="Generate Video": self.on_button_click(label))
         self.generate_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=5)
         self.update_button(i, self.generate_button)
 
     def review_flow_3(self, i, row_offset=1):
         self.play_button = ctk.CTkButton(self.flow_frame, text=self.get_text("preview_and_play"),
-                                         font=ctk.CTkFont(size=12), width=120, text_color="white", text_color_disabled="white",
+                                         font=ctk.CTkFont(size=12), width=120,
+                                         text_color="white", hover_color="gray", text_color_disabled="white",
                                          command=lambda: self.on_button_click("Preview and Play"))
         self.reselect_button = ctk.CTkButton(self.flow_frame, text=self.get_text("reselect_ppt"),
-                                             font=ctk.CTkFont(size=12), width=120, text_color="white", text_color_disabled="white",
+                                             font=ctk.CTkFont(size=12), width=120,
+                                             text_color="white", hover_color="gray", text_color_disabled="white",
                                              command=lambda: self.on_button_click("Reselect PPT"))
         self.play_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.reselect_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
@@ -386,7 +392,7 @@ class PPTFlowApp(ctk.CTk):
         elif label_text == "Reselect PPT":
             self.step = 0
             self.file_display = ""
-            self.update_flow()
+            self.create_workflow_section()
         elif label_text == "Github":
             webbrowser.open("https://github.com/archworks/pptflow")
         elif label_text == "Discord":
@@ -468,7 +474,7 @@ class PPTFlowApp(ctk.CTk):
 
     def generate_video(self):
         if not self.setting.subtitle_font_path:
-            self.setting.subtitle_font_path = font.find_font_path(self.get_default_subtitle_font())
+            self.setting.subtitle_font_path = font.find_font_path(self.setting.subtitle_font_name)
         if not self.file_display:
             messagebox.showerror(self.loading_title, self.get_text("no_file_selected"))
             return

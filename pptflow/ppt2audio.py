@@ -122,7 +122,7 @@ def split_text(text, language="en", max_chars=None):
             max_chars = 70  # 英文每段字幕最大字符数
 
     # 主要分隔符：中英文标点、换行
-    delimiters = r'([,.;!?，。；！？\n])'
+    delimiters = r'([,.;:!?，。；：！？\n])'
     # 按标点拆分并保留分隔符
     sentences = re.split(delimiters, text)
 
