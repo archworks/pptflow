@@ -5,7 +5,7 @@ import json
 import os
 import platform
 import shutil
-import sys
+import sys, subprocess
 import re
 import threading
 import webbrowser
@@ -515,7 +515,11 @@ class PPTFlowApp(ctk.CTk):
             if not os.path.exists(self.setting.video_path):
                 logger.error(f'video_path:{self.setting.video_path} does not exist!')
                 raise FileNotFoundError(f'video_path:{self.setting.video_path} does not exist!')
-            os.startfile(self.setting.video_path)
+            if sys.platform == "win32":
+                os.startfile(filename)
+            else:
+                opener = "open" if sys.platform == "darwin" else "xdg-open"
+                subprocess.call([opener, self.setting.video_path])
         except Exception as e:
             messagebox.showerror("Error", "No video was generated!")
             logger.error(e, exc_info=True)
