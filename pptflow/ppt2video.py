@@ -21,7 +21,7 @@ def ppt_to_video(tts, ppt_path, setting: Setting, progress_tracker=None):
 
     # set default output path to the mp4 file, same director as the ppt file.
     if setting.video_path is None:
-        setting.video_path = re.sub(r"pptx?$", "mp4", ppt_path)
+        setting.video_path = re.sub(r"pptx?$", setting.video_format.lower(), ppt_path)
         logger.info(f'video_path:{setting.video_path}')
     # Record the start time
     start_time = time.time()

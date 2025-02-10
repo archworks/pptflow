@@ -2,6 +2,7 @@
 # Date: 2025/1/14  
 # Description:
 import os
+import re
 
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
@@ -249,9 +250,21 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                 self.video_settings_vars[self.app.get_text("video_fps")].set(self.app.setting.video_fps)
                 self.video_settings_vars[self.app.get_text("video_threads")].set(
                     self.app.setting.video_processing_threads)
+                self.video_settings_vars[self.app.get_text("video_format")]\
+                    .trace("w", lambda *args: self.on_video_format_change())
+                # 初始化加载当前选项的设置
+                self.on_video_format_change()
 
             self.video_settings_frame.grid()
             self.is_video_settings_visible = True
+
+    def on_video_format_change(self):
+        logger.info(f'video_format: {self.video_settings_vars[self.app.get_text("video_format")].get()}')
+        if self.app.file_display:
+            self.app.setting.video_path = re.sub(
+                r"pptx?$", self.video_settings_vars[self.app.get_text("video_format")].get().lower(),
+                self.app.file_display)
+            self.export_path_var.set(self.app.setting.video_path)
 
     def create_subtitle_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")

@@ -113,84 +113,135 @@ async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None)
         raise e
 
 
-def split_text(text, language="en", max_chars=None):
+def split_text(text, language="en", max_chars=None, max_segment_chars=None):
     # 根据语言自动设置 max_chars
     if max_chars is None:
         if language == "zh":
-            max_chars = 35  # 中文每段字幕最大字符数
+            max_chars = 15
+            max_segment_chars = 35  # 中文每段字幕最大字符数
         elif language == "en":
-            max_chars = 70  # 英文每段字幕最大字符数
+            max_chars = 50
+            max_segment_chars = 100  # 英文每段字幕最大字符数
 
-    # 主要分隔符：中英文标点、换行
-    delimiters = r'([,.;:!?，。；：！？\n])'
-    # 按标点拆分并保留分隔符
-    sentences = re.split(delimiters, text)
+        # 主要分隔符：中英文标点、换行
+        delimiters = r'([,.;:!?，。；：！？\n])'
 
-    # 重新组合，使分隔符紧跟前一句
-    merged_sentences = []
-    temp_sentence = ""
+        # 按标点拆分并保留分隔符
+        sentences = re.split(delimiters, text)
 
-    for part in sentences:
-        if re.match(delimiters, part):  # 这是标点，拼接到前面
-            temp_sentence += part
-        elif temp_sentence:  # 如果当前有缓存的部分，则将完整句子加入列表
+        # 重新组合，使分隔符紧跟前一句
+        merged_sentences = []
+        temp_sentence = ""
+
+        for part in sentences:
+            if re.match(delimiters, part):  # 这是标点，拼接到前面
+                temp_sentence += part
+            elif temp_sentence:  # 如果当前有缓存的部分，则将完整句子加入列表
+                merged_sentences.append(temp_sentence.strip())
+                temp_sentence = part
+            else:  # 否则开始新的句子
+                temp_sentence = part
+        if temp_sentence:
             merged_sentences.append(temp_sentence.strip())
-            temp_sentence = part
-        else:  # 否则开始新的句子
-            temp_sentence = part
-    if temp_sentence:
-        merged_sentences.append(temp_sentence.strip())
 
-    # 结果分段
-    result = []
-    current_segment = ""
+        # 结果分段
+        result = []
+        current_segment = ""
 
-    for sentence in merged_sentences:
-        if len(sentence) > max_chars:
-            # 需要对过长的句子进行进一步拆分
-            sub_sentences = split_long_sentence(sentence, max_chars)
-            for sub in sub_sentences:
-                if len(current_segment) + len(sub) + 1 <= max_chars:
-                    if current_segment:
-                        current_segment += " "
-                    current_segment += sub
+        for sentence in merged_sentences:
+            if len(sentence) > max_chars:
+                # 需要对过长的句子进行进一步拆分
+                sub_sentences = split_long_sentence(sentence, max_chars)
+                for sub in sub_sentences:
+                    if len(current_segment) + len(sub) + 1 <= max_segment_chars:
+                        if current_segment:
+                            current_segment += " "
+                        current_segment += sub
+                    else:
+                        result.append(current_segment)
+                        current_segment = sub
+            else:
+                # 判断是否可以加入当前分段
+                if len(current_segment) + len(sentence) + 1 <= max_segment_chars:
+                    if len(current_segment) + len(sentence) + 1 <= max_chars:
+                        if current_segment:
+                            current_segment += " "
+                        current_segment += sentence
+                    else:
+                        result.append(current_segment)
+                        current_segment = sentence
                 else:
                     result.append(current_segment)
-                    current_segment = sub
-        else:
-            # 判断是否可以加入当前分段
-            if len(current_segment) + len(sentence) + 1 <= max_chars:
-                if current_segment:
-                    current_segment += " "
-                current_segment += sentence
-            else:
-                result.append(current_segment)
-                current_segment = sentence
+                    current_segment = sentence
 
-    if current_segment:
-        result.append(current_segment)
+        if current_segment:
+            result.append(current_segment)
 
-    return result
+        return result
 
 
 def split_long_sentence(sentence, max_chars):
     """
-    将过长的句子按空格或合适位置拆分，避免影响语义
+    将过长的句子按空格或合适位置拆分，避免影响语义。
+    增加了对连词、引导词和介词的特殊处理，避免拆分不必要的部分。
+    优先考虑句末或句首特殊词汇进行拆分。
     """
+
+    # 定义连词、引导词、介词的词表（可以根据需要扩展）
+    conjunctions = ["and", "or", "but", "so", "yet", "for", "nor"]
+    prepositions = ["by", "on", "at", "in", "with", "about", "to", "from"]
+    relative_pronouns = ["who", "which", "that", "whom"]
+    adverbs = ["when", "why", "where", "how", "what"]
+
+    # 将句子按空格分割成单词
     words = sentence.split(" ")
+
+    # 如果句子没有超过最大字符数，直接返回原句
+    if len(sentence) <= max_chars:
+        return [sentence]  # 如果没有超过限制，直接返回原句子
+
+    # 如果超过最大字符限制，尝试按语义合理拆分
     result = []
     current_part = ""
+    special_word_found = False  # 用于标记是否遇到特殊词汇
 
+    # 遍历单词，尽量在连词、介词或引导词处拆分
     for word in words:
+        # 如果当前部分加上单词不会超过最大字符数，继续拼接
         if len(current_part) + len(word) + 1 <= max_chars:
             if current_part:
                 current_part += " "
             current_part += word
         else:
-            if current_part:
-                result.append(current_part)
-            current_part = word
+            # 如果当前部分已经达到限制，检查是否遇到特殊词汇
+            if not special_word_found:
+                # 如果没有找到特殊词汇，直接拼接当前部分（避免不必要拆分）
+                current_part += " " + word
+            else:
+                # 优先考虑在连词、介词、引导词处拆分
+                if any(conj in word.lower() for conj in conjunctions) or \
+                        any(prep in word.lower() for prep in prepositions) or \
+                        any(rel in word.lower() for rel in relative_pronouns) or \
+                        any(adv in word.lower() for adv in adverbs):
+                    # 如果是句末或句首的特殊词汇，合并
+                    if words.index(word) == len(words) - 1 or words.index(word) == 0:
+                        current_part += " " + word
+                    else:
+                        if current_part:
+                            result.append(current_part)
+                        current_part = word
+                else:
+                    # 如果没有找到特殊词汇，继续拼接
+                    current_part += " " + word
 
+            # 如果遇到特殊词汇，标记为已找到
+            if any(conj in word.lower() for conj in conjunctions) or \
+                    any(prep in word.lower() for prep in prepositions) or \
+                    any(rel in word.lower() for rel in relative_pronouns) or \
+                    any(adv in word.lower() for adv in adverbs):
+                special_word_found = True
+
+    # 最后处理剩余的部分
     if current_part:
         result.append(current_part)
 
@@ -199,7 +250,7 @@ def split_long_sentence(sentence, max_chars):
 
 async def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_prefix, setting):
     subtitle_file, audio_clips = None, []
-    text_segments = split_text(text, language=setting.language, max_chars=setting.subtitle_length)
+    text_segments = split_text(text, language=setting.language, max_segment_chars=setting.subtitle_length)
     logger.info(f'text_segments: {text_segments}')
 
     audio_file_path = os.path.join(setting.audio_dir_path, f"{filename_prefix}-P{page_index + 1}.mp3")

@@ -38,7 +38,7 @@ class Setting:
     subtitle_color: str = 'white'
     subtitle_stroke_color: str = 'black'  # subtitle outline color
     subtitle_stroke_width: int = 1  # subtitle outline width
-    subtitle_length: int = 50
+    subtitle_length: int = 100
 
     # 2.Advanced Settings
     # Audio settings

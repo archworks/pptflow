@@ -412,7 +412,7 @@ class PPTFlowApp(ctk.CTk):
             logger.info(f"Total slides: {len(presentation.slides)}")
 
             # Set the default output path
-            self.setting.video_path = re.sub(r"pptx?$", "mp4", self.file_display)
+            # self.setting.video_path = re.sub(r"pptx?$", self.setting.video_format.lower(), self.file_display)
 
             self.file_label.grid()
             self.file_label.configure(state=ctk.NORMAL)
@@ -436,7 +436,7 @@ class PPTFlowApp(ctk.CTk):
             # 显示 ExportSection
             self.adjust_settings = AdjustSettingsFrame(self, self.main_frame)
             self.adjust_settings.grid(row=1, column=0, padx=(100, 20), sticky="nsew")
-            self.adjust_settings.refresh()
+            # self.adjust_settings.refresh()
             self.adjust_settings.tkraise()
             self.adjust_settings.grab_set()
         elif name == "Skip Settings":
