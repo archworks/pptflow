@@ -22,16 +22,16 @@ class Setting:
     pytts_voice_rate: int = 150
     # Video settings
     video_format = 'MP4'
-    video_width: int = 1280
-    video_height: int = 720
+    video_width: int = 720
+    video_height: int = 480
     video_fps: int = 10
     video_path: str = None  # the output video path
     # Subtitle settings
     subtitle_width: int = None
     subtitle_height: int = None
     max_height_ratio: float = 0.1
-    win_subtitle_font: str = 'Microsoft YaHei'  # @金枫 注意以subtitle_font_path为准，需要重构
-    mac_subtitle_font: str = 'Times New Roman'
+    #win_subtitle_font: str = 'Microsoft YaHei'
+    #mac_subtitle_font: str = 'Times New Roman'
     subtitle_font_name: str = None
     subtitle_font_path: str = None
     subtitle_font_size: int = 28
