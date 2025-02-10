@@ -215,8 +215,6 @@ class FileSection(ctk.CTkFrame):
     def start_video_generation(self):
         # forbid to press generate button when generating video
         self.generate_button.configure(state=ctk.DISABLED)
-        if not self.app.setting.subtitle_font_path:
-            self.app.setting.subtitle_font_path = font.find_font_path(self.app.get_default_subtitle_font())
         if not self.file_display:
             messagebox.showerror(self.loading_title, self.app.get_text("no_file_selected"))
             return

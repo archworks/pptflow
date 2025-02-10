@@ -117,11 +117,11 @@ def split_text(text, language="en", max_chars=None, max_segment_chars=None):
     # 根据语言自动设置 max_chars
     if max_chars is None:
         if language == "zh":
-            max_chars = 15
-            max_segment_chars = 35  # 中文每段字幕最大字符数
+            max_chars = 10
+            max_segment_chars = 25  # 中文每段字幕最大字符数
         elif language == "en":
-            max_chars = 50
-            max_segment_chars = 100  # 英文每段字幕最大字符数
+            max_chars = 30
+            max_segment_chars = 70  # 英文每段字幕最大字符数
 
         # 主要分隔符：中英文标点、换行
         delimiters = r'([,.;:!?，。；：！？\n])'

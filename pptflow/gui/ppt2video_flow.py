@@ -15,9 +15,10 @@ from PIL import Image
 from pptx import Presentation
 from .custom_tooltip import CustomTooltip
 from pptflow import ppt2video
-from pptflow.config.setting import Setting
+from pptflow.config.setting_factory import get_default_setting
 from pptflow.utils import mylogger, font, setting_dic as sd
 from pptflow.utils.progress_tracker import ProgressTracker
+from pptflow.utils.ipinfo import get_default_language
 from pptflow.tts.tts_service_factory import get_tts_service
 
 logger = mylogger.get_logger(__name__)
@@ -27,9 +28,10 @@ class PPTFlowApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         # 初始化 Setting 和 TTS
-        self.setting = Setting(os_name=platform.system())
+        self.setting = get_default_setting()
         self.tts = self.load_tts(self.setting.tts_service_provider)
-        self.current_language = self.setting.language
+        self.current_language = get_default_language()
+        logger.info("Current language: {}".format(self.current_language))
         self.language_modes = get_locales_subdirectories() if len(
             get_locales_subdirectories()) > 0 else sd.language_mode
         self._translations_cache = {}  # Add translation cache
@@ -184,11 +186,11 @@ class PPTFlowApp(ctk.CTk):
     def setting_flow_1(self, i, row_offset=1):
         self.adjust_button = ctk.CTkButton(self.flow_frame, text=self.get_text("adjust_settings"),
                                            font=ctk.CTkFont(size=12), width=120,
-                                           text_color="white", hover_color="gray", text_color_disabled="white",
+                                           text_color="white", hover_color="gray", text_color_disabled="gray",
                                            command=lambda: self.select_frame("Adjust Settings"))
         self.skip_button = ctk.CTkButton(self.flow_frame, text=self.get_text("skip_settings"),
                                          font=ctk.CTkFont(size=12), width=120,
-                                         text_color="white", hover_color="gray", text_color_disabled="white",
+                                         text_color="white", hover_color="gray", text_color_disabled="gray",
                                          command=lambda: self.on_button_click("Skip Settings"))
         self.adjust_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.skip_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
@@ -220,7 +222,7 @@ class PPTFlowApp(ctk.CTk):
 
         self.generate_button = ctk.CTkButton(self.flow_frame, text=self.get_text("generate_video"),
                                              font=ctk.CTkFont(size=12), width=120, text_color="white",
-                                             hover_color="gray", text_color_disabled="white",
+                                             hover_color="gray", text_color_disabled="gray",
                                              command=lambda label="Generate Video": self.on_button_click(label))
         self.generate_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=5)
         self.update_button(i, self.generate_button)
@@ -228,11 +230,11 @@ class PPTFlowApp(ctk.CTk):
     def review_flow_3(self, i, row_offset=1):
         self.play_button = ctk.CTkButton(self.flow_frame, text=self.get_text("preview_and_play"),
                                          font=ctk.CTkFont(size=12), width=120,
-                                         text_color="white", hover_color="gray", text_color_disabled="white",
+                                         text_color="white", hover_color="gray", text_color_disabled="gray",
                                          command=lambda: self.on_button_click("Preview and Play"))
         self.reselect_button = ctk.CTkButton(self.flow_frame, text=self.get_text("reselect_ppt"),
                                              font=ctk.CTkFont(size=12), width=120,
-                                             text_color="white", hover_color="gray", text_color_disabled="white",
+                                             text_color="white", hover_color="gray", text_color_disabled="gray",
                                              command=lambda: self.on_button_click("Reselect PPT"))
         self.play_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
         self.reselect_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
@@ -262,7 +264,7 @@ class PPTFlowApp(ctk.CTk):
         # 根据步骤更新图标和按钮状态
         if icon_index < self.step:
             # 完成的步骤
-            button.configure(state="disabled", fg_color="#28a745", text_color="white")
+            button.configure(state="disabled", fg_color="#2563EB", text_color="white")
             icon_image = self.load_ctk_image(self.completed_icons[icon_index], size=50)
         elif icon_index == self.step:
             # 当前步骤
@@ -412,7 +414,7 @@ class PPTFlowApp(ctk.CTk):
             logger.info(f"Total slides: {len(presentation.slides)}")
 
             # Set the default output path
-            # self.setting.video_path = re.sub(r"pptx?$", self.setting.video_format.lower(), self.file_display)
+            self.setting.video_path = re.sub(r"pptx?$", self.setting.video_format.lower(), self.file_display)
 
             self.file_label.grid()
             self.file_label.configure(state=ctk.NORMAL)
@@ -456,16 +458,6 @@ class PPTFlowApp(ctk.CTk):
         tts_service = get_tts_service(tts_service_provider)
         sd.tts_speech_voices = tts_service.get_voice_list(self.setting)
         return tts_service.tts
-
-    def get_default_subtitle_font(self):
-        current_platform = platform.system().lower()
-        if current_platform == 'windows':
-            return self.setting.win_subtitle_font
-        elif current_platform == 'darwin':  # macOS
-            return self.setting.mac_subtitle_font
-        else:
-            logger.info(f"Unsupported platform: {current_platform}. Using default font.")
-            return 'Arial'
 
     def update_progress(self, progress: float, status: str):
         """Update progress bar and status label"""
@@ -516,7 +508,7 @@ class PPTFlowApp(ctk.CTk):
                 logger.error(f'video_path:{self.setting.video_path} does not exist!')
                 raise FileNotFoundError(f'video_path:{self.setting.video_path} does not exist!')
             if sys.platform == "win32":
-                os.startfile(filename)
+                os.startfile(self.setting.video_path)
             else:
                 opener = "open" if sys.platform == "darwin" else "xdg-open"
                 subprocess.call([opener, self.setting.video_path])

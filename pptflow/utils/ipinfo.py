@@ -19,6 +19,16 @@ def get_location():
         return None
 
 
+def get_default_language():
+    if get_location() is not None:
+        if get_location()['country'] == 'CN':
+            return 'zh'
+        else:
+            return 'en'
+    else:
+        return 'en'
+
+
 if __name__ == "__main__":
     location = get_location()
     if location:

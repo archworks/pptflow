@@ -121,7 +121,7 @@ class ExportSection(ctk.CTkFrame):
         }
         create_combo_box(frame, 1, tts_settings, self.tts_settings_vars)
         self.tts_settings_vars[self.app.get_text("audio_language")].set(
-            self.app.get_text(self.app.text_to_key(self.app.setting.audio_language)))
+            self.app.get_text(self.app.text_to_key(self.app.setting.language)))
 
     def create_azure_settings(self, frame):
         tts_settings = {
@@ -307,7 +307,7 @@ class ExportSection(ctk.CTkFrame):
         logger.info(f"Updated TTS service provider: {tts_service_provider}")
         if tts_service_provider == "pyttsx3":
             audio_language = self.tts_settings_vars[self.app.get_text("audio_language")].get()
-            self.app.setting.audio_language = self.app.text_to_key(audio_language)
+            self.app.setting.language = self.app.text_to_key(audio_language)
             logger.info(f"Updated audio language: {audio_language}")
         if tts_service_provider == "azure":
             tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
