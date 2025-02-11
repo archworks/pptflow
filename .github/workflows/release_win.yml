@@ -22,134 +22,134 @@ jobs:
     runs-on: windows-latest  # 使用 Windows 环境
 
     steps:
-    # 1. 检出代码
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # 2. 获取提交的 tag（只在自动触发时）
-    - name: Get latest tag
-      id: get_tag
-      run: |
-        # 使用 PowerShell 方式获取 tag_name
-        $tag_name = $env:GITHUB_REF -replace '^refs/tags/', ''
-        echo "tag_name=$tag_name" >> $env:GITHUB_ENV
-        echo "Tag without refs/tags/ prefix: ${{ env.tag_name }}"
+      # 2. 获取提交的 tag（只在自动触发时）
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          # 使用 PowerShell 方式获取 tag_name
+          $tag_name = $env:GITHUB_REF -replace '^refs/tags/', ''
+          echo "tag_name=$tag_name" >> $env:GITHUB_ENV
+          echo "Tag without refs/tags/ prefix: ${{ env.tag_name }}"
 
-    # 3. 设置手动触发时的 tag_name
-    - name: Set manual tag_name
-      if: ${{ github.event_name == 'workflow_dispatch' }}
-      run: |
-        echo "tag_name=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+      # 3. 设置手动触发时的 tag_name
+      - name: Set manual tag_name
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          echo "tag_name=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
 
-    # 4. 删除上一次的 Release（仅在自动触发时）
-    - name: Delete previous release
-      if: ${{ github.event_name == 'push' }}
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
-      run: |
-        # 获取 GitHub Release 列表，检查指定 tag 是否存在
-        $tag_exists = gh release list --repo $env:GITHUB_REPOSITORY --json "tagName" | ConvertFrom-Json | Where-Object { $_.tagName -eq $env:tag_name }
-        
-        if ($tag_exists) {
-            Write-Host "Release $env:tag_name found. Deleting release..."
-            try {
-                gh release delete $env:tag_name --yes --repo $env:GITHUB_REPOSITORY
-                Write-Host "Release $env:tag_name deleted successfully."
-            } catch {
-                Write-Host "Error occurred while attempting to delete release: $_"
-            }
-        } else {
-            Write-Host "No release found for tag: $env:tag_name. Skipping delete."
-        }
-
-    # 5. 设置 Python 环境
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
-
-    # 6. 安装 Python 依赖
-    - name: Install dependencies
-      run: |
-        pip install -r requirements_win.txt
-        pip install pyinstaller
-
-    # 7. 手动复制 DLL 文件
-    - name: Copy DLL file for PyInstaller
-      run: |
-        $dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'Microsoft.CognitiveServices.Speech.core.dll'))")
-        mkdir -p azure/cognitiveservices/speech
-        copy "$dll_path" "azure/cognitiveservices/speech/"
-
-    # 8. 打包 Python 项目为可执行文件
-    - name: Build executable with PyInstaller
-      run: |
-        pyinstaller --onefile --add-data "azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll;azure/cognitiveservices/speech" --add-data "pptflow/locales;pptflow/locales" --noconsole --hidden-import azure.cognitiveservices.speech main.py --name pptflow
-
-    # 9. 安装 Chocolatey
-    - name: Install Chocolatey
-      run: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force;
-        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-
-    # 10. 使用 Chocolatey 安装 Inno Setup
-    - name: Install Inno Setup using Chocolatey
-      run: choco install innosetup
-
-    # 11. 使用 Inno Setup 打包为安装包
-    - name: Build installer
-      run: |
-        iscc /dMyAppVersion=${{ env.tag_name }}-win-x86-installer installer.iss
-
-    # 12. 创建 GitHub Release
-    - name: Check if release already exists
-      id: check_release
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 配置 GitHub Token
-      run: |
-        try {
-          $release_info = gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>$null
-          if ($release_info) {
-            Write-Host "Release already exists, upload_url: $release_info"
-            Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$release_info"
+      # 4. 删除上一次的 Release（仅在自动触发时）
+      - name: Delete previous release
+        if: ${{ github.event_name == 'push' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+        run: |
+          # 获取 GitHub Release 列表，检查指定 tag 是否存在
+          $tag_exists = gh release list --repo $env:GITHUB_REPOSITORY --json "tagName" | ConvertFrom-Json | Where-Object { $_.tagName -eq $env:tag_name }
+          
+          if ($tag_exists) {
+              Write-Host "Release $env:tag_name found. Deleting release..."
+              try {
+                  gh release delete $env:tag_name --yes --repo $env:GITHUB_REPOSITORY
+                  Write-Host "Release $env:tag_name deleted successfully."
+              } catch {
+                  Write-Host "Error occurred while attempting to delete release: $_"
+              }
           } else {
-            Write-Host "Release not found"
+              Write-Host "No release found for tag: $env:tag_name. Skipping delete."
+          }
+
+      # 5. 设置 Python 环境
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      # 6. 安装 Python 依赖
+      - name: Install dependencies
+        run: |
+          pip install -r requirements_win.txt
+          pip install pyinstaller
+
+      # 7. 手动复制 DLL 文件
+      - name: Copy DLL file for PyInstaller
+        run: |
+          $dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'Microsoft.CognitiveServices.Speech.core.dll'))")
+          mkdir -p azure/cognitiveservices/speech
+          copy "$dll_path" "azure/cognitiveservices/speech/"
+
+      # 8. 打包 Python 项目为可执行文件
+      - name: Build executable with PyInstaller
+        run: |
+          pyinstaller --onefile --add-data "azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll;azure/cognitiveservices/speech" --add-data "pptflow/locales;pptflow/locales" --noconsole --hidden-import azure.cognitiveservices.speech main.py --name pptflow
+
+      # 9. 安装 Chocolatey
+      - name: Install Chocolatey
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force;
+          iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+      # 10. 使用 Chocolatey 安装 Inno Setup
+      - name: Install Inno Setup using Chocolatey
+        run: choco install innosetup
+
+      # 11. 使用 Inno Setup 打包为安装包
+      - name: Build installer
+        run: |
+          iscc /dMyAppVersion=${{ env.tag_name }}-win-x86-installer installer.iss
+
+      # 12. 创建 GitHub Release
+      - name: Check if release already exists
+        id: check_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 配置 GitHub Token
+        run: |
+          try {
+            $release_info = gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>$null
+            if ($release_info) {
+              Write-Host "Release already exists, upload_url: $release_info"
+              Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$release_info"
+            } else {
+              Write-Host "Release not found"
+              Add-Content -Path $env:GITHUB_ENV -Value "upload_url='null'"
+            }
+          } catch {
+            Write-Host "Error occurred while attempting to check release: $_"
             Add-Content -Path $env:GITHUB_ENV -Value "upload_url='null'"
           }
-        } catch {
-          Write-Host "Error occurred while attempting to check release: $_"
-          Add-Content -Path $env:GITHUB_ENV -Value "upload_url='null'"
-        }
 
-    - name: Create Release
-      if: ${{ env.upload_url == 'null' }}
-      id: create_release
-      uses: actions/create-release@v1.1.4
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.tag_name }}
-        release_name: Release ${{ env.tag_name }}
-        body: |
-          **Changelog:**
-          - Auto-generated Windows release
-        draft: false
-        prerelease: false
+      - name: Create Release
+        if: ${{ env.upload_url == 'null' }}
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.tag_name }}
+          release_name: Release ${{ env.tag_name }}
+          body: |
+            **Changelog:**
+            - Auto-generated Windows release
+          draft: false
+          prerelease: false
 
-    - name: Get final upload_url
-      id: get_upload_url
-      run: |
-        if ([string]::IsNullOrEmpty('${{ env.upload_url }}')) {
-          Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$($steps.create_release.outputs.upload_url)"
-        } 
+      - name: Get final upload_url
+        id: get_upload_url
+        run: |
+          if ([string]::IsNullOrEmpty('${{ env.upload_url }}')) {
+            Add-Content -Path $env:GITHUB_ENV -Value "upload_url=$($steps.create_release.outputs.upload_url)"
+          } 
 
-    # 13. 上传安装包到 GitHub Releases
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ env.upload_url }}
-        asset_path: "output/pptflow-${{ env.tag_name }}-win-x86-installer.exe"
-        asset_name: "pptflow-${{ env.tag_name }}-win-x86-installer.exe"
-        asset_content_type: application/octet-stream
+      # 13. 上传安装包到 GitHub Releases
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.upload_url }}
+          asset_path: "output/pptflow-${{ env.tag_name }}-win-x86-installer.exe"
+          asset_name: "pptflow-${{ env.tag_name }}-win-x86-installer.exe"
+          asset_content_type: application/octet-stream
