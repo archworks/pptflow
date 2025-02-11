@@ -8,3 +8,4 @@ matplotlib==3.9.4
 azure-cognitiveservices-speech==1.41.1
 edge-tts==7.0.0
 pyttsx3==2.98
+requests==2.32.3

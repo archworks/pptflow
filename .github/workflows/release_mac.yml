@@ -65,7 +65,7 @@ jobs:
       # 8. 创建 DMG 安装包
       - name: Create DMG
         run: |
-          hdiutil create -volname "PPTFlow" -srcfolder dist/ -ov -format UDZO dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg
+          hdiutil create -volname "PPTFlow" -srcfolder dist/ -ov -format UDZO /tmp/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg
 
       # 9. 创建 GitHub Release
       - name: Create Release
@@ -89,6 +89,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: "dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
+          asset_path: "/tmp/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
           asset_name: "pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
           asset_content_type: application/octet-stream
