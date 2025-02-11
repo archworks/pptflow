@@ -35,7 +35,7 @@ If you prefer to run the application directly from the source code, or if you wa
 
 #### Pre-Requisites
 
-1. **Install Python**: Download and install Python 3.7 or later from its [official website](https://www.python.org/downloads/).
+1. **Install Python**: Download and install Python 3.9 or later from its [official website](https://www.python.org/downloads/).
 2. **Prepare Python Virtual Environment (optional but recommended)**: Open a terminal or command prompt and run.
     ```bash
     pip install virtualenv
@@ -44,17 +44,23 @@ If you prefer to run the application directly from the source code, or if you wa
 1. **Clone the Repository**: Use git to clone the project repository, then navigate to the project directory.
     ```bash
     git clone https://github.com/archworks/pptflow.git
+    ```
+    ```
     cd pptflow
     ```
 2. **Set Up a Virtual Environment (optional but recommended)**: Create a virtual environment to manage dependencies, then activate the virtual environment.
     * On Windows
         ```bash
         python -m venv .venv
+        ```
+        ```
         .venv\Scripts\activate.bat
         ``` 
     * On macOS/Linux
         ```bash
         python -m venv .venv
+        ```
+        ```
         source .venv/bin/activate
         ``` 
 3. **Install Dependencies**
@@ -66,7 +72,7 @@ If you prefer to run the application directly from the source code, or if you wa
         ```
         pip install -r requirements_unix.txt
         ```
-4. **Configure Parameters**: Copy the example environment configuration. Open the .env file in a text editor and customize the parameters as needed.
+4. **Configure Parameters (optional)**: Copy the example environment configuration. Open the .env file in a text editor and customize the parameters as needed.
     ```bash
     cp .env.example .env
     ```
