@@ -1,6 +1,7 @@
 <div align="center">
 <h1>PPTFlow</h1>
-[English](../README.md) | **简体中文** <br>
+
+[English](../README.md) | **简体中文**
 <br>
 </div>
 
