@@ -28,7 +28,7 @@ class PPTFlowApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         # 初始化 Setting 和 TTS
-        self.setting = get_default_setting()
+        self.setting = get_default_setting(os_name=platform.system())
         self.tts = self.load_tts(self.setting.tts_service_provider)
         self.current_language = get_default_language()
         logger.info("Current language: {}".format(self.current_language))

@@ -1,11 +1,15 @@
-from .setting import Setting
+import os
+from dotenv import load_dotenv
+from pptflow.config.setting import Setting
+
+load_dotenv()
 
 
-def get_default_setting(os_name: str = 'Windows', language: str = 'en'):
+def get_default_setting(os_name: str = 'Windows', language: str = 'en', tts_service_provider: str = 'pyttsx3'):
     setting = Setting()
     get_default_subtitle_path(setting, os_name, language)
     get_default_subtitle_length(setting)
-    get_default_tts_settings(setting, tts_service_provider='pyttsx3')
+    get_default_tts_settings(setting, tts_service_provider=tts_service_provider)
 
     return setting
 
@@ -50,11 +54,17 @@ def get_default_tts_settings(setting: Setting, tts_service_provider: str = 'pytt
         setting.tts_service_provider = 'pyttsx3'
         setting.pytts_voice_rate = 150
     elif tts_service_provider == 'azure':
+        setting.tts_service_provider = 'azure'
         setting.tts_speech_region = "eastasia"
-        setting.tts_azure_api_key = "917b9e6040b4466caa22c6f62227af35"
+        setting.tts_azure_api_key = os.getenv("TTS_AZURE_SPEECH_KEY")
         setting.tts_voice_name = 'zh-CN-YunjianNeural'
         setting.tts_voice_type = 'zh-CN-YunjianNeural (zh-CN, Male)'
     elif tts_service_provider == 'edge_tts':
         setting.tts_voice_rate = '+0%'
     else:
         raise NotImplementedError(f"Unsupported TTS service provider: {tts_service_provider}")
+
+
+if __name__ == '__main__':
+    setting = get_default_setting(os_name='Windows', language='zh', tts_service_provider='azure')
+    print(setting.tts_azure_api_key)
