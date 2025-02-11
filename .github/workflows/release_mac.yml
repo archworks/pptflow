@@ -67,12 +67,12 @@ jobs:
         run: |
           mkdir -p ~/tmp/build
           cd ~/tmp/build
+          cp -r $GITHUB_WORKSPACE/* .
           pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data pptflow/locales:pptflow/locales --hidden-import azure.cognitiveservices.speech --name pptflow main.py
 
       # 8. 创建 DMG 安装包
       - name: Create DMG
         run: |
-          cd ~/tmp/build
           hdiutil create -volname "PPTFlow" -srcfolder dist/ -ov -format UDZO dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg
 
       # 9. 创建 GitHub Release
