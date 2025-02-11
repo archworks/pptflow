@@ -23,10 +23,10 @@ jobs:
 
     steps:
       - name: Clean up disk space
-          run: |
-            sudo rm -rf /tmp/*
-            sudo rm -rf ~/Library/Caches/*
-            df -h
+        run: |
+          sudo rm -rf /tmp/*
+          sudo rm -rf ~/Library/Caches/*
+          df -h
       # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v3
