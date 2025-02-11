@@ -22,11 +22,6 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Clean up disk space
-        run: |
-          sudo rm -rf /tmp/*
-          sudo rm -rf ~/Library/Caches/*
-          df -h
       # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v3
@@ -65,15 +60,11 @@ jobs:
       # 7. 打包 Python 项目为 macOS 可执行文件
       - name: Build executable with PyInstaller
         run: |
-          mkdir -p ~/tmp/build
-          cd ~/tmp/build
-          cp -r $GITHUB_WORKSPACE/* .
           pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data pptflow/locales:pptflow/locales --hidden-import azure.cognitiveservices.speech --name pptflow main.py
 
       # 8. 创建 DMG 安装包
       - name: Create DMG
         run: |
-          cd ~/tmp/build
           hdiutil create -volname "PPTFlow" -srcfolder dist/ -ov -format UDZO dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg
 
       # 9. 创建 GitHub Release
@@ -98,6 +89,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: "tmp/build/dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
+          asset_path: "dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
           asset_name: "pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
           asset_content_type: application/octet-stream
