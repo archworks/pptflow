@@ -63,10 +63,6 @@ jobs:
         pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data pptflow/locales:pptflow/locales --add-data assets:assets --hidden-import azure.cognitiveservices.speech --name pptflow main.py
 
     # 8. 创建 DMG 安装包
-    - name: Cleanup space
-      run: |
-        rm -rf $HOME/Library/Caches/*
-        df -h # 查看清理后空间
     - name: Create DMG
       run: |
         rm -rf /tmp/*
