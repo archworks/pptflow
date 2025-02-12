@@ -60,7 +60,7 @@ jobs:
     # 7. 打包 Python 项目为 macOS 可执行文件
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data pptflow/locales:pptflow/locales --hidden-import azure.cognitiveservices.speech --name pptflow main.py
+        pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data pptflow/locales:pptflow/locales --add-data assets:assets --add-data assets/logo.png:assets/ --add-data assets/logo.ico:assets/ --add-data assets/logo.svg:assets/ --add-data assets/logo.webp:assets/ --add-data assets/logo.jpg:assets/ --add-data assets/logo --hidden-import azure.cognitiveservices.speech --name pptflow main.py
 
     # 8. 创建 DMG 安装包
     - name: Cleanup space

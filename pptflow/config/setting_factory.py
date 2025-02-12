@@ -7,6 +7,7 @@ load_dotenv()
 
 def get_default_setting(os_name: str = 'Windows', language: str = 'en', tts_service_provider: str = 'pyttsx3'):
     setting = Setting()
+    setting.language = language
     get_default_subtitle_path(setting, os_name, language)
     get_default_subtitle_length(setting)
     get_default_tts_settings(setting, tts_service_provider=tts_service_provider)

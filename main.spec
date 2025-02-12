@@ -7,7 +7,8 @@ a = Analysis(
     binaries=[],
     datas=[
         ('venv/Lib/site-packages/azure/cognitiveservices/speech/Microsoft.CognitiveServices.Speech.core.dll', 'azure/cognitiveservices/speech'),
-        ('locales', 'locales'),
+        ('pptflow/locales', 'pptflow/locales'),
+        ('assets', 'assets'),
     ],
     hiddenimports=['azure.cognitiveservices.speech'],
     hookspath=[],

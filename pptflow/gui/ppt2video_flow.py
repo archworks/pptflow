@@ -78,7 +78,7 @@ class PPTFlowApp(ctk.CTk):
         self.main_frame.grid_rowconfigure(2, weight=1)
 
         # Load and set background image
-        bg_image = ctk.CTkImage(Image.open(os.path.join("assets/icons", "header-background.png")), size=(800, 173))
+        bg_image = ctk.CTkImage(Image.open(os.path.join(self.icon_dir, "header-background.png")), size=(800, 173))
         self.bg_label = ctk.CTkLabel(self.main_frame, image=bg_image, text="")
         self.bg_label.place(x=0, y=0, anchor="nw")
 
