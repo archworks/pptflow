@@ -65,7 +65,6 @@ jobs:
     # 8. 创建 DMG 安装包
     - name: Cleanup space
       run: |
-        sudo rm -rf /usr/local/Homebrew/
         rm -rf $HOME/Library/Caches/*
         df -h # 查看清理后空间
     - name: Create DMG
