@@ -1,6 +1,10 @@
-# PPTFlow
+<div align="center">
+<h1>PPTFlow</h1>
 
-## Overview
+**English** | [简体中文](docs/README.zh.md) 
+<br>
+</div>
+
 
 **PPTFlow** is a powerful desktop application that seamlessly transforms PowerPoint slides into engaging videos with AI-generated voiceover and subtitles. Perfect for educators, marketers, and content creators looking to enhance presentations and expand audience reach.
 
@@ -11,17 +15,13 @@
 - **Customizable Output**: Adjust voiceover speed, voice, and video quality based on your needs.
 
 ## System Requirements
-* Operating System
-    * Windows: Windows 10 or later
-    * macOS: macOS 10.15 (Catalina) or later
-    * Linux: Most modern distributions (Ubuntu, Fedora, etc.)
-* Hardware Requirements
-    * RAM: Minimum of 4 GB (8 GB recommended for optimal performance)
+* Operating System and Software:
+    * Windows: Win 10 or later; Microsoft PowerPoint
+    * macOS: 10.15 (Catalina) or later; Microsoft PowerPoint
+    * Linux: Most distros; LibreOffice 
+* Hardware:
+    * RAM: Minimum of 4 GB
     * Storage: At least 500 MB of free disk space
-* Software Requirements
-    * Microsoft PowerPoint (on Windows/macOS): Required for loading slides
-    * LibreOffice (on Linux): Required for loading slides
-
 ## Installation Options
 ### 1. Installing the Released Application
 For most users, the easiest way to get started is by downloading the pre-built application. Follow these steps:
@@ -31,12 +31,12 @@ For most users, the easiest way to get started is by downloading the pre-built a
 3. **Launch**: Open the application from your desktop or start menu.
 
 ### 2. Running from Source Code
-If you prefer to run the application directly from the source code, or if you want to contribute to the development, follow these steps:
+If you prefer to run the application directly from the source code, follow these steps:
 
 #### Pre-Requisites
 
 1. **Install Python**: Download and install Python 3.9 or later from its [official website](https://www.python.org/downloads/).
-2. **Prepare Python Virtual Environment (optional but recommended)**: Open a terminal or command prompt and run.
+2. **Prepare Python Virtual Environment (optional but recommended)**: Open a terminal or command prompt and run:
     ```bash
     pip install virtualenv
     ``` 
@@ -107,7 +107,7 @@ For support, please contact us at [pptflow@archworks.tech](mailto:pptflow@archwo
 
 ## License
 
-This software is licensed under the [MIT License](LICENSE).
+This software is licensed under the [Appache 2.0 License](LICENSE).
 
 ## Acknowledgments
 

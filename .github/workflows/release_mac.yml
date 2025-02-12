@@ -22,73 +22,79 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      # 1. 检出代码
-      - name: Checkout code
-        uses: actions/checkout@v3
+    # 1. 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # 2. 获取提交的 tag（只在自动触发时）
-      - name: Get latest tag
-        id: get_tag
-        run: |
-          echo "Tag name: $GITHUB_REF"
-          echo "tag_name=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
-          echo "Tag without refs/tags/ prefix: ${{ env.tag_name }}"
+    # 2. 获取提交的 tag（只在自动触发时）
+    - name: Get latest tag
+      id: get_tag
+      run: |
+        echo "Tag name: $GITHUB_REF"
+        echo "tag_name=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+        echo "Tag without refs/tags/ prefix: ${{ env.tag_name }}"
 
-      # 3. 设置手动触发时的 tag_name
-      - name: Set manual tag_name
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        run: echo "tag_name=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+    # 3. 设置手动触发时的 tag_name
+    - name: Set manual tag_name
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      run: echo "tag_name=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
 
-      # 4. 设置 Python 环境
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
+    # 4. 设置 Python 环境
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
 
-      # 5. 安装 Python 依赖
-      - name: Install dependencies
-        run: |
-          python3 -m pip install -r requirements_unix.txt
-          python3 -m pip install pyinstaller
+    # 5. 安装 Python 依赖
+    - name: Install dependencies
+      run: |
+        python3 -m pip install -r requirements_unix.txt
+        python3 -m pip install pyinstaller
 
-      # 6. 手动复制 macOS 依赖文件
-      - name: Copy DLL or other dependencies for PyInstaller
-        run: |
-          dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'libMicrosoft.CognitiveServices.Speech.core.dylib'))")
-          mkdir -p azure/cognitiveservices/speech
-          cp "$dll_path" "azure/cognitiveservices/speech/"
-      # 7. 打包 Python 项目为 macOS 可执行文件
-      - name: Build executable with PyInstaller
-        run: |
-          pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data pptflow/locales:pptflow/locales --hidden-import azure.cognitiveservices.speech --name pptflow main.py
+    # 6. 手动复制 macOS 依赖文件
+    - name: Copy DLL or other dependencies for PyInstaller
+      run: |
+        dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'libMicrosoft.CognitiveServices.Speech.core.dylib'))")
+        mkdir -p azure/cognitiveservices/speech
+        cp "$dll_path" "azure/cognitiveservices/speech/"
+    # 7. 打包 Python 项目为 macOS 可执行文件
+    - name: Build executable with PyInstaller
+      run: |
+        pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data pptflow/locales:pptflow/locales --hidden-import azure.cognitiveservices.speech --name pptflow main.py
 
-      # 8. 创建 DMG 安装包
-      - name: Create DMG
-        run: |
-          hdiutil create -volname "PPTFlow" -srcfolder dist/ -ov -format UDZO /tmp/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg
+    # 8. 创建 DMG 安装包
+    - name: Cleanup space
+      run: |
+        sudo rm -rf /usr/local/Homebrew/
+        rm -rf $HOME/Library/Caches/*
+        df -h # 查看清理后空间
+    - name: Create DMG
+      run: |
+        rm -rf /tmp/*
+        hdiutil create -volname "PPTFlow" -srcfolder dist/ -ov -format UDZO -imagekey zlib-level=9 "$GITHUB_WORKSPACE/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
 
-      # 9. 创建 GitHub Release
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.tag_name }}
-          release_name: Release ${{ env.tag_name }}
-          body: |
-            **Changelog:**
-            - Auto-generated macOS release
-          draft: false
-          prerelease: false
+    # 9. 创建 GitHub Release
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1.1.4
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.tag_name }}
+        release_name: Release ${{ env.tag_name }}
+        body: |
+          **Changelog:**
+          - Auto-generated macOS release
+        draft: false
+        prerelease: false
 
-      # 10. 上传安装包到 GitHub Releases
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: "/tmp/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
-          asset_name: "pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
-          asset_content_type: application/octet-stream
+    # 10. 上传安装包到 GitHub Releases
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: "./pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
+        asset_name: "pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
+        asset_content_type: application/octet-stream
