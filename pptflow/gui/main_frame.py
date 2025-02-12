@@ -6,12 +6,13 @@ import shutil
 from dotenv import load_dotenv
 import os
 import customtkinter as ctk
-from pptflow.config.setting import Setting
+from pptflow.config.setting_factory import get_default_setting
 from .file_section import FileSection
 from .export_section import ExportSection
 import json
 import sys
 from pptflow.utils import mylogger, setting_dic as sd
+from pptflow.tts.tts_service_factory import get_tts_service
 
 # Load environment variables
 load_dotenv()
@@ -22,7 +23,7 @@ logger = mylogger.get_logger(__name__)
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.setting = Setting()
+        self.setting = get_default_setting()
         logger.info("Initializing Configuration")
         self.tts = self.load_tts(self.setting.tts_service_provider)
         self.current_language = self.setting.language
@@ -249,42 +250,8 @@ class App(ctk.CTk):
         logger.info("Clear image cache")
 
     def load_tts(self, tts_service_provider):
-        # import tts module according to service provider
-        if not tts_service_provider:
-            logger.error("tts服务未配置")
-            raise NotImplementedError(f"tts服务未配置")
-        if tts_service_provider.lower() == "azure":
-            from pptflow.tts.tts_azure import tts, get_voice_list
-            sd.tts_speech_voices = get_voice_list(self.setting)
-            logger.info(f"tts service provider: {tts_service_provider}")
-        elif tts_service_provider.lower() == "edge-tts":
-            from pptflow.tts.tts_edge_tts import tts, get_voice_list
-            sd.tts_speech_voices = get_voice_list()
-            logger.info(f"tts service provider: {tts_service_provider}")
-        # elif tts_service_provider.lower() == "xunfei":
-        #     from .tts_xunfei import tts
-        #     logger.info(f"tts service provider: {tts_service_provider}")
-        elif tts_service_provider.lower() == "pyttsx3":
-            from pptflow.tts.tts_pyttsx3 import tts
-            logger.info(f"tts service provider: {tts_service_provider}")
-        elif tts_service_provider.lower() == "coqui-tts":
-            from pptflow.tts.tts_Coqui_tts import tts
-            logger.info(f"tts service provider: {tts_service_provider}")
-        else:
-            logger.error(f"不支持的tts: {tts_service_provider}")
-            raise NotImplementedError(f"不支持的tts: {tts_service_provider}")
+        tts = get_tts_service(tts_service_provider)
         return tts
-
-    def get_default_subtitle_font(self):
-        current_platform = platform.system().lower()
-        if current_platform == 'windows':
-            return self.setting.win_subtitle_font
-        elif current_platform == 'darwin':  # macOS
-            return self.setting.mac_subtitle_font
-        else:
-            logger.info(f"Unsupported platform: {current_platform}. Using default font.")
-            return 'Arial'
-
 
 def resource_path(relative_path):
     """获取资源文件的绝对路径"""

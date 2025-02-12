@@ -63,9 +63,15 @@ jobs:
         pyinstaller --onefile --windowed --add-data azure/cognitiveservices/speech/libMicrosoft.CognitiveServices.Speech.core.dylib:azure/cognitiveservices/speech --add-data pptflow/locales:pptflow/locales --hidden-import azure.cognitiveservices.speech --name pptflow main.py
 
     # 8. 创建 DMG 安装包
+    - name: Cleanup space
+      run: |
+        sudo rm -rf /usr/local/Homebrew/
+        rm -rf $HOME/Library/Caches/*
+        df -h # 查看清理后空间
     - name: Create DMG
       run: |
-        hdiutil create -volname "PPTFlow" -srcfolder dist/ -ov -format UDZO dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg
+        rm -rf /tmp/*
+        hdiutil create -volname "PPTFlow" -srcfolder dist/ -ov -format UDZO -imagekey zlib-level=9 "$GITHUB_WORKSPACE/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
 
     # 9. 创建 GitHub Release
     - name: Create Release
@@ -89,6 +95,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: "dist/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
+        asset_path: "./pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
         asset_name: "pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
         asset_content_type: application/octet-stream
