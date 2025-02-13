@@ -125,26 +125,26 @@ class PPTFlowApp(ctk.CTk):
         self.settings_button = ctk.CTkButton(self.main_frame, text="",
                                              image=self.load_ctk_image(
                                                  os.path.join(self.icon_dir, "system-setting.png"),
-                                                 size=20),
+                                                 size=20), 
                                              width=20, height=20, fg_color="#0066FF", corner_radius=0,
-                                             hover_color=("gray70", "gray30"),
+                                             hover=False,
                                              command=lambda: self.select_frame("System Settings"))
-        self.github_button = ctk.CTkButton(self.main_frame, text="",
-                                           image=self.load_ctk_image(os.path.join(self.icon_dir, "github.png"),
+        self.help_button = ctk.CTkButton(self.main_frame, text="",
+                                           image=self.load_ctk_image(os.path.join(self.icon_dir, "help.png"),
                                                                      size=20),
                                            width=20, height=20, fg_color="#0066FF", corner_radius=0,
-                                           hover_color=("gray70", "gray30"),
-                                           command=lambda: self.on_button_click("Github"))
-        self.discord_button = ctk.CTkButton(self.main_frame, text="",
-                                            image=self.load_ctk_image(os.path.join(self.icon_dir, "discord.png"),
-                                                                      size=20),
-                                            width=20, height=20, fg_color="#0066FF", corner_radius=0,
-                                            hover_color=("gray70", "gray30"),
-                                            command=lambda: self.on_button_click("Discord"))
+                                           hover=False,
+                                           command=lambda: self.on_button_click("Website"))
+        # self.discord_button = ctk.CTkButton(self.main_frame, text="",
+        #                                     image=self.load_ctk_image(os.path.join(self.icon_dir, "discord.png"),
+        #                                                               size=20),
+        #                                     width=20, height=20, fg_color="#0066FF", corner_radius=0,
+        #                                     hover=False,
+        #                                     command=lambda: self.on_button_click("Discord"))
 
         self.settings_button.grid(row=0, column=1, padx=0, pady=10, sticky="ne")
-        self.github_button.grid(row=0, column=2, padx=0, pady=10, sticky="ne")
-        self.discord_button.grid(row=0, column=3, padx=0, pady=10, sticky="ne")
+        self.help_button.grid(row=0, column=2, padx=(0, 5), pady=10, sticky="ne")
+        #self.discord_button.grid(row=0, column=3, padx=0, pady=10, sticky="ne")
 
     def create_workflow_section(self):
         self.flow_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="white")
@@ -188,7 +188,7 @@ class PPTFlowApp(ctk.CTk):
         self.cancel_file.grid_remove()
 
         self.select_button = ctk.CTkButton(self.button_frame, text=self.get_text("select_ppt"),
-                                           font=ctk.CTkFont(size=12), width=110, hover_color="gray",
+                                           font=ctk.CTkFont(size=12), width=110, hover_color="#1D4ED8",
                                            command=lambda: self.on_button_click("Select PPT File"))
         self.select_button.grid(row=row_offset + 1, column=i * 2, padx=(40, 5), pady=5)
         self.update_button(i, self.select_button)
@@ -203,11 +203,11 @@ class PPTFlowApp(ctk.CTk):
         arrow.grid(row=0, column=i * 2 + 1, pady=(50, 0))
         self.adjust_button = ctk.CTkButton(self.button_frame, text=self.get_text("adjust_settings"),
                                            font=ctk.CTkFont(size=12), width=110,
-                                           text_color="white", hover_color="gray", text_color_disabled="white",
+                                           text_color="white", text_color_disabled="white",
                                            command=lambda: self.select_frame("Adjust Settings"))
         self.skip_button = ctk.CTkButton(self.button_frame, text=self.get_text("skip_settings"),
                                          font=ctk.CTkFont(size=12), width=110,
-                                         text_color="white", hover_color="gray", text_color_disabled="white",
+                                         text_color="white", text_color_disabled="white",
                                          command=lambda: self.on_button_click("Skip Settings"))
         self.adjust_button.grid(row=row_offset + 1, column=i * 2, padx=(20, 20), pady=5)
         self.skip_button.grid(row=row_offset + 2, column=i * 2, padx=(20, 20), pady=5)
@@ -243,7 +243,7 @@ class PPTFlowApp(ctk.CTk):
 
         self.generate_button = ctk.CTkButton(self.button_frame, text=self.get_text("generate_video"),
                                              font=ctk.CTkFont(size=12), width=110, text_color="white",
-                                             hover_color="gray", text_color_disabled="white",
+                                             text_color_disabled="white",
                                              command=lambda label="Generate Video": self.on_button_click(label))
         self.generate_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=5)
         self.update_button(i, self.generate_button)
@@ -255,11 +255,11 @@ class PPTFlowApp(ctk.CTk):
         review_icon.grid(row=0, column=i * 2, padx=(0, 60), pady=(50, 0))
         self.play_button = ctk.CTkButton(self.button_frame, text=self.get_text("preview_and_play"),
                                          font=ctk.CTkFont(size=12), width=110,
-                                         text_color="white", hover_color="gray", text_color_disabled="white",
+                                         text_color="white", text_color_disabled="white",
                                          command=lambda: self.on_button_click("Preview and Play"))
         self.reselect_button = ctk.CTkButton(self.button_frame, text=self.get_text("reselect_ppt"),
                                              font=ctk.CTkFont(size=12), width=110,
-                                             text_color="white", hover_color="gray", text_color_disabled="white",
+                                             text_color="white", text_color_disabled="white",
                                              command=lambda: self.on_button_click("Reselect PPT"))
         self.play_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(20, 40))
         self.reselect_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(20, 40))
@@ -292,7 +292,7 @@ class PPTFlowApp(ctk.CTk):
             button.configure(state="disabled", fg_color="#B7B7B7", text_color="white")
         elif icon_index == self.step:
             # 当前步骤
-            button.configure(state="normal", fg_color="#2563EB", text_color="white")
+            button.configure(state="normal", fg_color="#2563EB", text_color="white", hover_color="#1D4ED8")
         else:
             # 后续步骤，禁用
             button.configure(state="disabled", fg_color="#B7B7B7", text_color="white")
@@ -431,10 +431,10 @@ class PPTFlowApp(ctk.CTk):
             self.step = 0
             self.file_display = ""
             self.create_workflow_section()
-        elif label_text == "Github":
-            webbrowser.open("https://github.com/archworks/pptflow")
-        elif label_text == "Discord":
-            messagebox.showinfo("Discord", "Join our Discord server for support and updates!")
+        elif label_text == "Website":
+            webbrowser.open("https://pptflow.com")
+        # elif label_text == "Discord":
+        #     messagebox.showinfo("Discord", "Join our Discord server for support and updates!")
 
     def browse_file(self):
         self.file_display = filedialog.askopenfilename(
