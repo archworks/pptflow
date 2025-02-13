@@ -78,7 +78,7 @@ class PPTFlowApp(ctk.CTk):
         self.main_frame.grid_rowconfigure(2, weight=1)
 
         # Load and set background image
-        bg_image = ctk.CTkImage(Image.open(os.path.join(self.icon_dir, "background2.png")), size=(800, 173))
+        bg_image = ctk.CTkImage(Image.open(os.path.join(self.icon_dir, "background.png")), size=(800, 173))
         self.bg_label = ctk.CTkLabel(self.main_frame, image=bg_image, text="")
         self.bg_label.place(x=0, y=0, anchor="nw")
 
@@ -125,16 +125,16 @@ class PPTFlowApp(ctk.CTk):
         self.settings_button = ctk.CTkButton(self.main_frame, text="",
                                              image=self.load_ctk_image(
                                                  os.path.join(self.icon_dir, "system-setting.png"),
-                                                 size=20), 
+                                                 size=20),
                                              width=20, height=20, fg_color="#0066FF", corner_radius=0,
                                              hover=False,
                                              command=lambda: self.select_frame("System Settings"))
         self.help_button = ctk.CTkButton(self.main_frame, text="",
-                                           image=self.load_ctk_image(os.path.join(self.icon_dir, "help.png"),
-                                                                     size=20),
-                                           width=20, height=20, fg_color="#0066FF", corner_radius=0,
-                                           hover=False,
-                                           command=lambda: self.on_button_click("Website"))
+                                         image=self.load_ctk_image(os.path.join(self.icon_dir, "help.png"),
+                                                                   size=20),
+                                         width=20, height=20, fg_color="#0066FF", corner_radius=0,
+                                         hover=False,
+                                         command=lambda: self.on_button_click("Website"))
         # self.discord_button = ctk.CTkButton(self.main_frame, text="",
         #                                     image=self.load_ctk_image(os.path.join(self.icon_dir, "discord.png"),
         #                                                               size=20),
@@ -144,7 +144,7 @@ class PPTFlowApp(ctk.CTk):
 
         self.settings_button.grid(row=0, column=1, padx=0, pady=10, sticky="ne")
         self.help_button.grid(row=0, column=2, padx=(0, 5), pady=10, sticky="ne")
-        #self.discord_button.grid(row=0, column=3, padx=0, pady=10, sticky="ne")
+        # self.discord_button.grid(row=0, column=3, padx=0, pady=10, sticky="ne")
 
     def create_workflow_section(self):
         self.flow_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="white")
