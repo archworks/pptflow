@@ -43,9 +43,9 @@ def get_default_subtitle_path(setting: Setting, os_name: str = 'Windows', langua
 
 def get_default_subtitle_length(setting: Setting):
     if setting.language == 'en':
-        setting.subtitle_length = 70
+        setting.subtitle_length = 100
     elif setting.language == 'zh':
-        setting.subtitle_length = 25
+        setting.subtitle_length = 35
     else:
         pass
 

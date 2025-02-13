@@ -42,12 +42,12 @@ class PPTFlowApp(ctk.CTk):
         ctk.set_default_color_theme("blue")
 
         self.step = 0
-        self.icons = ["pptfile.png", "settings.png", "generate.png", "play.png"]
         self.labels = ["Select PPT File", "Adjust Settings", "Generate Video", "Preview and Play"]
-        self.completed_icons = ["pptfile_done.png", "settings_done.png", "arrow_done.png", "play_done.png"]
-        # self.disabled_icons = ["pptfile_disabled.png", "settings_disabled.png", "arrow_disabled.png",
-        #                        "play_disabled.png"]
-        self.disabled_icons = ["pptfile.png", "settings.png", "arrow.png", "play.png"]
+        self.icons = ["pptfile.png", "settings.png", "generate.png", "play.png"]
+        self.disabled_icons = ["pptfile-disabled.png", "settings-disabled.png", "generate-disabled.png",
+                               "play-disabled.png"]
+        self.arrow_icons = ["arrow.png", "arrow-disabled.png"]
+        # self.disabled_icons = ["pptfile.png", "settings.png", "arrow.png", "play.png"]
         # Get icon directory path
         self.icon_dir = resource_path(os.path.join("assets", "icons"))
 
@@ -78,7 +78,7 @@ class PPTFlowApp(ctk.CTk):
         self.main_frame.grid_rowconfigure(2, weight=1)
 
         # Load and set background image
-        bg_image = ctk.CTkImage(Image.open(os.path.join(self.icon_dir, "header-background.png")), size=(800, 173))
+        bg_image = ctk.CTkImage(Image.open(os.path.join(self.icon_dir, "header-background.png")), size=(850, 173))
         self.bg_label = ctk.CTkLabel(self.main_frame, image=bg_image, text="")
         self.bg_label.place(x=0, y=0, anchor="nw")
 
@@ -110,20 +110,22 @@ class PPTFlowApp(ctk.CTk):
         flow_label.grid(row=0, column=1)
 
         # Slogan part @金枫请协助修改显示
-        slogan_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        slogan_frame = ctk.CTkFrame(self.main_frame, fg_color="#2359FF")
         slogan_frame.grid(row=1, column=0, padx=(100, 0), pady=30)
-        slogan_label = ctk.CTkLabel(slogan_frame, text="Turn PowerPoints into Engaging Videos with AI", font=ctk.CTkFont(size=22, weight="normal"),
+        slogan_label = ctk.CTkLabel(slogan_frame, text="Turn PowerPoints into Engaging Videos with AI",
+                                    font=ctk.CTkFont(size=22, weight="normal"),
                                     text_color="black", fg_color="#2359FF")
         slogan_label.grid(row=0, column=0, pady=10)
-        
+
         # self.title_label = ctk.CTkLabel(self.top_frame, text="PPTFlow",
         #                                 font=ctk.CTkFont(size=24, weight="bold", slant="italic"))
         # self.title_label.grid(row=0, column=0, padx=(60, 0), pady=20, sticky="nsew")
 
         # 右上角的图标按钮（设置和GitHub）
         self.settings_button = ctk.CTkButton(self.main_frame, text="",
-                                             image=self.load_ctk_image(os.path.join(self.icon_dir, "system-setting.png"),
-                                                                       size=20),
+                                             image=self.load_ctk_image(
+                                                 os.path.join(self.icon_dir, "system-setting.png"),
+                                                 size=20),
                                              width=20, height=20, fg_color="#2359FF", corner_radius=0,
                                              hover_color=("gray70", "gray30"),
                                              command=lambda: self.select_frame("System Settings"))
@@ -146,64 +148,71 @@ class PPTFlowApp(ctk.CTk):
 
     def create_workflow_section(self):
         self.flow_frame = ctk.CTkFrame(self.main_frame, corner_radius=0, fg_color="white")
-        self.flow_frame.grid(row=1, column=0, columnspan=7, padx=100, pady=(40, 50), sticky="nsew")
+        self.flow_frame.grid(row=1, column=0, columnspan=7, padx=100, pady=(40, 60), sticky="nsew")
         for i in range(7):
             self.flow_frame.grid_columnconfigure(i, weight=1)
-        # 流程图布局
-        # row_offset = 1  # 从第1行开始布局
+        self.icon_frame = ctk.CTkFrame(self.flow_frame, corner_radius=0, fg_color="transparent")
+        self.icon_frame.grid(row=0, column=0, columnspan=7, sticky="nsew")
+        for i in range(7):
+            self.icon_frame.grid_columnconfigure(i, weight=1)
+        self.button_frame = ctk.CTkFrame(self.flow_frame, corner_radius=0, fg_color="transparent")
+        self.button_frame.grid(row=1, column=0, columnspan=7, sticky="nsew")
 
+        # 流程图布局
         self.select_flow_0(0)
         self.setting_flow_1(1)
         self.generation_flow_2(2)
         self.review_flow_3(3)
 
-        for i, (icon, label_text) in enumerate(zip(self.icons, self.labels)):
-            # 图标
-            icon_image = self.load_ctk_image(icon, size=60)  # 调整图标大小
-            icon_button = ctk.CTkButton(self.flow_frame, image=icon_image, text="", width=65, height=65,
-                                        fg_color="transparent", hover=False)
-            icon_button.grid(row=1, column=i * 2, padx=5, pady=(50, 0))
-
-            # 流程连接线
-            if i < len(self.icons) - 1:
-                line = ctk.CTkLabel(self.flow_frame, text="─" * 3, font=ctk.CTkFont(size=20), text_color="gray")
-                line.grid(row=1, column=i * 2 + 1, pady=(50, 0))
-
     def select_flow_0(self, i, row_offset=1):
         # self.file_frame = ctk.CTkFrame(self.flow_frame)
         # self.file_frame.grid(row=row_offset + 1, column=i * 2)
+        icon_image, arrow_image = self.update_image(i)
+        pptfile_icon = ctk.CTkButton(self.icon_frame, image=icon_image, text="", width=40, height=60,
+                                     fg_color="transparent", hover=False)
+        pptfile_icon.grid(row=0, column=i * 2, padx=(60, 0), pady=(50, 0))
+        arrow = ctk.CTkButton(self.icon_frame, text='', width=50, height=20, image=arrow_image,
+                              fg_color="transparent", hover=False)
+        arrow.grid(row=0, column=i * 2 + 1, pady=(50, 0))
         self.file_label_var = ctk.StringVar()
-        self.file_label = ctk.CTkLabel(self.flow_frame, textvariable=self.file_label_var,
+        self.file_label = ctk.CTkLabel(self.button_frame, textvariable=self.file_label_var,
                                        font=ctk.CTkFont(size=12), width=100)
-        self.file_label.grid(row=row_offset + 1, column=i * 2, padx=5, pady=5)
+        self.file_label.grid(row=row_offset + 1, column=i * 2, padx=(40, 5), pady=5)
 
-        self.cancel_file = ctk.CTkButton(self.flow_frame, text=self.get_text("cancel"),
-                                         font=ctk.CTkFont(size=12), width=140, border_width=1, hover=False,
+        self.cancel_file = ctk.CTkButton(self.button_frame, text=self.get_text("cancel"),
+                                         font=ctk.CTkFont(size=12), width=110, border_width=1, hover=False,
                                          fg_color="transparent", text_color="#2563EB", border_color="#2563EB",
                                          command=lambda: self.on_button_click("Cancel File"))
-        self.cancel_file.grid(row=row_offset + 2, column=i * 2, padx=5, pady=5)
+        self.cancel_file.grid(row=row_offset + 2, column=i * 2, padx=(40, 5), pady=5)
         self.file_label.grid_remove()
         self.cancel_file.grid_remove()
 
-        self.select_button = ctk.CTkButton(self.flow_frame, text=self.get_text("select_ppt"),
-                                           font=ctk.CTkFont(size=12), width=140, hover_color="gray",
+        self.select_button = ctk.CTkButton(self.button_frame, text=self.get_text("select_ppt"),
+                                           font=ctk.CTkFont(size=12), width=110, hover_color="gray",
                                            command=lambda: self.on_button_click("Select PPT File"))
-        self.select_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=5)
+        self.select_button.grid(row=row_offset + 1, column=i * 2, padx=(40, 5), pady=5)
         self.update_button(i, self.select_button)
 
     def setting_flow_1(self, i, row_offset=1):
-        self.adjust_button = ctk.CTkButton(self.flow_frame, text=self.get_text("adjust_settings"),
-                                           font=ctk.CTkFont(size=12), width=140,
+        icon_image, arrow_image = self.update_image(i)
+        setting_icon = ctk.CTkButton(self.icon_frame, image=icon_image, text="", width=65,
+                                     height=65, fg_color="transparent", hover=False)
+        setting_icon.grid(row=0, column=i * 2, padx=0, pady=(50, 0))
+        arrow = ctk.CTkButton(self.icon_frame, text='', width=50, height=20, image=arrow_image,
+                              fg_color="transparent", hover=False)
+        arrow.grid(row=0, column=i * 2 + 1, pady=(50, 0))
+        self.adjust_button = ctk.CTkButton(self.button_frame, text=self.get_text("adjust_settings"),
+                                           font=ctk.CTkFont(size=12), width=110,
                                            text_color="white", hover_color="gray", text_color_disabled="white",
                                            command=lambda: self.select_frame("Adjust Settings"))
-        self.skip_button = ctk.CTkButton(self.flow_frame, text=self.get_text("skip_settings"),
-                                         font=ctk.CTkFont(size=12), width=140,
+        self.skip_button = ctk.CTkButton(self.button_frame, text=self.get_text("skip_settings"),
+                                         font=ctk.CTkFont(size=12), width=110,
                                          text_color="white", hover_color="gray", text_color_disabled="white",
                                          command=lambda: self.on_button_click("Skip Settings"))
-        self.adjust_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
-        self.skip_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
-        self.cancel_settings = ctk.CTkButton(self.flow_frame, text=self.get_text("cancel"),
-                                             font=ctk.CTkFont(size=12), width=140, border_width=1, hover=False,
+        self.adjust_button.grid(row=row_offset + 1, column=i * 2, padx=(20, 20), pady=5)
+        self.skip_button.grid(row=row_offset + 2, column=i * 2, padx=(20, 20), pady=5)
+        self.cancel_settings = ctk.CTkButton(self.button_frame, text=self.get_text("cancel"),
+                                             font=ctk.CTkFont(size=12), width=110, border_width=1, hover=False,
                                              fg_color="transparent", text_color="#2563EB", border_color="#2563EB",
                                              command=lambda: self.on_button_click("Cancel Settings"))
         self.cancel_settings.grid(row=row_offset + 3, column=i * 2, pady=5, padx=(5, 5))
@@ -212,12 +221,16 @@ class PPTFlowApp(ctk.CTk):
         self.update_button(i, self.skip_button)
 
     def generation_flow_2(self, i, row_offset=1):
-        # Progress bar and status
-        # self.progress_frame = ctk.CTkFrame(self.flow_frame, width=100, height=28)
-        # self.progress_frame.grid(row=row_offset + 1, column=i * 2)
-        # self.progress_frame.grid_columnconfigure(0, weight=1)
+        icon_image, arrow_image = self.update_image(i)
 
-        self.progress_bar = ctk.CTkProgressBar(self.flow_frame, width=100, height=12,
+        generate_icon = ctk.CTkButton(self.icon_frame, image=icon_image, text="", width=65,
+                                      height=65, fg_color="transparent", hover=False)
+        generate_icon.grid(row=0, column=i * 2, padx=0, pady=(50, 0))
+        arrow = ctk.CTkButton(self.icon_frame, text='', width=50, height=20, image=arrow_image,
+                              fg_color="transparent", hover=False)
+        arrow.grid(row=0, column=i * 2 + 1, pady=(50, 0))
+
+        self.progress_bar = ctk.CTkProgressBar(self.button_frame, width=100, height=12, corner_radius=0,
                                                bg_color="transparent", progress_color="#2563EB")
         self.progress_bar.grid(row=row_offset + 1, column=i * 2, padx=5, pady=5)
         self.progress_bar.set(0)
@@ -228,24 +241,28 @@ class PPTFlowApp(ctk.CTk):
         # Hide progress frame initially
         self.progress_bar.grid_remove()
 
-        self.generate_button = ctk.CTkButton(self.flow_frame, text=self.get_text("generate_video"),
-                                             font=ctk.CTkFont(size=12), width=140, text_color="white",
+        self.generate_button = ctk.CTkButton(self.button_frame, text=self.get_text("generate_video"),
+                                             font=ctk.CTkFont(size=12), width=110, text_color="white",
                                              hover_color="gray", text_color_disabled="white",
                                              command=lambda label="Generate Video": self.on_button_click(label))
         self.generate_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=5)
         self.update_button(i, self.generate_button)
 
     def review_flow_3(self, i, row_offset=1):
-        self.play_button = ctk.CTkButton(self.flow_frame, text=self.get_text("preview_and_play"),
-                                         font=ctk.CTkFont(size=12), width=140,
+        icon_image, arrow_image = self.update_image(i)
+        review_icon = ctk.CTkButton(self.icon_frame, image=icon_image, text="", width=65,
+                                    height=65, fg_color="transparent", hover=False)
+        review_icon.grid(row=0, column=i * 2, padx=(0, 60), pady=(50, 0))
+        self.play_button = ctk.CTkButton(self.button_frame, text=self.get_text("preview_and_play"),
+                                         font=ctk.CTkFont(size=12), width=110,
                                          text_color="white", hover_color="gray", text_color_disabled="white",
                                          command=lambda: self.on_button_click("Preview and Play"))
-        self.reselect_button = ctk.CTkButton(self.flow_frame, text=self.get_text("reselect_ppt"),
-                                             font=ctk.CTkFont(size=12), width=140,
+        self.reselect_button = ctk.CTkButton(self.button_frame, text=self.get_text("reselect_ppt"),
+                                             font=ctk.CTkFont(size=12), width=110,
                                              text_color="white", hover_color="gray", text_color_disabled="white",
                                              command=lambda: self.on_button_click("Reselect PPT"))
-        self.play_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(5, 5))
-        self.reselect_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(5, 5))
+        self.play_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(20, 40))
+        self.reselect_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(20, 40))
         self.update_button(i, self.play_button)
         self.update_button(i, self.reselect_button)
 
@@ -269,23 +286,34 @@ class PPTFlowApp(ctk.CTk):
         next_button.grid(row=0, column=2, padx=0, pady=10)
 
     def update_button(self, icon_index, button):
-        # 根据步骤更新图标和按钮状态
+        # 根据步骤更新按钮状态
         if icon_index < self.step:
             # 完成的步骤
             button.configure(state="disabled", fg_color="#B7B7B7", text_color="white")
-            icon_image = self.load_ctk_image(self.completed_icons[icon_index], size=50)
         elif icon_index == self.step:
             # 当前步骤
             button.configure(state="normal", fg_color="#2563EB", text_color="white")
-            if icon_index == len(self.completed_icons) - 1:
-                icon_image = self.load_ctk_image(self.completed_icons[icon_index], size=50)
-            else:
-                icon_image = self.load_ctk_image(self.icons[icon_index], size=50)
         else:
             # 后续步骤，禁用
             button.configure(state="disabled", fg_color="#B7B7B7", text_color="white")
-            icon_image = self.load_ctk_image(self.disabled_icons[icon_index], size=50)
-        return icon_image
+
+    def update_image(self, icon_index):
+        # 根据步骤更新图标
+        if icon_index <= self.step:
+            # 完成的步骤
+            icon_image = self.load_ctk_image(self.icons[icon_index], size=60)
+            arrow_image = self.load_ctk_image(self.arrow_icons[0], size=(50, 16))
+        # elif icon_index == self.step:
+        #     # 当前步骤
+        #     if icon_index == len(self.disabled_icons) - 1:
+        #         icon_image = self.load_ctk_image(self.disabled_icons[icon_index], size=60)
+        #     else:
+        #         icon_image = self.load_ctk_image(self.icons[icon_index], size=60)
+        else:
+            # 后续步骤，禁用
+            icon_image = self.load_ctk_image(self.disabled_icons[icon_index], size=60)
+            arrow_image = self.load_ctk_image(self.arrow_icons[1], size=(50, 16))
+        return icon_image, arrow_image
 
     def prev_step(self):
         logger.info(f"Current Step: {self.step}")
@@ -538,9 +566,11 @@ class PPTFlowApp(ctk.CTk):
             icon_dir = resource_path(os.path.join("assets", "icons"))
             file_name = os.path.join(icon_dir, file_name)
             # 加载并调整图标大小
+            if type(size) == int:
+                size = (size, size)
             img = Image.open(file_name)
-            img = img.resize((size, size), Image.LANCZOS)  # 替换 ANTI_ALIAS 为 LANCZOS
-            return ctk.CTkImage(light_image=img, dark_image=img, size=(size, size))  # 使用 CTkImage
+            img = img.resize(size, Image.LANCZOS)  # 替换 ANTI_ALIAS 为 LANCZOS
+            return ctk.CTkImage(light_image=img, dark_image=img, size=size)  # 使用 CTkImage
         except Exception as e:
             print(f"Error loading icon {file_name}: {e}")
             return None

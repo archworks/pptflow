@@ -20,7 +20,7 @@
     "no_file": "未选择文件",
     "selected_file": "已选择文件",
     "generate_video": "生成视频",
-    "preview_and_play": "预览并播放",
+    "preview_and_play": "播放视频",
     "reselect_ppt": "重新选择PPT",
     "start_generate_video": "视频生成中，请稍等。。。",
     "video_generated": "视频已生成，路径为",

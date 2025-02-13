@@ -20,7 +20,7 @@
         "no_file": "No file selected",
         "selected_file": "Selected file",
         "generate_video": "Generate Video",
-        "preview_and_play": "Preview and Play",
+        "preview_and_play": "Play Video",
         "reselect_ppt": "Reselect PPT",
         "start_generate_video": "Please wait while the video is being generated...",
         "video_generated": "Video generated, and the path is ",

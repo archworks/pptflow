@@ -31,7 +31,7 @@ audio_voice_type = ["zh-CN-YunjianNeural", "zh-CN-XiaoxiaoNeural"]
 audio_speeds = ["1.0x", "0.8x", "1.2x", "1.5x"]
 audio_languages = ['en', 'zh']
 # Subtitle settings
-subtitle_lengths = ["35", "50", "70", "100"]
+subtitle_lengths = ["20", "35", "50", "70"]
 subtitle_font_dict = {}
 font_colors = ['white', 'black', 'red', 'blue', 'yellow', 'green']
 border_colors = ['black', 'white', 'no_color']
