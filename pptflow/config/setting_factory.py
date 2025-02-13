@@ -56,7 +56,7 @@ def get_default_tts_settings(setting: Setting, tts_service_provider: str = 'pytt
         setting.pytts_voice_rate = 150
     elif tts_service_provider == 'azure':
         setting.tts_service_provider = 'azure'
-        setting.tts_speech_region = "eastasia"
+        setting.tts_speech_region = os.getenv("TTS_AZURE_SPEECH_REGION")
         setting.tts_azure_api_key = os.getenv("TTS_AZURE_SPEECH_KEY")
         setting.tts_voice_name = 'zh-CN-YunjianNeural'
         setting.tts_voice_type = 'zh-CN-YunjianNeural (zh-CN, Male)'
