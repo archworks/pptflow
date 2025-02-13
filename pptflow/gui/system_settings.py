@@ -73,7 +73,7 @@ class SystemSettingsFrame(ctk.CTkFrame):
 
     def create_confirm_cancel_button(self):
         self.confirm_button = ctk.CTkButton(self.setting_frame, text=self.app.get_text("confirm"),
-                                            font=self.font, width=120, fg_color="#2563EB", text_color="white",
+                                            font=self.font, width=120, fg_color="#2563EB", text_color="white", hover_color="#1D4ED8",
                                             command=self.confirm_settings)
         self.confirm_button.grid(row=3, column=0, padx=20, pady=10, sticky="ew")
         self.return_button = ctk.CTkButton(self.setting_frame, text=self.app.get_text("return"),
