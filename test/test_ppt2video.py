@@ -39,7 +39,7 @@ class TestPptToVideo(unittest.TestCase):
     def test_ppt_to_video_with_pyttsx3(self):
         tts_service = get_tts_service('pyttsx3')
         os_name = platform.system()
-        setting = get_default_setting(os_name=os_name)
+        setting = get_default_setting(os_name=os_name, language='zh', tts_service_provider='pyttsx3')
         ppt_path = os.path.join(parent_dir, "test/test-zh.pptx")
 
         ppt_to_video(tts_service.tts, ppt_path, setting)

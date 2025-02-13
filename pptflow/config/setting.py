@@ -21,8 +21,8 @@ class Setting:
     pytts_voice_rate: int = None
     # Video settings
     video_format = 'MP4'
-    video_width: int = 720
-    video_height: int = 480
+    video_width: int = 1280
+    video_height: int = 720
     video_fps: int = 10
     video_path: str = None  # the output video path
     # Subtitle settings
