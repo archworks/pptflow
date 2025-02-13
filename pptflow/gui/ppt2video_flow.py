@@ -78,7 +78,7 @@ class PPTFlowApp(ctk.CTk):
         self.main_frame.grid_rowconfigure(2, weight=1)
 
         # Load and set background image
-        bg_image = ctk.CTkImage(Image.open(os.path.join(self.icon_dir, "header-background.png")), size=(850, 173))
+        bg_image = ctk.CTkImage(Image.open(os.path.join(self.icon_dir, "background.png")), size=(800, 173))
         self.bg_label = ctk.CTkLabel(self.main_frame, image=bg_image, text="")
         self.bg_label.place(x=0, y=0, anchor="nw")
 
@@ -96,26 +96,26 @@ class PPTFlowApp(ctk.CTk):
         # self.top_frame.grid(row=0, column=0, columnspan=7, sticky="nsew")
         # self.top_frame.grid_columnconfigure(0, weight=7)
         # 标题部分
-        title_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
-        title_frame.grid(row=0, column=0, padx=(100, 0), pady=20)
+        # title_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        # title_frame.grid(row=0, column=0, padx=(100, 0), pady=20)
 
         # 加粗的 PPT
-        ppt_label = ctk.CTkLabel(title_frame, text="PPT", font=ctk.CTkFont(size=24, weight="bold"),
-                                 anchor="e", text_color="white", fg_color="#2359FF")
-        ppt_label.grid(row=0, column=0)
-
-        # 正常的 Flow
-        flow_label = ctk.CTkLabel(title_frame, text="Flow", font=ctk.CTkFont(size=24, weight="normal"),
-                                  anchor="w", text_color="white", fg_color="#2359FF")
-        flow_label.grid(row=0, column=1)
+        # ppt_label = ctk.CTkLabel(title_frame, text="PPT", font=ctk.CTkFont(size=24, weight="bold"),
+        #                          anchor="e", text_color="white", fg_color="#2359FF")
+        # ppt_label.grid(row=0, column=0)
+        #
+        # # 正常的 Flow
+        # flow_label = ctk.CTkLabel(title_frame, text="Flow", font=ctk.CTkFont(size=24, weight="normal"),
+        #                           anchor="w", text_color="white", fg_color="#2359FF")
+        # flow_label.grid(row=0, column=1)
 
         # Slogan part @金枫请协助修改显示
-        slogan_frame = ctk.CTkFrame(self.main_frame, fg_color="#2359FF")
-        slogan_frame.grid(row=1, column=0, padx=(100, 0), pady=30)
-        slogan_label = ctk.CTkLabel(slogan_frame, text="Turn PowerPoints into Engaging Videos with AI",
-                                    font=ctk.CTkFont(size=22, weight="normal"),
-                                    text_color="black", fg_color="#2359FF")
-        slogan_label.grid(row=0, column=0, pady=10)
+        # slogan_frame = ctk.CTkFrame(self.main_frame, fg_color="#2359FF")
+        # slogan_frame.grid(row=1, column=0, padx=(100, 0), pady=30)
+        # slogan_label = ctk.CTkLabel(slogan_frame, text="Turn PowerPoints into Engaging Videos with AI",
+        #                             font=ctk.CTkFont(size=22, weight="normal"),
+        #                             text_color="black", fg_color="#2359FF")
+        # slogan_label.grid(row=0, column=0, pady=10)
 
         # self.title_label = ctk.CTkLabel(self.top_frame, text="PPTFlow",
         #                                 font=ctk.CTkFont(size=24, weight="bold", slant="italic"))
@@ -126,19 +126,19 @@ class PPTFlowApp(ctk.CTk):
                                              image=self.load_ctk_image(
                                                  os.path.join(self.icon_dir, "system-setting.png"),
                                                  size=20),
-                                             width=20, height=20, fg_color="#2359FF", corner_radius=0,
+                                             width=20, height=20, fg_color="#0066FF", corner_radius=0,
                                              hover_color=("gray70", "gray30"),
                                              command=lambda: self.select_frame("System Settings"))
         self.github_button = ctk.CTkButton(self.main_frame, text="",
                                            image=self.load_ctk_image(os.path.join(self.icon_dir, "github.png"),
                                                                      size=20),
-                                           width=20, height=20, fg_color="#2359FF", corner_radius=0,
+                                           width=20, height=20, fg_color="#0066FF", corner_radius=0,
                                            hover_color=("gray70", "gray30"),
                                            command=lambda: self.on_button_click("Github"))
         self.discord_button = ctk.CTkButton(self.main_frame, text="",
                                             image=self.load_ctk_image(os.path.join(self.icon_dir, "discord.png"),
                                                                       size=20),
-                                            width=20, height=20, fg_color="#2359FF", corner_radius=0,
+                                            width=20, height=20, fg_color="#0066FF", corner_radius=0,
                                             hover_color=("gray70", "gray30"),
                                             command=lambda: self.on_button_click("Discord"))
 
