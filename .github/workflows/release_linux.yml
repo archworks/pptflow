@@ -91,7 +91,8 @@ jobs:
     # 9. 检查 Release 是否已存在
     - name: Install GitHub CLI
       run: |
-        brew install gh
+        sudo apt update
+        sudo apt install gh
 
     - name: Check if Release exists
       id: check_release
