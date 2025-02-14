@@ -97,6 +97,7 @@ jobs:
     - name: Check if Release exists
       id: check_release
       run: |
+        gh --version
         # 检查该标签的 Release 是否已经存在
         release_info=$(gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>/dev/null)
         if [[ -n "$release_info" ]]; then
