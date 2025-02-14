@@ -89,6 +89,10 @@ jobs:
         dpkg-deb --build dist dist/pptflow-${{ env.tag_name }}-linux-x86_64.deb
 
     # 9. 检查 Release 是否已存在
+    - name: Install GitHub CLI
+      run: |
+        brew install gh
+
     - name: Check if Release exists
       id: check_release
       run: |
