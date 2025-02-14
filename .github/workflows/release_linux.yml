@@ -94,10 +94,11 @@ jobs:
         sudo apt update
         sudo apt install gh
 
-    - name: Check if Release exists
+    - name: Get final upload_url
       id: check_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh --version
         # 检查该标签的 Release 是否已经存在
         release_info=$(gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>/dev/null)
         echo "$release_info"
