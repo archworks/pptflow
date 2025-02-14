@@ -68,7 +68,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                                        font=self.font)
         self.cache_path.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
 
-        self.browse_button = ctk.CTkButton(frame, width=100, fg_color="#2563EB", hover_color="gray", text_color="white",
+        self.browse_button = ctk.CTkButton(frame, width=100, fg_color="#2563EB", hover_color="#1D4ED8", text_color="white",
                                            text=self.app.get_text("browse"), font=self.font,
                                            command=self.browse_cache_path)
         self.browse_button.grid(row=0, column=2, padx=5, pady=10)
@@ -200,7 +200,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.video_settings_button = ctk.CTkButton(
             frame, image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "down-arrow.png"), 20),
             text=self.app.get_text("video_settings"), font=self.font,
-            bg_color="transparent", fg_color="#2563EB", hover_color="gray",
+            bg_color="transparent", fg_color="#2563EB", hover_color="#1D4ED8",
             command=lambda: self.toggle_video_settings(frame)
         )
         self.video_settings_button.grid(row=0, column=0, padx=5, pady=10, sticky="w")
@@ -274,7 +274,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.subtitle_settings_button = ctk.CTkButton(
             frame, image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "down-arrow.png"), 20),
             text=self.app.get_text("subtitle_settings"), font=self.font,
-            bg_color="transparent", fg_color="#2563EB", hover_color="gray",
+            bg_color="transparent", fg_color="#2563EB", hover_color="#1D4ED8",
             command=lambda: self.toggle_subtitle_settings(frame)
         )
         self.subtitle_settings_button.grid(row=0, column=0, padx=5, pady=10, sticky="w")
@@ -325,11 +325,11 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         frame.columnconfigure(1, weight=1)
         self.save_button = ctk.CTkButton(frame, text=self.app.get_text("save_settings"),
                                          font=self.font, width=120,
-                                         fg_color="#2563EB", hover_color="gray", text_color="white",
+                                         fg_color="#2563EB", hover_color="#1D4ED8", text_color="white",
                                          command=self.save_settings)
         self.save_button.grid(row=0, column=0, padx=(100, 50), pady=10, sticky="ew")
         self.cancel_button = ctk.CTkButton(frame, text=self.app.get_text("cancel_settings"), font=self.font,
-                                           fg_color="gray70", hover_color="gray", width=120,
+                                           fg_color="gray70", hover_color="gray", text_color='white', width=120,
                                            command=self.cancel_settings)
         self.cancel_button.grid(row=0, column=1, padx=(50, 100), pady=10, sticky="ew")
 
