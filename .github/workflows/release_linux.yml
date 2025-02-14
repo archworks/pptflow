@@ -72,10 +72,14 @@ jobs:
 
         # 将可执行文件放到目标目录
         cp dist/pptflow dist/usr/local/bin/
+        
+        # 获取版本号，并去掉前缀的 "v"
+        clean_version=${{ env.tag_name }}
+        clean_version=${clean_version//v/}  # 去掉 "v"
 
         # 创建控制文件
         echo "Package: pptflow" > dist/DEBIAN/control
-        echo "Version: ${{ env.tag_name }}" >> dist/DEBIAN/control
+        echo "Version: $clean_version" >> dist/DEBIAN/control
         echo "Architecture: amd64" >> dist/DEBIAN/control
         echo "Maintainer: your-email@example.com" >> dist/DEBIAN/control
         echo "Description: PPTFlow Linux Installer" >> dist/DEBIAN/control
