@@ -5,6 +5,9 @@ from .pdf2image import pdf_to_image
 from .config.setting import Setting
 class PptToImageMac(PptToImage):
     def convert(self, input_ppt_path: str, setting: Setting, progress_tracker=None):
+        # Create a dir to save the slides as images
+        if not os.path.exists(setting.image_dir_path):
+            os.makedirs(setting.image_dir_path)
         file_name_without_ext = os.path.basename(input_ppt_path).split(".")[0]
         temp_pdf_path = os.path.join(setting.image_dir_path, f'{file_name_without_ext}.pdf')
         self._ppt_to_pdf(input_ppt_path, temp_pdf_path)
