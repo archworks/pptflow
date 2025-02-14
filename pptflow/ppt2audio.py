@@ -10,48 +10,6 @@ import time
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
 
-
-def tts_pause(index, length, text):
-    result = text.strip()
-    # 在换行符后增加停顿
-    result = re.sub(r'(\r?\n)', r'\1[p1000]', result)
-    # 在每一页的最后增加停顿
-    result += '[p2000]'
-    if index == 0:
-        # 在最开头增加停顿
-        result = '[p2000]' + result
-    if index == length - 1:
-        # 在最后增加停顿
-        result += '[p10000]'
-    return result
-
-
-def tts_pause2(page_index, page_length, text, segment_index, segment_length):
-    return text
-    result = text.strip()
-    # 在每一个换行符前增加停顿
-    result = re.sub(r'(\r?\n)', r'[p1000]\1', result)
-
-    # 在每一页的最后增加停顿
-    if segment_index == segment_length - 1:
-        result += '[p2000]'
-
-    # 在PPT第一页和最后一页额外增加停顿
-    if page_index == 0 and segment_index == 0:
-        # 在ppt最开头增加停顿
-        result = '[p2000]' + result
-    if page_index == page_length - 1 and segment_index == segment_length - 1:
-        # 在ppt最后增加停顿
-        result += '[p10000]'
-    return result
-
-
-def tts_replace(text):
-    result = text.replace('MySQL', 'My SQL[=si:kwl]') \
-        .replace('负载均衡', '负载[=zai3]均衡')
-    return result
-
-
 def audio_file_do_replace_check(audio_file_path, note_text):
     note_text_path = audio_file_path.replace('.mp3', '.txt')
     if os.path.exists(audio_file_path) and os.path.exists(note_text_path):
@@ -294,14 +252,9 @@ async def generate_audio_and_subtitles(tts, text, page_length, page_index, filen
             # file path to save the audio clip based on the current segment
             segment_audio_file_path = os.path.join(setting.audio_dir_path,
                                                    f'{filename_prefix}-P{page_index + 1}-S{idx + 1}.mp3')
-
-            # Preprocess the text
-            speech_text = tts_pause2(page_index, page_length, segment_text, idx, len(text_segments))
-            speech_text = tts_replace(speech_text)
-
             # Add the task to the list
             tasks.append(
-                generate_audio_clip(tts, speech_text, segment_audio_file_path, setting)
+                generate_audio_clip(tts, segment_text, segment_audio_file_path, setting)
             )
 
         # Run the tasks concurrently

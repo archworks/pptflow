@@ -83,7 +83,7 @@ If you prefer to run the application directly from the source code, follow these
 
 ## Usage Instructions
 
-1. **Select PowerPoint**: Click the ’Select PPT' button to load your PowerPoint presentation.
+1. **Select PowerPoint**: Click the "Select PPT" button to load your slides, along with the speaker notes.
 2. **Adjust Settings**: Adjust AI voice, voiceover speed, and other settings as needed.
 3. **Generate Video**: Click on the "Generate Video" button to begin the conversion process.
 4. **Preview and Play**: Play the video to ensure everything looks and sounds perfect.
