@@ -79,15 +79,6 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.clear_cache_button.grid(row=0, column=3, padx=5, pady=10)
 
     def create_tts_settings(self, frame):
-        # frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
-        # frame.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="ew")
-        #
-        # title = ctk.CTkLabel(
-        #     frame,
-        #     text=self.app.get_text("tts_settings"),
-        #     font=self.font
-        # )
-        # title.grid(row=0, column=0, padx=5, pady=10, sticky="w")
         self.tts_providers_label = ctk.CTkLabel(
             frame,
             text=self.app.get_text("tts_service_provider"), font=self.font
@@ -96,7 +87,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.tts_providers_var.set(self.app.setting.tts_service_provider)
         self.tts_providers = ctk.CTkComboBox(frame, values=sd.tts_service_providers,
                                              variable=self.tts_providers_var, font=self.font)
-        self.tts_providers.grid(row=1, column=1, padx=5, pady=10)
+        self.tts_providers.grid(row=1, column=1, padx=5, pady=10, sticky="w")
         # 绑定选择变化的事件
         # self.tts_providers.bind("<<ComboboxSelected>>", lambda event: self.on_tts_provider_change)
         self.tts_providers_var.trace("w", lambda *args: self.on_tts_provider_change(frame))
@@ -115,6 +106,11 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.create_pyttsx3_settings(frame)
         elif self.tts_providers_var.get() == "azure":
             self.app.load_tts("azure")
+            self.app.setting.tts_speech_region = os.getenv("TTS_AZURE_SPEECH_REGION") if \
+                self.app.setting.tts_speech_region is None else self.app.setting.tts_speech_region
+            self.app.setting.tts_azure_api_key = os.getenv("TTS_AZURE_SPEECH_KEY") if \
+                self.app.setting.tts_azure_api_key is None else self.app.setting.tts_azure_api_key
+
             self.create_azure_settings(frame)
         # elif self.tts_providers_var.get() == "edge-tts":
         #     self.create_edge_tts_settings(frame)
@@ -133,7 +129,6 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.app.get_text("tts_voice_type"): sd.tts_speech_voices,
         }
         create_combo_box(frame, 1, tts_settings, self.tts_settings_vars)
-        # self.tts_settings_vars[self.app.get_text("tts_service_provider")].set(self.app.setting.tts_service_provider)
         self.tts_settings_vars[self.app.get_text("tts_speech_region")].set(self.app.setting.tts_speech_region)
         self.tts_settings_vars[self.app.get_text("tts_voice_type")].set(self.app.setting.tts_voice_type)
         # api key
@@ -141,7 +136,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.api_key_label.grid(row=2 + len(tts_settings), column=0, padx=5, pady=10, sticky="w")
         self.api_key_var = ctk.StringVar(value=self.app.setting.tts_azure_api_key)
         self.api_key = ctk.CTkEntry(frame, width=200, textvariable=self.api_key_var, font=self.font)
-        self.api_key.grid(row=2 + len(tts_settings), column=1, padx=5, pady=10, sticky="ew")
+        self.api_key.grid(row=2 + len(tts_settings), column=1, padx=5, pady=10, sticky="w")
 
     def create_edge_tts_settings(self, frame):
         # tts voice rate
@@ -150,7 +145,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.rate_slider_label.grid(row=2, column=0, padx=5, pady=10, sticky="w")
         # 创建滑动条
         self.rate_slider = ctk.CTkSlider(frame, from_=-1, to=1, orientation="horizontal", command=self.update_progress)
-        self.rate_slider.grid(row=2, column=1, padx=5, pady=10, sticky="ew")
+        self.rate_slider.grid(row=2, column=1, padx=5, pady=10, sticky="w")
         self.rate_slider.set(0)  # 初始滑动条值设置为 0（中间）
         # 创建显示进度的标签
         self.voice_rate = ctk.CTkLabel(frame, text="0%", font=self.font)
@@ -188,7 +183,11 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             if self.audio_settings_frame is None:
                 self.audio_settings_frame = ctk.CTkFrame(frame, fg_color="transparent")
                 self.audio_settings_frame.grid(row=1, column=0, pady=(0, 10), sticky="ew")
-                self.create_tts_settings(frame)
+                self.audio_settings_button.configure(
+                    image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "up-arrow.png"), 20))
+                self.create_tts_settings(self.audio_settings_frame)
+            self.audio_settings_frame.grid()
+            self.is_audio_settings_visible = True
 
     def create_video_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
@@ -368,18 +367,23 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.grab_release()
 
     def update_tts_settings(self):
-        tts_voice_type = tts_voice_rate = None
         tts_service_provider = self.tts_providers_var.get()
+        if tts_service_provider != self.app.setting.tts_service_provider:
+            self.app.clear_audio_cache()
         self.app.setting.tts_service_provider = tts_service_provider
         logger.info(f"Updated TTS service provider: {tts_service_provider}")
         if tts_service_provider == "pyttsx3":
             audio_language = self.tts_settings_vars[self.app.get_text("audio_language")].get()
+            if audio_language != self.app.setting.language:
+                self.app.clear_audio_cache()
             self.app.setting.language = self.app.text_to_key(audio_language)
             logger.info(f"Updated audio language: {audio_language}")
         if tts_service_provider == "azure":
             tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
             tts_speech_region = self.tts_settings_vars[self.app.get_text("tts_speech_region")].get()
             tts_api_key = self.api_key_var.get()
+            if tts_voice_type != self.app.setting.tts_voice_type:
+                self.app.clear_audio_cache()
             self.app.setting.tts_api_key = tts_api_key
             self.app.setting.tts_voice_type = tts_voice_type
             self.app.setting.tts_voice_name = tts_voice_type.split(' ')[0]
@@ -388,10 +392,9 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                         f"Voice Type: {tts_voice_type}")
         if tts_service_provider == "edge-tts":
             tts_voice_rate = f'{int(self.rate_slider.get() * 100):+d}%'
+            if tts_voice_rate != self.app.setting.tts_voice_rate:
+                self.app.clear_audio_cache()
             self.app.setting.tts_voice_rate = tts_voice_rate
-        if tts_voice_type is not None and tts_voice_type != self.app.setting.tts_voice_type \
-                or tts_voice_rate is not None and tts_voice_rate != self.app.setting.tts_voice_rate:
-            self.app.clear_audio_cache()
         self.app.tts = self.app.load_tts(self.app.setting.tts_service_provider)
 
     # def update_audio_settings(self):

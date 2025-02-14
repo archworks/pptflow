@@ -15,8 +15,8 @@ class Setting:
     tts_api_key: str = None
     tts_azure_api_key: str = None
     tts_speech_region = None
-    tts_voice_name: str = None
-    tts_voice_type: str = None
+    tts_voice_name: str = 'zh-CN-YunjianNeural'
+    tts_voice_type: str = 'zh-CN-YunjianNeural (zh-CN, Male)'
     tts_voice_rate: str = None
     pytts_voice_rate: int = None
     # Video settings
