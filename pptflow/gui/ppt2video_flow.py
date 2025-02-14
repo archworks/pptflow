@@ -473,7 +473,7 @@ class PPTFlowApp(ctk.CTk):
             from .adjust_settings import AdjustSettingsFrame
             # 显示 ExportSection
             self.adjust_settings = AdjustSettingsFrame(self, self.main_frame)
-            self.adjust_settings.grid(row=1, column=0, padx=(100, 20), sticky="nsew")
+            self.adjust_settings.grid(row=1, column=0, padx=(100, 40), pady=(40, 60), sticky="nsew")
             # self.adjust_settings.refresh()
             self.adjust_settings.tkraise()
             self.adjust_settings.grab_set()
@@ -485,7 +485,7 @@ class PPTFlowApp(ctk.CTk):
             self.flow_frame.grid_remove()
             from .system_settings import SystemSettingsFrame
             self.system_settings = SystemSettingsFrame(self, self.main_frame)
-            self.system_settings.grid(row=1, column=0, padx=(100, 20), sticky="nsew")
+            self.system_settings.grid(row=1, column=0, padx=(100, 40), pady=(40, 60), sticky="nsew")
             self.system_settings.tkraise()
             self.system_settings.grab_set()
 

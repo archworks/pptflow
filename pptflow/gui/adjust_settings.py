@@ -22,7 +22,7 @@ def create_combo_box(parent, index, options, variable, command=None):
         variable[key] = var
 
         combo = ctk.CTkComboBox(parent, values=values, variable=var, font=ctk.CTkFont(size=12, weight="normal"))
-        combo.grid(row=index + i + 1, column=1, padx=5, pady=5)
+        combo.grid(row=index + i + 1, column=1, padx=5, pady=5, sticky="w")
 
 
 class AdjustSettingsFrame(ctk.CTkFrame):
@@ -31,15 +31,6 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.app = app
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
-
-        # Title
-        # self.title = ctk.CTkLabel(
-        #     self,
-        #     text=self.app.get_text("export_settings"),
-        #     font=ctk.CTkFont(size=12, weight="bold")
-        # )
-        # self.title.grid(row=0, column=0, padx=20, pady=20)
-        # self.title.grid_remove()
 
         self.font_size = 12
         self.font = ctk.CTkFont(size=self.font_size, weight="normal")
@@ -51,15 +42,15 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
         # Create a dict for audio/video/subtitle settings
         self.export_path_var = ctk.StringVar()
+        self.tts_providers_var = ctk.StringVar()
         self.tts_settings_vars = {}
-        # self.audio_settings_vars = {}
+        self.audio_settings_vars = {}
         self.video_settings_vars = {}
         self.subtitle_settings_vars = {}
 
         # Add settings sections
-        self.create_tts_settings()
-        self.create_cache_path()
-        # self.create_audio_settings()
+        # self.create_cache_path()
+        self.create_audio_settings()
         self.create_video_settings()
         self.create_subtitle_settings()
         self.create_save_cancel_button()
@@ -87,22 +78,22 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                                                 command=self.app.clear_temp_cache)
         self.clear_cache_button.grid(row=0, column=3, padx=5, pady=10)
 
-    def create_tts_settings(self):
-        frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
-        frame.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="ew")
-
-        title = ctk.CTkLabel(
-            frame,
-            text=self.app.get_text("tts_settings"),
-            font=self.font
-        )
-        title.grid(row=0, column=0, padx=5, pady=10, sticky="w")
+    def create_tts_settings(self, frame):
+        # frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
+        # frame.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="ew")
+        #
+        # title = ctk.CTkLabel(
+        #     frame,
+        #     text=self.app.get_text("tts_settings"),
+        #     font=self.font
+        # )
+        # title.grid(row=0, column=0, padx=5, pady=10, sticky="w")
         self.tts_providers_label = ctk.CTkLabel(
             frame,
             text=self.app.get_text("tts_service_provider"), font=self.font
         )
         self.tts_providers_label.grid(row=1, column=0, padx=5, pady=10, sticky="w")
-        self.tts_providers_var = ctk.StringVar(value=self.app.setting.tts_service_provider)
+        self.tts_providers_var.set(self.app.setting.tts_service_provider)
         self.tts_providers = ctk.CTkComboBox(frame, values=sd.tts_service_providers,
                                              variable=self.tts_providers_var, font=self.font)
         self.tts_providers.grid(row=1, column=1, padx=5, pady=10)
@@ -170,27 +161,34 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                                           command=self.reset_progress)
         self.reset_button.grid(row=2, column=3, padx=5, pady=10)
 
-    # def create_audio_settings(self):
-    # frame = ctk.CTkFrame(self.scrollable_frame)
-    # frame.grid(row=2, column=0, padx=0, pady=(0, 10), sticky="ew")
-    #
-    # title = ctk.CTkLabel(
-    #     frame,
-    #     text=self.app.get_text("audio_settings"),
-    #     font=ctk.CTkFont(size=16, weight="bold")
-    # )
-    # title.grid(row=0, column=0, padx=20, pady=10, sticky="w")
-    #
-    # self.audio_settings = {
-    #     self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
-    # self.app.get_text("audio_voice_type"): sd.audio_voice_type,
-    # self.app.get_text("audio_speed"): sd.audio_speeds
-    # }
+    def create_audio_settings(self):
+        frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
+        frame.grid(row=2, column=0, padx=20, pady=(0, 10), sticky="nsew")
 
-    # create_combo_box(frame, 0, self.audio_settings, self.audio_settings_vars)
-    # self.audio_settings_vars[self.app.get_text("audio_language")].set(self.app.get_text(self.app.setting.audio_language))
-    # self.audio_settings_vars[self.app.get_text("audio_voice_type")].set(self.app.setting.tts_voice_type)
-    # self.audio_settings_vars[self.app.get_text("audio_speed")].set(self.app.setting.narration_voice_speed)
+        self.audio_settings_frame = None  # 添加一个实例变量来存储设置面板的frame
+        self.is_audio_settings_visible = False  # 添加一个状态变量来跟踪设置面板的可见性
+
+        self.audio_settings_button = ctk.CTkButton(
+            frame, image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "down-arrow.png"), 20),
+            text=self.app.get_text("audio_settings"), font=self.font,
+            bg_color="transparent", fg_color="#2563EB", hover_color="gray",
+            command=lambda: self.toggle_audio_settings(frame)
+        )
+        self.audio_settings_button.grid(row=0, column=0, padx=5, pady=10, sticky="w")
+
+    def toggle_audio_settings(self, frame):
+        if self.is_audio_settings_visible:
+            # 如果设置面板是可见的，则隐藏它
+            self.audio_settings_frame.grid_remove()
+            self.is_audio_settings_visible = False
+            self.audio_settings_button.configure(
+                image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "down-arrow.png"), 20)
+            )
+        else:
+            if self.audio_settings_frame is None:
+                self.audio_settings_frame = ctk.CTkFrame(frame, fg_color="transparent")
+                self.audio_settings_frame.grid(row=1, column=0, pady=(0, 10), sticky="ew")
+                self.create_tts_settings(frame)
 
     def create_video_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
@@ -218,7 +216,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             # 如果设置面板是隐藏的，则显示它
             if self.video_settings_frame is None:
                 self.video_settings_frame = ctk.CTkFrame(frame, fg_color="transparent")
-                self.video_settings_frame.grid(row=2, column=0, pady=(0, 10), sticky="ew")
+                self.video_settings_frame.grid(row=1, column=0, pady=(0, 10), sticky="ew")
                 self.video_settings_button.configure(
                     image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "up-arrow.png"), 20))
                 # Export path
@@ -228,7 +226,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
                 self.export_path = ctk.CTkEntry(self.video_settings_frame, width=200,
                                                 textvariable=self.export_path_var, font=self.font)
-                self.export_path.grid(row=1, column=1, padx=5, pady=10, sticky="ew")
+                self.export_path.grid(row=1, column=1, padx=5, pady=10, sticky="w")
 
                 self.browse_btn = ctk.CTkButton(
                     self.video_settings_frame, width=100, fg_color="#2563EB", text_color="white",
@@ -322,24 +320,27 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
     def create_save_cancel_button(self):
         frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
-        frame.grid(row=5, column=0, padx=20, pady=(0, 10), sticky="ew")
+        frame.grid(row=5, column=0, columnspan=2, padx=20, pady=(0, 10), sticky="ew")
+        frame.columnconfigure(0, weight=1)
+        frame.columnconfigure(1, weight=1)
         self.save_button = ctk.CTkButton(frame, text=self.app.get_text("save_settings"),
                                          font=self.font, width=120,
                                          fg_color="#2563EB", hover_color="gray", text_color="white",
                                          command=self.save_settings)
-        self.save_button.grid(row=0, column=0, padx=5, pady=10, sticky="ew")
+        self.save_button.grid(row=0, column=0, padx=(100, 50), pady=10, sticky="ew")
         self.cancel_button = ctk.CTkButton(frame, text=self.app.get_text("cancel_settings"), font=self.font,
                                            fg_color="gray70", hover_color="gray", width=120,
                                            command=self.cancel_settings)
-        self.cancel_button.grid(row=0, column=1, padx=5, pady=10, sticky="ew")
+        self.cancel_button.grid(row=0, column=1, padx=(50, 100), pady=10, sticky="ew")
 
     def save_settings(self):
-        if self.cache_path_var.get():
-            self.app.setting.temp_dir = self.cache_path_var.get()
-            logger.info(f"Updated cache path: {self.app.setting.temp_dir}")
-        else:
-            logger.warning(self.app.get_text("path_invalid"))
-        self.update_tts_settings()
+        # if self.cache_path_var.get():
+        #     self.app.setting.temp_dir = self.cache_path_var.get()
+        #     logger.info(f"Updated cache path: {self.app.setting.temp_dir}")
+        # else:
+        #     logger.warning(self.app.get_text("path_invalid"))
+        if self.is_audio_settings_visible:
+            self.update_tts_settings()
         # self.update_audio_settings()
         if self.is_video_settings_visible:
             self.update_video_settings()
@@ -477,9 +478,9 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         # self.browse_btn.configure(text=self.app.get_text("browse"))
         # self.browse_button.configure(text=self.app.get_text("browse"))
         # self.reset_button.configure(text=self.app.get_text("reset"))
-        self.create_cache_path()
-        self.create_tts_settings()
-        # self.create_audio_settings()
+        # self.create_cache_path()
+        # self.create_tts_settings()
+        self.create_audio_settings()
         self.create_video_settings()
         self.create_subtitle_settings()
         self.create_save_cancel_button()
