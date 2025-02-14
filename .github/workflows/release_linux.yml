@@ -55,6 +55,7 @@ jobs:
     # 6. 手动复制 Linux 依赖文件
     - name: Copy dependencies for PyInstaller
       run: |
+        ls -l /opt/hostedtoolcache/Python/3.9.21/x64/lib/python3.9/site-packages/azure/cognitiveservices/speech/
         dll_path=$(python -c "import azure.cognitiveservices.speech; import os; print(os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), 'libMicrosoft.CognitiveServices.Speech.core.dylib'))")
         mkdir -p azure/cognitiveservices/speech
         cp "$dll_path" "azure/cognitiveservices/speech/"
