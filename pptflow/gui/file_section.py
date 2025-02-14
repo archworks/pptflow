@@ -5,7 +5,7 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 from pptflow import ppt2video
 from pptflow.utils.progress_tracker import ProgressTracker
-from pptflow.utils import mylogger, font, setting_dic as sd
+from pptflow.utils import mylogger
 from pptx import Presentation
 
 # 创建日志纪录实例

@@ -1,4 +1,3 @@
-import platform
 from dataclasses import dataclass
 import os
 

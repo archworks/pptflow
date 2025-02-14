@@ -1,7 +1,6 @@
 # Author: Valley-e
 # Date: 2024/12/18  
 # Description:
-import platform
 import shutil
 from dotenv import load_dotenv
 import os

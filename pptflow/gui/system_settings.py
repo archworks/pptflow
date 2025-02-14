@@ -80,7 +80,7 @@ class SystemSettingsFrame(ctk.CTkFrame):
                                            font=self.font, width=120, fg_color="gray70", text_color="white",
                                            hover_color="gray",
                                            command=self.cancel_settings)
-        self.return_button.grid(row=3, column=1, padx=20, pady=10, sticky="ew")
+        self.return_button.grid(row=3, column=1, padx=0, pady=10, sticky="ew")
 
     def confirm_settings(self):
         if self.language_var.get() == self.app.get_text(self.app.current_language):

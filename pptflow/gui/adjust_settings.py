@@ -330,7 +330,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.cancel_button = ctk.CTkButton(frame, text=self.app.get_text("cancel_settings"), font=self.font,
                                            fg_color="gray70", hover_color="gray", text_color='white', width=120,
                                            command=self.cancel_settings)
-        self.cancel_button.grid(row=0, column=1, padx=(50, 100), pady=10, sticky="ew")
+        self.cancel_button.grid(row=0, column=1, padx=(0, 100), pady=10, sticky="ew")
 
     def save_settings(self):
         # if self.cache_path_var.get():
