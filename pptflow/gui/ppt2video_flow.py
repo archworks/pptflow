@@ -230,7 +230,7 @@ class PPTFlowApp(ctk.CTk):
                               fg_color="transparent", hover=False)
         arrow.grid(row=0, column=i * 2 + 1, pady=(50, 0))
 
-        self.progress_bar = ctk.CTkProgressBar(self.button_frame, width=100, height=12, corner_radius=0,
+        self.progress_bar = ctk.CTkProgressBar(self.button_frame, width=100, height=15, corner_radius=0,
                                                bg_color="transparent", progress_color="#2563EB")
         self.progress_bar.grid(row=row_offset + 1, column=i * 2, padx=5, pady=5)
         self.progress_bar.set(0)

@@ -3,6 +3,7 @@
 # Description:
 import os
 import re
+import tkinter
 
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
@@ -21,7 +22,9 @@ def create_combo_box(parent, index, options, variable, command=None):
         var = ctk.StringVar(value=values[0])
         variable[key] = var
 
-        combo = ctk.CTkComboBox(parent, values=values, variable=var, font=ctk.CTkFont(size=12, weight="normal"))
+        combo = ctk.CTkComboBox(parent, values=values, variable=var,
+                                font=ctk.CTkFont(size=12, weight="normal"),
+                                state="readonly")
         combo.grid(row=index + i + 1, column=1, padx=5, pady=5, sticky="w")
 
 
@@ -85,7 +88,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         )
         self.tts_providers_label.grid(row=1, column=0, padx=5, pady=10, sticky="w")
         self.tts_providers_var.set(self.app.setting.tts_service_provider)
-        self.tts_providers = ctk.CTkComboBox(frame, values=sd.tts_service_providers,
+        self.tts_providers = ctk.CTkComboBox(frame, values=sd.tts_service_providers, state="readonly",
                                              variable=self.tts_providers_var, font=self.font)
         self.tts_providers.grid(row=1, column=1, padx=5, pady=10, sticky="w")
         # 绑定选择变化的事件
@@ -125,6 +128,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
     def create_azure_settings(self, frame):
         tts_settings = {
+            self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
             self.app.get_text("tts_speech_region"): sd.tts_speech_regions,
             self.app.get_text("tts_voice_type"): sd.tts_speech_voices,
         }

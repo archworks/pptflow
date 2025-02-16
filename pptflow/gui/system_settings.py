@@ -41,7 +41,7 @@ class SystemSettingsFrame(ctk.CTkFrame):
         self.language_list = [self.app.get_text(language) for language in self.app.language_modes]
         self.language_var = ctk.StringVar()
         self.language_setting = ctk.CTkComboBox(self.setting_frame, font=self.font,
-                                                values=self.language_list,
+                                                values=self.language_list, state="readonly",
                                                 variable=self.language_var)
         self.language_setting.grid(row=0, column=1, padx=20, pady=10)
         # self.language_setting.set(self.app.get_text(self.app.current_language))
@@ -56,7 +56,7 @@ class SystemSettingsFrame(ctk.CTkFrame):
         self.theme = ctk.CTkComboBox(self.setting_frame, values=[self.app.get_text("light"),
                                                                  self.app.get_text("dark"),
                                                                  self.app.get_text("system")],
-                                     variable=self.theme_var,
+                                     variable=self.theme_var, state="readonly",
                                      font=self.font)
         self.theme.grid(row=1, column=1, padx=20, pady=10)
         self.theme_map = {self.app.translations[key]: key for key in ['light', 'dark', 'system']}
