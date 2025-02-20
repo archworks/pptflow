@@ -412,7 +412,8 @@ class PPTFlowApp(ctk.CTk):
     def load_tts(self, tts_service_provider):
         # import tts module according to service provider
         tts_service = get_tts_service(tts_service_provider)
-        sd.tts_speech_voices = tts_service.get_voice_list(self.setting)
+        sd.tts_speech_voices = tts_service.get_voice_list(self.setting) if \
+            len(tts_service.get_voice_list(self.setting)) > 0 else sd.tts_speech_voices
         return tts_service.tts
 
     def update_progress(self, progress: float, status: str):

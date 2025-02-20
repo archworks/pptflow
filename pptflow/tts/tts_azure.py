@@ -58,12 +58,12 @@ class AzureTtsService(TtsService):
             return False
 
     async def list_voices(self, filename: str, setting: Setting):
-        # 初始化 Speech Config
-        speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
-                                               region=setting.tts_speech_region)
-        # 创建语音列表客户端
-        synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
         try:
+            # 初始化 Speech Config
+            speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
+                                                   region=setting.tts_speech_region)
+            # 创建语音列表客户端
+            synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)
             # 查询可用语音列表
             voices = synthesizer.get_voices_async().get().voices
             # Get the key information
@@ -84,7 +84,13 @@ class AzureTtsService(TtsService):
         filename = os.path.join(voice_dir, 'azure_voice_list.json')
         if not os.path.exists(filename):
             asyncio.run(self.list_voices(filename, setting))
-        with open(filename, "r", encoding="utf-8") as file:
-            voice_list = json.load(file)
-            self.logger.info(f"Voice list has been loaded from {filename}")
-        return [f'{voice["ShortName"]} ({voice["Locale"]}, {voice["Gender"]})' for voice in voice_list]
+        try:
+            with open(filename, "r", encoding="utf-8") as file:
+                voice_list = json.load(file)
+                self.logger.info(f"Voice list has been loaded from {filename}")
+            return [f'{voice["ShortName"]} ({voice["Locale"]}, {voice["Gender"]})' for voice in voice_list]
+        except Exception as e:
+            self.logger.error(f"Error occurred: {e}", exc_info=True)
+            self.logger.error(
+                "An error occurred while loading the voice list. Please check the status of your network.")
+            return []

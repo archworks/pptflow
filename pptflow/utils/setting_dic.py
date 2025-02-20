@@ -16,7 +16,7 @@ if sys.platform == "win32":
 # tts_service_providers = ["azure", "edge-tts", "coqui-tts", "pyttsx3"]
 tts_service_providers = ["azure", "pyttsx3"]
 tts_speech_regions = ["eastasia", "northeurope", "southeastasia", "westus"]
-tts_speech_voices = []
+tts_speech_voices = ["en-US-EmmaNeural"]
 # Video settings
 video_formats = ['MP4', 'AVI', 'MOV']
 video_codecs = ['H.264', 'H.265', 'VP9']
