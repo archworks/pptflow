@@ -1,4 +1,6 @@
-from pptflow.ppt2video import process
+import sys
+
+from pptflow.ppt2video import ppt_to_video
 
 if __name__ == "__main__":
     # 获取命令行参数
@@ -6,4 +8,4 @@ if __name__ == "__main__":
     if not args:
         print("请提供参数。")
         exit
-    process(args[0], args[1])
+    ppt_to_video(args[0], args[1])

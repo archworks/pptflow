@@ -1,0 +1,55 @@
+# config/settings.yaml
+basic:
+  ppt_settings:
+    ppt_total_slides: null
+  audio_settings:
+    tts_service_provider: null
+    tts_api_key: null
+    tts_azure_api_key: null
+    tts_speech_region: null
+    tts_voice_name: "en-US-EmmaNeural"
+    tts_voice_type: "en-US-EmmaNeural (en-US, Female)"
+    tts_voice_rate: null
+    pytts_voice_rate: null
+  video_settings:
+    video_format: "MP4"
+    video_width: 1280
+    video_height: 720
+    video_fps: 10
+    video_path: null
+  subtitle_settings:
+    subtitle_width: null
+    subtitle_height: null
+    max_height_ratio: 0.1
+    subtitle_font_name: null
+    subtitle_font_path: null
+    subtitle_font_size: 28
+    subtitle_color: "white"
+    subtitle_stroke_color: "black"
+    subtitle_stroke_width: 1
+    subtitle_length: null
+
+advanced:
+  ppt_settings:
+    start_page_num: null
+    end_page_num: null
+  audio_settings:
+    audio_format: "MP3"
+    audio_codec: "aac"
+    audio_local_cache_enabled: true
+    audio_path: null
+  video_settings:
+    video_codec: "libx264"
+    video_processing_threads: 4
+
+personal:
+  account_settings:
+    account_name: null
+    account_key: null
+    account_email: null
+  path_settings:
+    temp_dir: "./temp"
+    image_dir_path: "./temp/image"
+    audio_dir_path: "./temp/audio"
+
+language: "en"

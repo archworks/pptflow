@@ -1,31 +1,37 @@
 import os
-import fitz  # pip install PyMuPDF
+import pymupdf
 
-def pdf_to_image(pdf_path, output_image_dir_path, target_dpi=300):
-    # 计算缩放因子, PDF 的默认分辨率是 72 DPI
-    zoom = target_dpi / 72.0
+def pdf_to_image(pdf_path, output_image_dir_path, image_width=1920, image_height=1080, start_page_num=None, end_page_num=None):
+    # open the PDF file
+    pdf_document = pymupdf.open(pdf_path)
 
-    # 打开 PDF 文件
-    pdf_document = fitz.open(pdf_path)
-
+    # get the file name without extension
     file_name_without_ext = os.path.basename(pdf_path).split(".")[0]
 
     for page_number in range(len(pdf_document)):
-        # 获取每一页
+        if start_page_num and page_number + 1 < start_page_num:
+            continue
+        if end_page_num and page_number + 1 > end_page_num:
+            continue
+        # get the page
         page = pdf_document[page_number]
 
-        # 创建缩放矩阵
-        mat = fitz.Matrix(zoom, zoom)
+        # set the zoom factor
+        zoom_x = int(image_width) / page.rect.width
+        zoom_y = int(image_height) / page.rect.height
 
-        # 将页面转换为图像（pixmap），应用缩放矩阵
+        # create a matrix for the zoom factor
+        mat = pymupdf.Matrix(zoom_x, zoom_y)
+
+        # get a PixMap of the page
         pix = page.get_pixmap(matrix=mat)
 
-        # 保存图像
+        # save the PixMap as a PNG image
         output_image_path = os.path.join(
             output_image_dir_path, f"{file_name_without_ext}-P{page_number + 1}.png"
         )
         pix.save(output_image_path)
         print(f"Saved: {output_image_path}")
 
-    # 关闭 PDF 文档
+    # close the PDF file
     pdf_document.close()

@@ -1,0 +1,141 @@
+name: Build and Release Installer for Linux (arm64)
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Enter the tag for the release (e.g., v1.0.0)'
+        required: true
+        default: ''
+
+  # 自动触发：当推送的标签符合 v1.0.0 格式时
+#  push:
+#    tags:
+#      - 'v*.*.*'  # 当提交的标签符合 v1.0.0 格式时触发
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-22.04-arm
+
+    steps:
+    # 1. 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. 获取提交的 tag（只在自动触发时）
+    - name: Get latest tag
+      id: get_tag
+      run: |
+        echo "Tag name: $GITHUB_REF"
+        echo "tag_name=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+        echo "Tag without refs/tags/ prefix: ${{ env.tag_name }}"
+
+    # 3. 设置手动触发时的 tag_name
+    - name: Set manual tag_name
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      run: echo "tag_name=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+
+    # 4. 设置 Python 环境
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    # 5. 安装 Python 依赖
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        python3 -m pip install -r requirements_unix.txt
+        python3 -m pip install pyinstaller
+
+    # 6. 打包 Python 项目为 Linux 可执行文件
+    - name: Build executable with PyInstaller
+      run: |
+        pyinstaller pptflow.spec
+
+    # 7. 创建 .deb 安装包
+    - name: Create .deb package
+      run: |
+        mkdir -p dist/DEBIAN
+        mkdir -p dist/usr/local/bin
+
+        # 将可执行文件放到目标目录
+        cp dist/pptflow dist/usr/local/bin/
+        
+        # 获取版本号，并去掉前缀的 "v"
+        clean_version=${{ env.tag_name }}
+        clean_version=${clean_version//v/}  # 去掉 "v"
+
+        # 创建控制文件
+        echo "Package: pptflow" > dist/DEBIAN/control
+        echo "Version: $clean_version" >> dist/DEBIAN/control
+        echo "Architecture: amd64" >> dist/DEBIAN/control
+        echo "Maintainer: your-email@example.com" >> dist/DEBIAN/control
+        echo "Description: PPTFlow Linux Installer" >> dist/DEBIAN/control
+        echo "Depends: python3, python3-pyqt5" >> dist/DEBIAN/control
+
+        # 使用 dpkg-deb 创建 .deb 包
+        dpkg-deb --build dist dist/pptflow-${{ env.tag_name }}-linux-arm64.deb
+
+    # 8. 检查 Release 是否已存在
+    - name: Install GitHub CLI
+      run: |
+        sudo apt update
+        sudo apt install gh
+
+    - name: Check if Release exists
+      id: check_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # 检查该标签的 Release 是否已经存在
+        release_info=$(gh release view ${{ env.tag_name }} --repo ${{ github.repository }} --json uploadUrl -q ".uploadUrl" 2>/dev/null)
+        echo "upload_url=$release_info" >> $GITHUB_ENV
+        if [[ -n "$release_info" ]]; then
+          echo "Release already exists, upload_url: $release_info"
+          echo "upload_url=$release_info" >> $GITHUB_ENV
+          echo "release_exists=true" >> $GITHUB_ENV
+        else
+          echo "Release not found, creating a new release..."
+          echo "release_exists=false" >> $GITHUB_ENV
+        fi
+
+    # 9. 如果 Release 不存在，则创建新的 Release
+    - name: Create Release
+      if: ${{ env.release_exists == 'false' }}
+      id: create_release
+      uses: actions/create-release@v1.1.4
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.tag_name }}
+        release_name: Release ${{ env.tag_name }}
+        body: |
+          **Changelog:**
+          - Auto-generated Linux release
+        draft: false
+        prerelease: false
+
+    # 10. 获取最新的上传地址（不管是已有的 Release 还是新创建的）
+    - name: Get final upload_url
+      id: get_upload_url
+      run: |
+        if [[ "${{ env.release_exists }}" == "false" ]]; then
+          # 新创建的 Release 获取 upload_url
+          echo "upload_url=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+        fi
+
+    # 11. 上传 .deb 安装包到 GitHub Releases（无论是已存在的 Release 还是新创建的 Release 都执行）
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ env.upload_url }}
+        asset_path: "./dist/pptflow-${{ env.tag_name }}-linux-arm64.deb"
+        asset_name: "pptflow-${{ env.tag_name }}-linux-arm64.deb"
+        asset_content_type: application/octet-stream

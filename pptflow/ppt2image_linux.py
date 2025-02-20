@@ -1,29 +1,34 @@
 import os
 import subprocess
+from .ppt2image import PptToImage
 from .pdf2image import pdf_to_image
-
-def ppt_to_image(input_ppt_path, output_image_dir_path,
-    start_page_num=None, end_page_num=None):
-    # Create a dir to save the slides as images
-    if not os.path.exists(output_image_dir_path):
-        os.makedirs(output_image_dir_path)
-    pass
+from .config.setting import Setting
 
 
-# 参考https://jdhao.github.io/2020/03/30/pptx_to_image/
-def ppt_to_pdf(ppt_path, pdf_path):
-    # 安装 LibreOffice
-    # 使用命令行转换 PPT 为pdf：soffice --headless --invisible --convert-to pdf --outdir {output_image_dir_path} {input_ppt_path}
-    soffice_command = '/usr/bin/soffice'
-    result = subprocess.run([soffice_command, '--headless','--invisible',"--convert-to", "pdf", '--outdir', f'{output_image_dir_path}'], 
-        check=True)
-    pass
+class PptToImageLinux(PptToImage):
+    def convert(self, input_ppt_path: str, setting: Setting, progress_tracker=None):
+        # Create a dir to save the slides as images
+        if not os.path.exists(setting.image_dir_path):
+            os.makedirs(setting.image_dir_path)
+        file_name_without_ext = os.path.basename(input_ppt_path).split(".")[0]
+        temp_pdf_path = os.path.join(setting.image_dir_path, f'{file_name_without_ext}.pdf')
+        self._ppt_to_pdf(input_ppt_path, setting.image_dir_path)
+        pdf_to_image(temp_pdf_path, setting.image_dir_path, setting.video_width, setting.video_height, \
+                     setting.start_page_num, setting.end_page_num)
 
-if __name__ == "__main__":
-    # 使用示例
-    current_dir = os.getcwd()
-    test_path = os.path.join(current_dir, "test")
-    pdf_path = os.path.join(test_path, "test.pdf")
-    temp_dir = os.path.join(current_dir, "temp")
-    image_dir_path = os.path.join(temp_dir, "image")
-    pdf_to_images(pdf_path, image_dir_path, target_dpi=300)  # 设置目标 DPI
+        # remove the temporary pdf file
+        if os.path.exists(temp_pdf_path):
+            os.remove(temp_pdf_path)
+
+    # convert ppt to pdf using LibreOffice 
+    def _ppt_to_pdf(self, ppt_path, pdf_dir):
+        # convert ppt to pdf with LibreOffice command：soffice --headless --invisible
+        # --convert-to pdf --outdir {output_image_dir_path} {input_ppt_path}
+        soffice_command = '/usr/bin/soffice'
+        result = subprocess.run(
+            [soffice_command, '--headless', '--invisible', "--convert-to", "pdf", '--outdir', f'{pdf_dir}',
+             f'{ppt_path}'],
+            check=True)
+        if result.returncode != 0:
+            raise SystemError(f"Failed to convert ppt to pdf: {ppt_path}, returncode: {result.returncode}")
+        return True

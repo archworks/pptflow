@@ -1,5 +1,11 @@
-moviepy
-python-pptx
-azure-cognitiveservices-speech
-python-dotenv
-PyMuPDF
+moviepy==2.1.1
+python-pptx==1.0.2
+python-dotenv==1.0.1
+PyMuPDF==1.24.14
+Pillow==10.4.0
+customtkinter==5.2.2
+matplotlib==3.9.4
+azure-cognitiveservices-speech==1.41.1
+edge-tts==7.0.0
+pyttsx3==2.98
+requests==2.32.3

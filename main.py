@@ -1,4 +1,13 @@
-import pptflow.ppt2video as ppt2video
+from pptflow.utils import mylogger
+import time
+logger = mylogger.get_logger(__name__)
 
-ppt_path = input("请输入ppt路径: ")
-ppt2video.process(ppt_path)
+
+if __name__ == "__main__":
+    logger.info("Starting pptflow...")
+    start_time = time.time()  # record start time
+    from pptflow.gui.ppt2video_flow import PPTFlowApp
+    app = PPTFlowApp()
+    end_time = time.time()  # record end time
+    logger.info(f"Application started. Startup time: {end_time - start_time:.2f} seconds.")
+    app.mainloop()

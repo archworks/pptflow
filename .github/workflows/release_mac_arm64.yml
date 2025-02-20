@@ -1,0 +1,88 @@
+name: Build and Release Installer for macOS (arm64)
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Enter the tag for the release (e.g., v1.0.0)'
+        required: true
+        default: ''
+
+  # 自动触发：当推送的标签符合 v1.0.0 格式时
+  push:
+    tags:
+      - 'v*.*.*'  # 当提交的标签符合 v1.0.0 格式时触发
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: macos-latest
+
+    steps:
+    # 1. 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. 获取提交的 tag（只在自动触发时）
+    - name: Get latest tag
+      id: get_tag
+      run: |
+        echo "Tag name: $GITHUB_REF"
+        echo "tag_name=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+        echo "Tag without refs/tags/ prefix: ${{ env.tag_name }}"
+
+    # 3. 设置手动触发时的 tag_name
+    - name: Set manual tag_name
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      run: echo "tag_name=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
+
+    # 4. 设置 Python 环境
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    # 5. 安装 Python 依赖
+    - name: Install dependencies
+      run: |
+        python3 -m pip install -r requirements_unix.txt
+        python3 -m pip install pyinstaller
+
+    # 6. 打包 Python 项目为 macOS 可执行文件
+    - name: Build executable with PyInstaller
+      run: |
+        pyinstaller pptflow.spec
+
+    # 8. 创建 DMG 安装包
+    - name: Create DMG
+      run: |
+        hdiutil create -volname "PPTFLOW1" -srcfolder dist/ -ov -format UDZO -imagekey zlib-level=9 "$GITHUB_WORKSPACE/pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
+
+    # 9. 创建 GitHub Release
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1.1.4
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.tag_name }}
+        release_name: Release ${{ env.tag_name }}
+        body: |
+          **Changelog:**
+          - Auto-generated macOS release
+        draft: false
+        prerelease: false
+
+    # 10. 上传安装包到 GitHub Releases
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: "./pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
+        asset_name: "pptflow-${{ env.tag_name }}-mac-arm64-installer.dmg"
+        asset_content_type: application/octet-stream

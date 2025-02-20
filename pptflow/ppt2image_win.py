@@ -1,38 +1,56 @@
-import win32com.client
 import os
+from .ppt2image import PptToImage
+from .utils import mylogger
+from .config.setting import Setting
 
-# 依赖安装：Microsoft PowerPoint
+if os.name == "nt":
+    import win32com.client
 
 
-def ppt_to_image(input_ppt_path, output_image_dir_path, 
-    start_page_num=None, end_page_num=None):
-    try:
-        # Create a PowerPoint application object
-        Application = win32com.client.Dispatch("PowerPoint.Application")
+class PptToImageWin(PptToImage):
+    # 创建日志纪录实例
+    logger = mylogger.get_logger(__name__)
 
-        # Open the presentation without making it visible
-        Presentation = Application.Presentations.Open(input_ppt_path, ReadOnly=True, WithWindow=False)
-        file_name_without_ext = os.path.basename(input_ppt_path).split(".")[0]
+    def convert(self, input_ppt_path: str, setting: Setting, progress_tracker=None):
+        Application = None
+        try:
+            # Create a PowerPoint application object
+            Application = win32com.client.Dispatch("PowerPoint.Application")
 
-        # Create a dir to save the slides as images
-        if not os.path.exists(output_image_dir_path):
-            os.makedirs(output_image_dir_path)
+            # Open the presentation without making it visible
+            Presentation = Application.Presentations.Open(input_ppt_path, ReadOnly=True, WithWindow=False)
+            file_name_without_ext = os.path.basename(input_ppt_path).split(".")[0]
 
-        # Export each slide as an image
-        for idx, slide in enumerate(Presentation.Slides):
-            if start_page_num and idx + 1 < start_page_num:
-                continue
-            if end_page_num and idx + 1 > end_page_num:
-                continue
-            image_file_path = os.path.join(
-                output_image_dir_path, f"{file_name_without_ext}-P{idx + 1}.png"
-            )
-            slide.Export(image_file_path, "PNG", 1280, 720)
+            # Create a dir to save the slides as images
+            if not os.path.exists(setting.image_dir_path):
+                os.makedirs(setting.image_dir_path)
 
-        # Close the presentation
-        Presentation.Close()
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        # Quit the PowerPoint application
-        Application.Quit()
+            total_slides = len(Presentation.Slides)
+            # Export each slide as an image
+            for idx, slide in enumerate(Presentation.Slides):
+                # Checks whether the current slide falls within the specified start and end page ranges
+                if setting.start_page_num and idx + 1 < setting.start_page_num:
+                    continue
+                if setting.end_page_num and idx + 1 > setting.end_page_num:
+                    continue
+                # Create a save path for the image file
+                image_file_path = os.path.join(
+                    setting.image_dir_path, f"{file_name_without_ext}-P{idx + 1}.png"
+                )
+                # Export the slide as an image
+                slide.Export(image_file_path, "PNG", setting.video_width, setting.video_height)
+
+                # Update progress
+                if progress_tracker:
+                    progress = (idx + 1) / total_slides
+                    progress_tracker.update_step(progress)
+
+            # Close the presentation
+            Presentation.Close()
+        except Exception as e:
+            self.logger.error(f"An error occurred: {e}", exc_info=True)
+            self.logger.error("Please run the program in non-admin mode or check COM registration.")
+        finally:
+            # Quit the PowerPoint application
+            if Application:
+                Application.Quit()
