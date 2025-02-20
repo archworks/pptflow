@@ -86,11 +86,6 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.create_pyttsx3_settings(frame)
         elif self.tts_providers_var.get() == "azure":
             self.app.load_tts("azure")
-            self.app.setting.tts_speech_region = os.getenv("TTS_AZURE_SPEECH_REGION") if \
-                self.app.setting.tts_speech_region is None else self.app.setting.tts_speech_region
-            self.app.setting.tts_azure_api_key = os.getenv("TTS_AZURE_SPEECH_KEY") if \
-                self.app.setting.tts_azure_api_key is None else self.app.setting.tts_azure_api_key
-
             self.create_azure_settings(frame)
 
     def create_pyttsx3_settings(self, frame):

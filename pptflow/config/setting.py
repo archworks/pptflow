@@ -13,7 +13,7 @@ class Setting:
     tts_service_provider: str = None
     tts_api_key: str = None
     tts_azure_api_key: str = None
-    tts_speech_region = None
+    tts_speech_region = 'eastasia'
     tts_voice_name: str = 'en-US-EmmaNeural'
     tts_voice_type: str = 'en-US-EmmaNeural (en-US, Female)'
     tts_voice_rate: str = None
