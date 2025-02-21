@@ -30,6 +30,7 @@ a = Analysis(
     ],
     hiddenimports=[
         'azure.cognitiveservices.speech',  # 显式隐藏导入
+        'PIL.tkinterfinder',
     ],
     hookspath=[],  # 自定义钩子路径
     hooksconfig={},
