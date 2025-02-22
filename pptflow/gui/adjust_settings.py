@@ -116,7 +116,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.api_key_help = CustomTooltip(self.api_key_help_label,
                                           self.app.get_text("tts_api_key_help"), delay=10)
         self.api_key_help_label.bind("<Button-1>", lambda event: self.get_api_key_help(event))
-        self.api_key_var = ctk.StringVar(value=self.app.setting.tts_azure_api_key)
+        self.api_key_var = ctk.StringVar(value=self.app.setting.tts_api_key)
         self.api_key = ctk.CTkEntry(frame, width=140, textvariable=self.api_key_var, font=self.font)
         self.api_key.grid(row=2 + len(tts_settings), column=1, padx=5, pady=10, sticky="w")
 

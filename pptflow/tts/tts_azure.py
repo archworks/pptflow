@@ -25,7 +25,7 @@ class AzureTtsService(TtsService):
         # environment variables. speech_config = speechsdk.SpeechConfig(subscription=os.environ.get(
         # 'TTS_AZURE_SPEECH_KEY'), region=os.environ.get('TTS_AZURE_SPEECH_REGION'))
         self.logger.info("Using Azure TTS")
-        speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
+        speech_config = speechsdk.SpeechConfig(subscription=setting.tts_api_key,
                                                region=setting.tts_speech_region)
         # The language of the voice that speaks.
         speech_config.speech_synthesis_voice_name = setting.tts_voice_name
@@ -60,7 +60,7 @@ class AzureTtsService(TtsService):
     async def list_voices(self, filename: str, setting: Setting):
         try:
             # 初始化 Speech Config
-            speech_config = speechsdk.SpeechConfig(subscription=setting.tts_azure_api_key,
+            speech_config = speechsdk.SpeechConfig(subscription=setting.tts_api_key,
                                                    region=setting.tts_speech_region)
             # 创建语音列表客户端
             synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=None)

@@ -10,9 +10,9 @@ on:
         default: ''
 
   # 自动触发：当推送的标签符合 v1.0.0 格式时
-#  push:
-#    tags:
-#      - 'v*.*.*'  # 当提交的标签符合 v1.0.0 格式时触发
+  push:
+    tags:
+      - 'v*.*.*'  # 当提交的标签符合 v1.0.0 格式时触发
 
 permissions:
   contents: write

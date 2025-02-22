@@ -57,7 +57,7 @@ def get_default_tts_settings(setting: Setting, tts_service_provider: str = 'pytt
     elif tts_service_provider == 'azure':
         setting.tts_service_provider = 'azure'
         setting.tts_speech_region = 'eastasia'
-        setting.tts_azure_api_key = os.getenv("TTS_AZURE_SPEECH_KEY")
+        setting.tts_api_key = os.getenv("TTS_AZURE_SPEECH_KEY")
     elif tts_service_provider == 'edge_tts':
         setting.tts_voice_rate = '+0%'
     else:
@@ -66,4 +66,4 @@ def get_default_tts_settings(setting: Setting, tts_service_provider: str = 'pytt
 
 if __name__ == '__main__':
     setting = get_default_setting(os_name='Windows', language='zh', tts_service_provider='azure')
-    print(setting.tts_azure_api_key)
+    print(setting.tts_api_key)
