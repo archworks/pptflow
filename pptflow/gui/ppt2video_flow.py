@@ -17,7 +17,7 @@ from pptx import Presentation
 from .custom_tooltip import CustomTooltip
 from pptflow import ppt2video
 from pptflow.config.setting_factory import get_default_setting
-from pptflow.utils import mylogger, font, setting_dic as sd
+from pptflow.utils import mylogger, setting_dic as sd
 from pptflow.utils.progress_tracker import ProgressTracker
 from pptflow.utils.ipinfo import get_default_language
 from pptflow.tts.tts_service_factory import get_tts_service
@@ -422,8 +422,6 @@ class PPTFlowApp(ctk.CTk):
         # self.status_label.configure(text=status)
 
     def generate_video(self):
-        if not self.setting.subtitle_font_path:
-            self.setting.subtitle_font_path = font.find_font_path(self.setting.subtitle_font_name)
         if not self.file_display:
             messagebox.showerror(self.loading_title, self.get_text("no_file_selected"))
             return

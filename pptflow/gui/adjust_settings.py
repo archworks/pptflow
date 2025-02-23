@@ -39,6 +39,9 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.font_size = 12
         self.font = ctk.CTkFont(size=self.font_size, weight="normal")
 
+        if not self.app.setting.subtitle_font_path:
+            self.app.setting.subtitle_font_path = font.find_font_path(self.app.setting.subtitle_font_name)
+
         # Create scrollable frame for settings
         self.scrollable_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.scrollable_frame.grid(row=0, column=0, padx=70, pady=(20, 0), sticky="nsew")
