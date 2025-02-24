@@ -49,6 +49,8 @@
     "audio_language": "语言选择",
     "audio_voice_type": "声音类型",
     "audio_speed": "语速调节",
+    "required_fields_missing": "必填项未填写",
+    "validation_error": "验证错误",
     "video_settings": "视频设置",
     "video_format": "视频格式",
     "video_size": "视频尺寸",

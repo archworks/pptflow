@@ -17,6 +17,14 @@ class Setting:
     tts_voice_type: str = 'en-US-EmmaNeural (en-US, Female)'
     tts_voice_rate: str = None
     pytts_voice_rate: int = None
+    # Baidu TTS settings
+    baidu_app_id: str = None
+    baidu_api_key: str = None
+    baidu_secret_key: str = None
+    per: int = 0
+    vol: int = 5
+    spd: int = 5
+    pit: int = 5
     # Video settings
     video_format = 'MP4'
     video_width: int = 1280

@@ -25,6 +25,8 @@ class AzureTtsService(TtsService):
         # environment variables. speech_config = speechsdk.SpeechConfig(subscription=os.environ.get(
         # 'TTS_AZURE_SPEECH_KEY'), region=os.environ.get('TTS_AZURE_SPEECH_REGION'))
         self.logger.info("Using Azure TTS")
+        api_key = setting.tts_api_key if setting.tts_api_key else os.environ.get('TTS_AZURE_SPEECH_KEY')
+        region = setting.tts_speech_region if setting.tts_speech_region else os.environ.get('TTS_AZURE_SPEECH_REGION')
         speech_config = speechsdk.SpeechConfig(subscription=setting.tts_api_key,
                                                region=setting.tts_speech_region)
         # The language of the voice that speaks.

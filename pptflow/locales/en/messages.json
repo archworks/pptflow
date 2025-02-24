@@ -49,6 +49,8 @@
         "audio_language": "Audio Language",
         "audio_voice_type": "Audio Voice Type",
         "audio_speed": "Audio Speed",
+        "required_fields_missing": "Required fields are missing.",
+        "validation_error": "Validation Error",
         "video_settings": "Video Settings",
         "video_format": "Video Format",
         "video_size": "Video Size",

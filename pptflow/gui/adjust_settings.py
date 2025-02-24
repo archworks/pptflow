@@ -88,8 +88,9 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         if self.tts_providers_var.get() == "pyttsx3":
             self.create_pyttsx3_settings(frame)
         elif self.tts_providers_var.get() == "azure":
-            self.app.load_tts("azure")
             self.create_azure_settings(frame)
+        elif self.tts_providers_var.get() == "baidu":
+            self.create_baidu_settings(frame)
 
     def create_pyttsx3_settings(self, frame):
         tts_settings = {
@@ -99,47 +100,60 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.tts_settings_vars[self.app.get_text("audio_language")].set(
             self.app.get_text(self.app.text_to_key(self.app.setting.language)))
 
-    def create_azure_settings(self, frame):
+    def create_baidu_settings(self, frame):
+        # baidu api
+        baidu_api_frame = ctk.CTkFrame(frame, fg_color="transparent")
+        baidu_api_frame.grid(row=2, column=0, padx=5, pady=10, sticky="w")
+        self.app_id_label = ctk.CTkLabel(baidu_api_frame, text='App ID:', font=self.font)
+        self.app_id_label.grid(row=2, column=0, sticky="w")
+        self.app_id_help_label = ctk.CTkLabel(baidu_api_frame, text="?", text_color="red",
+                                              fg_color="transparent", font=self.font)
+        self.app_id_help_label.grid(row=2, column=1, padx=5, sticky="w")
+        self.app_id_help_tip = CustomTooltip(self.app_id_help_label,
+                                             self.app.get_text("tts_api_key_help"), delay=10)
+        self.app_id_help_label.bind("<Button-1>", lambda event: self.get_api_key_help(event))
+
+        self.app_id_var = ctk.StringVar(value=self.app.setting.baidu_app_id)
+        self.app_id = ctk.CTkEntry(frame, width=140, textvariable=self.app_id_var, font=self.font)
+        self.app_id.grid(row=2, column=1, padx=5, pady=10, sticky="w")
+        self.baidu_api_key_label = ctk.CTkLabel(frame, text='API Key:', font=self.font)
+        self.baidu_api_key_label.grid(row=3, column=0, padx=5, pady=10, sticky="w")
+        self.baidu_api_key_var = ctk.StringVar(value=self.app.setting.baidu_api_key)
+        self.baidu_api_key = ctk.CTkEntry(frame, width=140, textvariable=self.baidu_api_key_var, font=self.font)
+        self.baidu_api_key.grid(row=3, column=1, padx=5, pady=10, sticky="w")
+        self.baidu_secret_key_label = ctk.CTkLabel(frame, text='Secret Key:', font=self.font)
+        self.baidu_secret_key_label.grid(row=4, column=0, padx=5, pady=10, sticky="w")
+        self.baidu_secret_key_var = ctk.StringVar(value=self.app.setting.baidu_secret_key)
+        self.baidu_secret_key = ctk.CTkEntry(frame, width=140, textvariable=self.baidu_secret_key_var, font=self.font)
+        self.baidu_secret_key.grid(row=4, column=1, padx=5, pady=10, sticky="w")
         tts_settings = {
             self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
-            self.app.get_text("tts_speech_region"): sd.tts_speech_regions,
-            self.app.get_text("tts_voice_type"): sd.tts_speech_voices,
         }
-        create_combo_box(frame, 1, tts_settings, self.tts_settings_vars)
-        self.tts_settings_vars[self.app.get_text("tts_speech_region")].set(self.app.setting.tts_speech_region)
-        self.tts_settings_vars[self.app.get_text("tts_voice_type")].set(self.app.setting.tts_voice_type)
+        create_combo_box(frame, 4, tts_settings, self.tts_settings_vars)
+
+    def create_azure_settings(self, frame):
         # api key
         api_key_frame = ctk.CTkFrame(frame, fg_color="transparent")
-        api_key_frame.grid(row=2 + len(tts_settings), column=0, padx=5, pady=10, sticky="w")
+        api_key_frame.grid(row=2, column=0, padx=5, pady=10, sticky="w")
         self.api_key_label = ctk.CTkLabel(api_key_frame, text=self.app.get_text("tts_api_key"), font=self.font)
-        self.api_key_label.grid(row=2 + len(tts_settings), column=0, sticky="w")
+        self.api_key_label.grid(row=2, column=0, sticky="w")
         self.api_key_help_label = ctk.CTkLabel(api_key_frame, text="?", text_color="red",
                                                fg_color="transparent", font=self.font)
-        self.api_key_help_label.grid(row=2 + len(tts_settings), column=1, padx=5, sticky="w")
+        self.api_key_help_label.grid(row=2, column=1, padx=5, sticky="w")
         self.api_key_help = CustomTooltip(self.api_key_help_label,
                                           self.app.get_text("tts_api_key_help"), delay=10)
         self.api_key_help_label.bind("<Button-1>", lambda event: self.get_api_key_help(event))
         self.api_key_var = ctk.StringVar(value=self.app.setting.tts_api_key)
         self.api_key = ctk.CTkEntry(frame, width=140, textvariable=self.api_key_var, font=self.font)
-        self.api_key.grid(row=2 + len(tts_settings), column=1, padx=5, pady=10, sticky="w")
-
-    def create_edge_tts_settings(self, frame):
-        # tts voice rate
-        self.rate_slider_label = ctk.CTkLabel(frame, text=self.app.get_text("tts_voice_rate"),
-                                              fg_color="transparent", font=self.font)
-        self.rate_slider_label.grid(row=2, column=0, padx=5, pady=10, sticky="w")
-        # 创建滑动条
-        self.rate_slider = ctk.CTkSlider(frame, from_=-1, to=1, orientation="horizontal", command=self.update_progress)
-        self.rate_slider.grid(row=2, column=1, padx=5, pady=10, sticky="w")
-        self.rate_slider.set(0)  # 初始滑动条值设置为 0（中间）
-        # 创建显示进度的标签
-        self.voice_rate = ctk.CTkLabel(frame, text="0%", font=self.font)
-        self.voice_rate.grid(row=2, column=2, padx=5, pady=10, sticky="w")
-
-        # 创建复位按钮
-        self.reset_button = ctk.CTkButton(frame, width=100, text=self.app.get_text("reset"), font=self.font,
-                                          command=self.reset_progress)
-        self.reset_button.grid(row=2, column=3, padx=5, pady=10)
+        self.api_key.grid(row=2, column=1, padx=5, pady=10, sticky="w")
+        tts_settings = {
+            self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
+            self.app.get_text("tts_speech_region"): sd.tts_speech_regions,
+            self.app.get_text("tts_voice_type"): sd.tts_speech_voices,
+        }
+        create_combo_box(frame, 2, tts_settings, self.tts_settings_vars)
+        self.tts_settings_vars[self.app.get_text("tts_speech_region")].set(self.app.setting.tts_speech_region)
+        self.tts_settings_vars[self.app.get_text("tts_voice_type")].set(self.app.setting.tts_voice_type)
 
     def create_audio_settings(self):
         frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
@@ -321,6 +335,8 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.cancel_button.grid(row=0, column=1, padx=(0, 50), pady=10, sticky="ew")
 
     def save_settings(self):
+        if not self.validate_settings():  # 先执行校验
+            return
         if self.is_audio_settings_visible:
             self.update_tts_settings()
         if self.is_video_settings_visible:
@@ -356,6 +372,14 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                 self.app.clear_audio_cache()
             self.app.setting.language = self.app.text_to_key(audio_language)
             logger.info(f"Updated audio language: {audio_language}")
+        if tts_service_provider == "baidu":
+            app_id = self.app_id_var.get()
+            api_key = self.baidu_api_key_var.get()
+            secret_key = self.baidu_secret_key_var.get()
+            self.app.setting.baidu_app_id = app_id
+            self.app.setting.baidu_api_key = api_key
+            self.app.setting.baidu_secret_key = secret_key
+            logger.info(f"Updated Baidu settings - App ID: {app_id}, API Key: {api_key}, Secret Key: {secret_key}")
         if tts_service_provider == "azure":
             tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
             tts_speech_region = self.tts_settings_vars[self.app.get_text("tts_speech_region")].get()
@@ -368,11 +392,6 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.app.setting.tts_speech_region = tts_speech_region
             logger.info(f"Updated Azure settings - API Key: {tts_api_key}, Speech Region: {tts_speech_region}, "
                         f"Voice Type: {tts_voice_type}")
-        if tts_service_provider == "edge-tts":
-            tts_voice_rate = f'{int(self.rate_slider.get() * 100):+d}%'
-            if tts_voice_rate != self.app.setting.tts_voice_rate:
-                self.app.clear_audio_cache()
-            self.app.setting.tts_voice_rate = tts_voice_rate
         self.app.tts = self.app.load_tts(self.app.setting.tts_service_provider)
 
     def update_video_settings(self):
@@ -409,6 +428,54 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                     f"Font Color: {subtitle_font_color}, Subtitle Length: {subtitle_length}, "
                     f"Border Color: {subtitle_border_color}, Border Width: {subtitle_border_width}")
 
+    def validate_settings(self):
+        """校验配置是否完整"""
+        errors = []
+
+        # 校验音频设置
+        if self.is_audio_settings_visible:
+            if self.tts_providers_var.get() == "azure":
+                if not self.api_key_var.get().strip():
+                    errors.append(self.app.get_text("tts_api_key"))
+                if not self.tts_settings_vars[self.app.get_text("tts_speech_region")].get():
+                    errors.append(self.app.get_text("tts_speech_region"))
+                if not self.tts_settings_vars[self.app.get_text("tts_voice_type")].get():
+                    errors.append(self.app.get_text("tts_voice_type"))
+            elif self.tts_providers_var.get() == "baidu":
+                if not self.app_id_var.get().strip():
+                    errors.append(self.app.get_text("app_id"))
+                if not self.baidu_api_key_var.get().strip():
+                    errors.append(self.app.get_text("baidu_api_key"))
+                if not self.baidu_secret_key_var.get().strip():
+                    errors.append(self.app.get_text("baidu_secret_key"))
+
+        # 校验视频设置
+        if self.is_video_settings_visible:
+            if not self.export_path_var.get().strip():
+                errors.append(self.app.get_text("export_path"))
+            if not self.video_settings_vars[self.app.get_text("video_format")].get():
+                errors.append(self.app.get_text("video_format"))
+            if not self.video_settings_vars[self.app.get_text("video_size")].get():
+                errors.append(self.app.get_text("video_size"))
+
+        # 校验字幕设置
+        if self.is_subtitle_settings_visible:
+            required_fields = [
+                self.app.get_text("font_type"),
+                self.app.get_text("font_size"),
+                self.app.get_text("font_color")
+            ]
+            for field in required_fields:
+                if not self.subtitle_settings_vars[field].get():
+                    errors.append(field)
+
+        # 处理校验结果
+        if errors:
+            error_msg = self.app.get_text("required_fields_missing") + ":\n- " + "\n- ".join(errors)
+            messagebox.showerror(self.app.get_text("validation_error"), error_msg)
+            return False
+        return True
+
     def browse_export_path(self):
         path = filedialog.asksaveasfilename(
             defaultextension=".mp4",
@@ -419,19 +486,11 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
     def get_api_key_help(self, event):
         api_key_help_url = "https://pptflow.com/en/blog/set-up-azure-tts"
+        if self.tts_providers_var.get() == "azure":
+            api_key_help_url = "https://pptflow.com/en/blog/set-up-azure-tts"
+        elif self.tts_providers_var.get() == "baidu":
+            api_key_help_url = "https://pptflow.com/en/blog/set-up-azure-tts"
         webbrowser.open(api_key_help_url)
-
-    # 定义进度条更新函数
-    def update_progress(self, value):
-        value = float(value)
-        # 计算进度百分比
-        percentage = int(value * 100)
-        self.voice_rate.configure(text=f"{percentage:+d}%")  # 显示 + 或 -
-
-    # 定义复位函数
-    def reset_progress(self):
-        self.rate_slider.set(0)  # 将滑动条值重置为 0
-        self.voice_rate.configure(text="0%")  # 更新标签文本
 
     def update_language(self):
         self.create_audio_settings()

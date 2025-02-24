@@ -5,6 +5,7 @@ pywin32==308
 customtkinter==5.2.2
 matplotlib==3.8.4
 azure-cognitiveservices-speech==1.41.1
-edge-tts==7.0.0
 pyttsx3==2.98
 requests==2.32.3
+baidu-api==4.16.13
+chardet==5.2.0
