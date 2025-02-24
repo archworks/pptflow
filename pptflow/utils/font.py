@@ -26,8 +26,8 @@ def get_platform_based_font_file():
 
 # 获取所有已安装的字体
 def get_installed_fonts():
-    if fm == None:
-        import matplotlib.font_manager as fm
+    import matplotlib.font_manager as fm
+    logger.info("Loaded matplotlib")
     """获取所有已安装的字体并返回字典"""
     fonts = fm.findSystemFonts(fontpaths=None, fontext='ttf')
     font_dict = {}

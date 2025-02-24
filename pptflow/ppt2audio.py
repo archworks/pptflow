@@ -43,6 +43,10 @@ async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None)
             os.makedirs(setting.audio_dir_path)
 
         total_slides = len(presentation.slides)
+        if total_slides == 0:
+            logger.error("No slides found in the PPT file.")
+            raise ValueError("No slides found")
+
         processed_slides = 0
         # Go through each slide
         for idx, slide in enumerate(presentation.slides):

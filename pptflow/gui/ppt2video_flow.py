@@ -1,67 +1,67 @@
 # Author: Valley-e
 # Date: 2025/1/11  
 # Description:
-from pptflow.utils import mylogger, font, setting_dic as sd
+from pptflow.utils import mylogger, setting_dic as sd
+
 logger = mylogger.get_logger(__name__)
 logger.info("Loaded mylogger, font, and setting_dic")
 
 import json
+
 logger.info("Loaded json")
 
 import os
+
 logger.info("Loaded os")
 
 import platform
+
 logger.info("Loaded platform")
 
 import shutil
+
 logger.info("Loaded shutil")
 
-import sys, subprocess
-logger.info("Loaded sys and subprocess")
+import sys
+
+logger.info("Loaded sys")
 
 import re
+
 logger.info("Loaded re")
 
 import threading
+
 logger.info("Loaded threading")
 
-import webbrowser
-logger.info("Loaded webbrowser")
-
 import customtkinter as ctk
+
 logger.info("Loaded customtkinter")
 
 from tkinter import PhotoImage
+
 logger.info("Loaded PhotoImage")
 
 from tkinter import filedialog, messagebox
+
 logger.info("Loaded filedialog and messagebox")
 
 from PIL import Image
+
 logger.info("Loaded PIL.Image")
 
-from pptx import Presentation
-logger.info("Loaded pptx.Presentation")
-
 from .custom_tooltip import CustomTooltip
+
 logger.info("Loaded CustomTooltip")
 
-from pptflow import ppt2video
-logger.info("Loaded ppt2video")
-
 from pptflow.config.setting_factory import get_default_setting
-from pptflow.utils import mylogger, setting_dic as sd
+
 logger.info("Loaded get_default_setting")
 
-from pptflow.utils.progress_tracker import ProgressTracker
-logger.info("Loaded ProgressTracker")
-
-from pptflow.utils.ipinfo import get_default_language
-logger.info("Loaded get_default_language")
-
 from pptflow.tts.tts_service_factory import get_tts_service
+
 logger.info("Loaded get_tts_service")
+
 
 class PPTFlowApp(ctk.CTk):
     def __init__(self):
@@ -69,7 +69,7 @@ class PPTFlowApp(ctk.CTk):
         # 初始化 Setting 和 TTS
         self.setting = get_default_setting(os_name=platform.system())
         self.tts = self.load_tts(self.setting.tts_service_provider)
-        self.current_language = get_default_language()
+        self.current_language = 'en'
         logger.info("Current language: {}".format(self.current_language))
         self.language_modes = get_locales_subdirectories() if len(
             get_locales_subdirectories()) > 0 else sd.language_mode
@@ -125,7 +125,7 @@ class PPTFlowApp(ctk.CTk):
         # 中间流程图布局
         self.create_workflow_section()
         logger.info('initiated PPTFlowApp')
-        
+
     def create_top_section(self):
         # 右上角的图标按钮（设置和GitHub）
         self.settings_button = ctk.CTkButton(self.main_frame, text="",
@@ -396,6 +396,8 @@ class PPTFlowApp(ctk.CTk):
             self.file_display = ""
             self.create_workflow_section()
         elif label_text == "Website":
+            import webbrowser
+            logger.info("Loaded webbrowser")
             webbrowser.open("https://pptflow.com")
 
     def browse_file(self):
@@ -404,12 +406,6 @@ class PPTFlowApp(ctk.CTk):
         )
         if self.file_display:
             logger.info(f"Selected file: {self.file_display}")
-            # Open the PowerPoint file and get the number of slides
-            presentation = Presentation(self.file_display)
-            if len(presentation.slides) == 0:
-                messagebox.showerror("Error", self.get_text("no_slide"))
-                return
-            logger.info(f"Total slides: {len(presentation.slides)}")
 
             # Set the default output path
             self.setting.video_path = re.sub(r"pptx?$", self.setting.video_format.lower(), self.file_display)
@@ -470,10 +466,13 @@ class PPTFlowApp(ctk.CTk):
             self.generate_button.grid_remove()
             self.update()
 
+            # Load ppt2video
+            from pptflow import ppt2video
+            logger.info("Loaded ppt2video")
             # Initialize progress tracker
+            from pptflow.utils.progress_tracker import ProgressTracker
+            logger.info("Loaded ProgressTracker")
             self.progress_tracker = ProgressTracker(self.update_progress)
-
-            # self.generate_button.grid_remove()
             ppt2video.ppt_to_video(self.tts, self.file_display, self.setting, self.progress_tracker)
 
             messagebox.showinfo(self.loading_title,
@@ -500,6 +499,8 @@ class PPTFlowApp(ctk.CTk):
             if sys.platform == "win32":
                 os.startfile(self.setting.video_path)
             else:
+                import subprocess
+                logger.info("Loaded subprocess")
                 opener = "open" if sys.platform == "darwin" else "xdg-open"
                 subprocess.call([opener, self.setting.video_path])
         except Exception as e:
@@ -581,6 +582,7 @@ def truncate_text(text, max_length=20):
     if len(text) > max_length:
         return text[:max_length // 2] + "..." + text[-(max_length // 2):]
     return text
+
 
 if __name__ == "__main__":
     app = PPTFlowApp()
