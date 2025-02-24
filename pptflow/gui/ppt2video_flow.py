@@ -1,29 +1,67 @@
 # Author: Valley-e
 # Date: 2025/1/11  
 # Description:
+from pptflow.utils import mylogger, font, setting_dic as sd
+logger = mylogger.get_logger(__name__)
+logger.info("Loaded mylogger, font, and setting_dic")
+
 import json
+logger.info("Loaded json")
+
 import os
+logger.info("Loaded os")
+
 import platform
+logger.info("Loaded platform")
+
 import shutil
+logger.info("Loaded shutil")
+
 import sys, subprocess
+logger.info("Loaded sys and subprocess")
+
 import re
+logger.info("Loaded re")
+
 import threading
+logger.info("Loaded threading")
+
 import webbrowser
+logger.info("Loaded webbrowser")
+
 import customtkinter as ctk
+logger.info("Loaded customtkinter")
+
 from tkinter import PhotoImage
+logger.info("Loaded PhotoImage")
+
 from tkinter import filedialog, messagebox
+logger.info("Loaded filedialog and messagebox")
+
 from PIL import Image
+logger.info("Loaded PIL.Image")
+
 from pptx import Presentation
+logger.info("Loaded pptx.Presentation")
+
 from .custom_tooltip import CustomTooltip
+logger.info("Loaded CustomTooltip")
+
 from pptflow import ppt2video
+logger.info("Loaded ppt2video")
+
 from pptflow.config.setting_factory import get_default_setting
 from pptflow.utils import mylogger, setting_dic as sd
+logger.info("Loaded get_default_setting")
+
 from pptflow.utils.progress_tracker import ProgressTracker
+logger.info("Loaded ProgressTracker")
+
 from pptflow.utils.ipinfo import get_default_language
+logger.info("Loaded get_default_language")
+
 from pptflow.tts.tts_service_factory import get_tts_service
-
-logger = mylogger.get_logger(__name__)
-
+logger.info("Loaded get_tts_service")
 
 class PPTFlowApp(ctk.CTk):
     def __init__(self):
@@ -86,7 +124,8 @@ class PPTFlowApp(ctk.CTk):
 
         # 中间流程图布局
         self.create_workflow_section()
-
+        logger.info('initiated PPTFlowApp')
+        
     def create_top_section(self):
         # 右上角的图标按钮（设置和GitHub）
         self.settings_button = ctk.CTkButton(self.main_frame, text="",
@@ -542,7 +581,6 @@ def truncate_text(text, max_length=20):
     if len(text) > max_length:
         return text[:max_length // 2] + "..." + text[-(max_length // 2):]
     return text
-
 
 if __name__ == "__main__":
     app = PPTFlowApp()
