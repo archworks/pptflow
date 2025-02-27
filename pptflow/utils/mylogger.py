@@ -3,7 +3,8 @@
 # Description: Make sure that all modules log their information into a single log file.
 import logging
 from logging.handlers import RotatingFileHandler
-import os
+import os, sys, pathlib
+
 
 # debug: 级别10，用于开发者调试，显示变量等详细信息; 正常版本不应包含
 # info: 级别20，通知用户关键的正常行为，如“主库添加成功”;用简单、明确的语言记录
@@ -11,7 +12,15 @@ import os
 # error: 级别40，无法修复的严重错误；必须立即处理并可能需要停止程序
 # critical:级别50，未知的不正常行为，超出已知容错；可能会影响程序未来运行
 # 获取上一级目录
-log_dir = os.path.join(os.getcwd(), 'log')
+home = pathlib.Path.home()
+# 建议通过工具类，判断环境变量(os.getenv)是否env==prod，如果是则采用system_paths，否则采用os.getcwd()
+system_paths = {
+    'win32': home / 'AppData/Roaming',
+    'linux': home / '.local/share',
+    'darwin': home / 'Library/Application Support'
+}
+data_path = system_paths[sys.platform]
+log_dir = os.path.join(data_path, 'pptflow/log')
 # log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'log')
 
 # 创建 log 文件夹（如果不存在）
