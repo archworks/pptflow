@@ -12,12 +12,9 @@ def get_tts_service(tts_service_provider: str):
     if tts_service_provider.lower() == "azure":
         from .tts_azure import AzureTtsService
         return AzureTtsService()
-    elif tts_service_provider.lower() == "pyttsx3":
-        from pptflow.tts.tts_pyttsx3 import Pyttsx3TtsService
-        return Pyttsx3TtsService()
-    elif tts_service_provider.lower() == "baidu":
-        from .tts_baidu import BaiduTtsService
-        return BaiduTtsService()
+    elif tts_service_provider.lower() == "kokoro":
+        from .tts_kokoro import KokoroTtsService
+        return KokoroTtsService()
     else:
         logger.error(f"unsupport tts service provider: {tts_service_provider}")
         raise NotImplementedError(f"unsupport tts service provider: {tts_service_provider}")

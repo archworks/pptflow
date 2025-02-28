@@ -4,7 +4,7 @@
 from pptflow.utils import mylogger, setting_dic as sd
 
 logger = mylogger.get_logger(__name__)
-logger.info("Loaded mylogger, font, and setting_dic")
+logger.info("Loaded mylogger, and setting_dic")
 
 import json
 
@@ -54,13 +54,13 @@ from .custom_tooltip import CustomTooltip
 
 logger.info("Loaded CustomTooltip")
 
-from pptflow.config.setting_factory import get_default_setting
-
-logger.info("Loaded get_default_setting")
-
 from pptflow.tts.tts_service_factory import get_tts_service
 
 logger.info("Loaded get_tts_service")
+
+from pptflow.config.setting_factory import get_default_setting
+
+logger.info("Loaded get_default_setting")
 
 
 class PPTFlowApp(ctk.CTk):
@@ -68,7 +68,7 @@ class PPTFlowApp(ctk.CTk):
         super().__init__()
         # 初始化 Setting 和 TTS
         self.setting = get_default_setting(os_name=platform.system())
-        self.tts = self.load_tts(self.setting.tts_service_provider)
+        self.tts = None
         self.current_language = 'en'
         logger.info("Current language: {}".format(self.current_language))
         self.language_modes = get_locales_subdirectories() if len(
@@ -422,11 +422,13 @@ class PPTFlowApp(ctk.CTk):
             self.select_button.grid_remove()
             self.step += 1
             self.setting_flow_1(1)
+            self.tts = self.tts if self.tts else self.load_tts(self.setting.tts_service_provider)
 
     def select_frame(self, name):
         self.flow_frame.grid_remove()
         if name == "Adjust Settings":
             from .adjust_settings import AdjustSettingsFrame
+
             # 显示 ExportSection
             self.adjust_settings = AdjustSettingsFrame(self, self.main_frame)
             self.adjust_settings.grid(row=1, column=0, padx=(100, 40), pady=(40, 60), sticky="nsew")
@@ -447,8 +449,11 @@ class PPTFlowApp(ctk.CTk):
     def load_tts(self, tts_service_provider):
         # import tts module according to service provider
         tts_service = get_tts_service(tts_service_provider)
-        sd.tts_speech_voices = tts_service.get_voice_list(self.setting) if \
-            len(tts_service.get_voice_list(self.setting)) > 0 else sd.tts_speech_voices
+        voice_list = tts_service.get_voice_list(self.setting)
+        if tts_service_provider == "azure":
+            sd.tts_speech_voices = voice_list if len(voice_list) > 0 else sd.tts_speech_voices
+        elif tts_service_provider == "kokoro":
+            sd.kokoro_voice_type = voice_list if len(voice_list) > 0 else sd.kokoro_voice_type
         return tts_service.tts
 
     def update_progress(self, progress: float, status: str):

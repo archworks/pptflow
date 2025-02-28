@@ -5,6 +5,7 @@ from pptflow.utils import mylogger
 import json
 import os
 import platform
+from pptflow.utils.datapath import get_absolute_data_path
 
 logger = mylogger.get_logger(__name__)
 
@@ -19,6 +20,8 @@ def get_platform_based_font_file():
         return 'installed_fonts_windows.json'
     elif current_platform == 'darwin':  # macOS
         return 'installed_fonts_macos.json'
+    elif current_platform == 'linux':
+        return 'installed_fonts_linux.json'
     else:
         logger.warning(f"Unsupported platform: {current_platform}. Using default file name.")
         return FONT_FILE_NAME
@@ -50,7 +53,7 @@ def save_fonts_to_json(font_dict, file_path=FONT_FILE_NAME):
 
 def load_fonts_from_json(file_path=FONT_FILE_NAME):
     """从 JSON 文件加载字体信息"""
-    font_dir = os.path.join(os.getcwd(), 'fonts')
+    font_dir = get_absolute_data_path('fonts')
     os.makedirs(font_dir, exist_ok=True)
     file_path = os.path.join(font_dir, file_path)
 

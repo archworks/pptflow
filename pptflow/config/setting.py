@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import os
+from pptflow.utils.datapath import get_absolute_data_path
 
 
 @dataclass
@@ -25,6 +26,9 @@ class Setting:
     vol: int = 5
     spd: int = 5
     pit: int = 5
+    kokoro_module: str = 'kokoro-v1.0.fp16.onnx'
+    kokoro_voice_file: str = 'voices-v1.0.bin'
+    kokoro_voice_name: str = 'af_heart'
     # Video settings
     video_format = 'MP4'
     video_width: int = 1280
@@ -63,6 +67,6 @@ class Setting:
     account_email: str = None
 
     # Specify the full path to the PowerPoint presentation
-    temp_dir = os.path.join(os.getcwd(), 'temp')
+    temp_dir = get_absolute_data_path('temp')
     image_dir_path = os.path.join(temp_dir, 'image')
     audio_dir_path = os.path.join(temp_dir, 'audio')

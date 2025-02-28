@@ -8,7 +8,7 @@ import webbrowser
 import customtkinter as ctk
 from .custom_tooltip import CustomTooltip
 from tkinter import filedialog, messagebox
-from pptflow.utils import mylogger, font, setting_dic as sd
+from pptflow.utils import mylogger, setting_dic as sd
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -39,8 +39,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.font_size = 12
         self.font = ctk.CTkFont(size=self.font_size, weight="normal")
 
-        if not self.app.setting.subtitle_font_path:
-            self.app.setting.subtitle_font_path = font.find_font_path(self.app.setting.subtitle_font_name)
+
 
         # Create scrollable frame for settings
         self.scrollable_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
@@ -85,51 +84,17 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
         # 根据选择的 TTS 提供商加载相应的设置 frame
         logger.info(f"Selected TTS Provider: {self.tts_providers_var.get()}")
-        if self.tts_providers_var.get() == "pyttsx3":
-            self.create_pyttsx3_settings(frame)
+        if self.tts_providers_var.get() == "kokoro":
+            self.create_kokoro_settings(frame)
         elif self.tts_providers_var.get() == "azure":
             self.create_azure_settings(frame)
-        elif self.tts_providers_var.get() == "baidu":
-            self.create_baidu_settings(frame)
 
-    def create_pyttsx3_settings(self, frame):
+    def create_kokoro_settings(self, frame):
         tts_settings = {
-            self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages]
+            self.app.get_text("audio_voice_name"): [self.app.get_text(s) for s in sd.kokoro_voice_type],
         }
         create_combo_box(frame, 1, tts_settings, self.tts_settings_vars)
-        self.tts_settings_vars[self.app.get_text("audio_language")].set(
-            self.app.get_text(self.app.text_to_key(self.app.setting.language)))
-
-    def create_baidu_settings(self, frame):
-        # baidu api
-        baidu_api_frame = ctk.CTkFrame(frame, fg_color="transparent")
-        baidu_api_frame.grid(row=2, column=0, padx=5, pady=10, sticky="w")
-        self.app_id_label = ctk.CTkLabel(baidu_api_frame, text='App ID:', font=self.font)
-        self.app_id_label.grid(row=2, column=0, sticky="w")
-        self.app_id_help_label = ctk.CTkLabel(baidu_api_frame, text="?", text_color="red",
-                                              fg_color="transparent", font=self.font)
-        self.app_id_help_label.grid(row=2, column=1, padx=5, sticky="w")
-        self.app_id_help_tip = CustomTooltip(self.app_id_help_label,
-                                             self.app.get_text("tts_api_key_help"), delay=10)
-        self.app_id_help_label.bind("<Button-1>", lambda event: self.get_api_key_help(event))
-
-        self.app_id_var = ctk.StringVar(value=self.app.setting.baidu_app_id)
-        self.app_id = ctk.CTkEntry(frame, width=140, textvariable=self.app_id_var, font=self.font)
-        self.app_id.grid(row=2, column=1, padx=5, pady=10, sticky="w")
-        self.baidu_api_key_label = ctk.CTkLabel(frame, text='API Key:', font=self.font)
-        self.baidu_api_key_label.grid(row=3, column=0, padx=5, pady=10, sticky="w")
-        self.baidu_api_key_var = ctk.StringVar(value=self.app.setting.baidu_api_key)
-        self.baidu_api_key = ctk.CTkEntry(frame, width=140, textvariable=self.baidu_api_key_var, font=self.font)
-        self.baidu_api_key.grid(row=3, column=1, padx=5, pady=10, sticky="w")
-        self.baidu_secret_key_label = ctk.CTkLabel(frame, text='Secret Key:', font=self.font)
-        self.baidu_secret_key_label.grid(row=4, column=0, padx=5, pady=10, sticky="w")
-        self.baidu_secret_key_var = ctk.StringVar(value=self.app.setting.baidu_secret_key)
-        self.baidu_secret_key = ctk.CTkEntry(frame, width=140, textvariable=self.baidu_secret_key_var, font=self.font)
-        self.baidu_secret_key.grid(row=4, column=1, padx=5, pady=10, sticky="w")
-        tts_settings = {
-            self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
-        }
-        create_combo_box(frame, 4, tts_settings, self.tts_settings_vars)
+        self.tts_settings_vars[self.app.get_text("audio_voice_name")].set(self.app.setting.kokoro_voice_name)
 
     def create_azure_settings(self, frame):
         # api key
@@ -294,8 +259,11 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                 self.subtitle_settings_frame.grid(row=1, column=0, pady=10, sticky="ew")
                 self.subtitle_settings_button.configure(
                     image=self.app.load_ctk_image(os.path.join(self.app.icon_dir, "up-arrow.png"), 20))
-
-                sd.subtitle_font_dict = font.get_or_load_fonts()
+                from pptflow.utils import font
+                self.utils_font = font
+                if not self.app.setting.subtitle_font_path:
+                    self.app.setting.subtitle_font_path = self.utils_font.find_font_path(self.app.setting.subtitle_font_name)
+                sd.subtitle_font_dict = self.utils_font.get_or_load_fonts()
                 self.subtitle_settings = {
                     self.app.get_text("font_type"): [key for key in sd.subtitle_font_dict],
                     self.app.get_text("font_size"): [str(i) for i in range(18, 49, 2)],
@@ -366,20 +334,12 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.app.clear_audio_cache()
         self.app.setting.tts_service_provider = tts_service_provider
         logger.info(f"Updated TTS service provider: {tts_service_provider}")
-        if tts_service_provider == "pyttsx3":
-            audio_language = self.tts_settings_vars[self.app.get_text("audio_language")].get()
-            if audio_language != self.app.setting.language:
+        if tts_service_provider == "kokoro":
+            audio_voice_name = self.tts_settings_vars[self.app.get_text("audio_voice_name")].get()
+            if audio_voice_name != self.app.setting.kokoro_voice_name:
                 self.app.clear_audio_cache()
-            self.app.setting.language = self.app.text_to_key(audio_language)
-            logger.info(f"Updated audio language: {audio_language}")
-        if tts_service_provider == "baidu":
-            app_id = self.app_id_var.get()
-            api_key = self.baidu_api_key_var.get()
-            secret_key = self.baidu_secret_key_var.get()
-            self.app.setting.baidu_app_id = app_id
-            self.app.setting.baidu_api_key = api_key
-            self.app.setting.baidu_secret_key = secret_key
-            logger.info(f"Updated Baidu settings - App ID: {app_id}, API Key: {api_key}, Secret Key: {secret_key}")
+            self.app.setting.kokoro_voice_name = audio_voice_name
+            logger.info(f"Updated Kokoro settings - Voice Name: {audio_voice_name}")
         if tts_service_provider == "azure":
             tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
             tts_speech_region = self.tts_settings_vars[self.app.get_text("tts_speech_region")].get()
@@ -417,7 +377,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         subtitle_border_color = self.subtitle_settings_vars[self.app.get_text("border_color")].get().lower()
         subtitle_border_width = self.subtitle_settings_vars[self.app.get_text("border_width")].get()
         self.app.setting.subtitle_font_path = sd.subtitle_font_dict[subtitle_font] if \
-            len(sd.subtitle_font_dict) > 0 else font.get_or_load_fonts()[subtitle_font]
+            len(sd.subtitle_font_dict) > 0 else self.utils_font.get_or_load_fonts()[subtitle_font]
         self.app.setting.subtitle_font_size = int(subtitle_font_size)
         self.app.setting.subtitle_color = self.app.text_to_key(subtitle_font_color)
         self.app.setting.subtitle_length = int(subtitle_length)
@@ -441,13 +401,9 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                     errors.append(self.app.get_text("tts_speech_region"))
                 if not self.tts_settings_vars[self.app.get_text("tts_voice_type")].get():
                     errors.append(self.app.get_text("tts_voice_type"))
-            elif self.tts_providers_var.get() == "baidu":
-                if not self.app_id_var.get().strip():
-                    errors.append(self.app.get_text("app_id"))
-                if not self.baidu_api_key_var.get().strip():
-                    errors.append(self.app.get_text("baidu_api_key"))
-                if not self.baidu_secret_key_var.get().strip():
-                    errors.append(self.app.get_text("baidu_secret_key"))
+            if self.tts_providers_var.get() == "kokoro":
+                if not self.tts_settings_vars[self.app.get_text("audio_voice_name")].get():
+                    errors.append(self.app.get_text("audio_voice_name"))
 
         # 校验视频设置
         if self.is_video_settings_visible:
