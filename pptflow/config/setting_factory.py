@@ -1,8 +1,5 @@
 import os
-from dotenv import load_dotenv
 from pptflow.config.setting import Setting
-
-load_dotenv()
 
 
 def get_default_setting(os_name: str = 'Windows', language: str = 'en', tts_service_provider: str = 'kokoro'):

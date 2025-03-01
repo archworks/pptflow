@@ -4,7 +4,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 import os
-from pptflow.utils.datapath import get_absolute_data_path
+from pptflow.utils.datapath import get_absolute_data_path, resource_path
 
 # debug: 级别10，用于开发者调试，显示变量等详细信息; 正常版本不应包含
 # info: 级别20，通知用户关键的正常行为，如“主库添加成功”;用简单、明确的语言记录

@@ -75,12 +75,16 @@ jobs:
           pip install -r requirements_win.txt
           pip install pyinstaller
 
-      # 7. 手动复制 DLL 文件
+      # 7. 下载语言模型文件
+      - name: Download language model files
+        run: |
+          python model/download_model.py
 
       # 8. 打包 Python 项目为可执行文件
       - name: Build executable with PyInstaller
         run: |
           pyinstaller pptflow.spec
+          copy .env.example .env
 
       # 9. 安装 Chocolatey
       - name: Install Chocolatey

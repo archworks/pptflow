@@ -1,20 +1,13 @@
 # Author: Valley-e
 # Date: 2025/2/24  
 # Description:
-"""
-pip install kokoro-onnx soundfile
-
-wget https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx
-wget https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
-python examples/podcast.py
-"""
-
+from pptflow.utils import mylogger, datapath
 import soundfile as sf
 from kokoro_onnx import Kokoro
 import numpy as np
 import random
 from pptflow.config.setting import Setting
-from pptflow.utils import mylogger, datapath
+from model.download_model import check_and_download
 import asyncio
 from pptflow.tts.tts_service import TtsService
 import os
@@ -22,10 +15,9 @@ logger = mylogger.get_logger(__name__)
 
 
 class KokoroTtsService(TtsService):
-    module_dir = datapath.get_absolute_data_path('model')
+    module_dir = datapath.resource_path('model')
 
     async def tts(self, text: str, output_audio_filename: str, setting: Setting):
-
         model_path = os.getenv("KOKORO_MODEL_PATH", os.path.join(self.module_dir, setting.kokoro_module))
         voice_path = os.getenv("KOKORO_VOICE_PATH", os.path.join(self.module_dir, setting.kokoro_voice_file))
         # 检查并自动下载模型文件
@@ -36,8 +28,7 @@ class KokoroTtsService(TtsService):
         if not check_and_download(voice_path, setting.kokoro_voice_file):
             raise FileNotFoundError("语音文件下载失败，请检查网络连接")
         kokoro = Kokoro(model_path, voice_path)
-        logger.info(f"KokoroTtsService initialized with model_path={model_path}, voice_path={voice_path}")
-
+        logger.info("Using Kokoro TTS")
         samples, sample_rate = kokoro.create(
             text,
             voice=setting.kokoro_voice_name,
@@ -62,37 +53,6 @@ class KokoroTtsService(TtsService):
         voice_list = [voice for voice in kokoro.get_voices() if voice.split("_")[0] in ["af", "am", "bf", "bm"]]
         logger.info(f"Voices: {voice_list}")
         return voice_list
-
-
-def check_and_download(filepath, filename):
-    """检查并下载文件的通用方法"""
-    if os.path.exists(filepath):
-        return True
-
-    url = f"https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/{filename}"
-
-    try:
-        from tqdm import tqdm
-        import requests
-
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-
-        with requests.get(url, stream=True) as r:
-            r.raise_for_status()
-            total_size = int(r.headers.get('content-length', 0))
-
-            with tqdm(total=total_size, unit='B', unit_scale=True, desc=f"下载 {filename}") as pbar:
-                with open(filepath, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-                            pbar.update(len(chunk))
-        return True
-    except Exception as e:
-        logger.error(f"下载失败: {str(e)}")
-        if os.path.exists(filepath):
-            os.remove(filepath)
-        return False
 
 
 def random_pause(sample_rate, min_duration=0.5, max_duration=2.0):

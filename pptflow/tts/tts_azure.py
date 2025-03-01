@@ -5,7 +5,7 @@ from pptflow.utils import mylogger
 import asyncio
 from pptflow.config.setting import Setting
 from pptflow.tts.tts_service import TtsService
-from pptflow.utils.datapath import get_absolute_data_path
+from pptflow.utils.datapath import resource_path
 
 
 class AzureTtsService(TtsService):
@@ -28,8 +28,8 @@ class AzureTtsService(TtsService):
         self.logger.info("Using Azure TTS")
         api_key = setting.tts_api_key if setting.tts_api_key else os.environ.get('TTS_AZURE_SPEECH_KEY')
         region = setting.tts_speech_region if setting.tts_speech_region else os.environ.get('TTS_AZURE_SPEECH_REGION')
-        speech_config = speechsdk.SpeechConfig(subscription=setting.tts_api_key,
-                                               region=setting.tts_speech_region)
+        speech_config = speechsdk.SpeechConfig(subscription=api_key,
+                                               region=region)
         # The language of the voice that speaks.
         speech_config.speech_synthesis_voice_name = setting.tts_voice_name
         # Sets the synthesis output format.
@@ -82,7 +82,7 @@ class AzureTtsService(TtsService):
             return []
 
     def get_voice_list(self, setting: Setting = None):
-        voice_dir = get_absolute_data_path('voice')
+        voice_dir = resource_path('voice')
         os.makedirs(voice_dir, exist_ok=True)
         filename = os.path.join(voice_dir, 'azure_voice_list.json')
         if not os.path.exists(filename):

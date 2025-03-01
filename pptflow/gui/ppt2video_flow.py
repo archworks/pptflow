@@ -1,6 +1,11 @@
 # Author: Valley-e
 # Date: 2025/1/11  
 # Description:
+from pptflow.utils.datapath import resource_path, get_install_dir
+from dotenv import load_dotenv
+import os
+
+load_dotenv(os.path.join(get_install_dir(), ".env"))
 from pptflow.utils import mylogger, setting_dic as sd
 
 logger = mylogger.get_logger(__name__)
@@ -9,10 +14,6 @@ logger.info("Loaded mylogger, and setting_dic")
 import json
 
 logger.info("Loaded json")
-
-import os
-
-logger.info("Loaded os")
 
 import platform
 
@@ -67,7 +68,8 @@ class PPTFlowApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         # 初始化 Setting 和 TTS
-        self.setting = get_default_setting(os_name=platform.system())
+        self.setting = get_default_setting(os_name=platform.system(),
+                                           tts_service_provider=os.getenv("TTS_SERVICE_PROVIDER", "kokoro").lower())
         self.tts = None
         self.current_language = 'en'
         logger.info("Current language: {}".format(self.current_language))
@@ -448,13 +450,18 @@ class PPTFlowApp(ctk.CTk):
 
     def load_tts(self, tts_service_provider):
         # import tts module according to service provider
-        tts_service = get_tts_service(tts_service_provider)
-        voice_list = tts_service.get_voice_list(self.setting)
-        if tts_service_provider == "azure":
-            sd.tts_speech_voices = voice_list if len(voice_list) > 0 else sd.tts_speech_voices
-        elif tts_service_provider == "kokoro":
-            sd.kokoro_voice_type = voice_list if len(voice_list) > 0 else sd.kokoro_voice_type
-        return tts_service.tts
+        try:
+            tts_service = get_tts_service(tts_service_provider)
+            voice_list = tts_service.get_voice_list(self.setting)
+            if tts_service_provider == "azure":
+                sd.tts_speech_voices = voice_list if len(voice_list) > 0 else sd.tts_speech_voices
+            elif tts_service_provider == "kokoro":
+                sd.kokoro_voice_type = voice_list if len(voice_list) > 0 else sd.kokoro_voice_type
+            return tts_service.tts
+        except Exception as e:
+            logger.error(f"Error loading TTS service: {e}", exc_info=True)
+            messagebox.showerror("Error", f"Error loading TTS service: {e}")
+            return None
 
     def update_progress(self, progress: float, status: str):
         """Update progress bar and status label"""
@@ -547,13 +554,6 @@ class PPTFlowApp(ctk.CTk):
             self.generate_button.configure(text=self.get_text("generate_video"))
         self.play_button.configure(text=self.get_text("preview_and_play"))
         self.reselect_button.configure(text=self.get_text("reselect_ppt"))
-
-
-def resource_path(relative_path):
-    """获取资源文件的绝对路径"""
-    if hasattr(sys, '_MEIPASS'):  # 打包后运行环境
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath(""), relative_path)
 
 
 def get_locales_subdirectories():

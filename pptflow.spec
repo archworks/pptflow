@@ -3,6 +3,8 @@
 import sys
 import os
 import azure.cognitiveservices.speech
+import language_tags.data
+import espeakng_loader
 from PyInstaller.utils.hooks import collect_data_files
 
 # 动态选择平台库文件
@@ -17,7 +19,8 @@ else:
     ICON_FILE = 'assets/icons/pptflow.ico'
 
 azure_lib = os.path.join(os.path.dirname(azure.cognitiveservices.speech.__file__), AZURE_LIB_FILE)
-
+language_tags = os.path.join(os.path.dirname(language_tags.data.__file__), 'json')
+espeakng_loader = os.path.dirname(espeakng_loader.__file__)
 # 分析主脚本和依赖
 a = Analysis(
     ['main.py'],  # 主入口文件
@@ -28,10 +31,13 @@ a = Analysis(
         (azure_lib, 'azure/cognitiveservices/speech'),
         ('pptflow/locales', 'pptflow/locales'),
         ('assets', 'assets'),
+        ('model', 'model'),
+        (language_tags, 'language_tags/data/json/'),
+        (espeakng_loader, 'espeakng_loader/'),
+        ('.env', '.'),
     ],
     hiddenimports=[
         'azure.cognitiveservices.speech',  # 显式隐藏导入
-        'PIL.tkinterfinder',
     ],
     hookspath=[],  # 自定义钩子路径
     hooksconfig={},
