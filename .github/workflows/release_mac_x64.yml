@@ -43,13 +43,17 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.9
+        python-version: 3.10
 
     # 5. 安装 Python 依赖
     - name: Install dependencies
       run: |
         python3 -m pip install -r requirements_unix.txt
         python3 -m pip install pyinstaller
+    # 7. 下载语言模型文件
+    - name: Download language model files
+      run: |
+        python model/download_model.py
 
     # 6. 打包 Python 项目为 macOS 可执行文件
     - name: Build executable with PyInstaller
