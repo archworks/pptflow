@@ -7,7 +7,7 @@ from kokoro_onnx import Kokoro
 import numpy as np
 import random
 from pptflow.config.setting import Setting
-from model.download_model import check_and_download
+from pptflow.utils.download import check_and_download
 import asyncio
 from pptflow.tts.tts_service import TtsService
 import os

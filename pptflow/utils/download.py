@@ -1,8 +1,12 @@
 # Author: Valley-e
-# Date: 2025/2/28  
+# Date: 2025/3/2  
 # Description:
-
+from pptflow.config.setting import Setting
 import os
+from pptflow.utils import mylogger
+logger = mylogger.get_logger(__name__)
+
+setting = Setting()
 
 
 def check_and_download(filepath, filename):
@@ -30,14 +34,7 @@ def check_and_download(filepath, filename):
                             pbar.update(len(chunk))
         return True
     except Exception as e:
-        print(f"下载失败: {str(e)}")
+        logger.error(f"下载失败: {str(e)}")
         if os.path.exists(filepath):
             os.remove(filepath)
         return False
-
-
-model_path = 'model/kokoro-v1.0.fp16.onnx'
-voice_path = 'model/voices-v1.0.bin'
-check_and_download(model_path, 'kokoro-v1.0.fp16.onnx')
-check_and_download(voice_path, 'voices-v1.0.bin')
-
