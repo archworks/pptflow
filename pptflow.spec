@@ -10,7 +10,7 @@ from PyInstaller.utils.hooks import collect_data_files
 # 动态选择平台库文件
 if sys.platform == 'darwin':
     AZURE_LIB_FILE = 'libMicrosoft.CognitiveServices.Speech.core.dylib'
-    ICON_FILE = 'assets/icons/pptflow.icns'
+    ICON_FILE = 'assets/icons/pptflow.ico'
 elif sys.platform == 'win32':
     AZURE_LIB_FILE = 'Microsoft.CognitiveServices.Speech.core.dll'
     ICON_FILE = 'assets/icons/pptflow.ico'
