@@ -51,16 +51,13 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='pptflow',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -69,8 +66,17 @@ exe = EXE(
     entitlements_file=None,
     icon=[ICON_FILE],
 )
-app = BUNDLE(
+coll = COLLECT(
     exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='pptflow',
+)
+app = BUNDLE(
+    coll,
     name='pptflow.app',
     icon=ICON_FILE,
     bundle_identifier=None,

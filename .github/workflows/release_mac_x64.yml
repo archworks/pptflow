@@ -64,7 +64,9 @@ jobs:
     # 7. 创建 DMG 安装包
     - name: Create DMG
       run: |
-        hdiutil create -volname "PPTFLOW1" -srcfolder dist/ -ov -format UDZO -imagekey zlib-level=9 "$GITHUB_WORKSPACE/pptflow-${{ env.tag_name }}-mac-x64-installer.dmg"
+        ln -s /Applications ./dist/Applications
+        rm -rf ./dist/pptflow
+        hdiutil create -volname "PPTFlow Installer" -srcfolder dist/ -ov -format UDZO -imagekey zlib-level=9 "$GITHUB_WORKSPACE/pptflow-${{ env.tag_name }}-mac-x64-installer.dmg"
 
     - name: Install GitHub CLI
       run: |
