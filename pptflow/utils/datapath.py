@@ -5,8 +5,7 @@ import os
 import pathlib
 import sys
 from dotenv import load_dotenv
-
-load_dotenv()
+import os
 
 
 def get_father_dir():
@@ -27,8 +26,11 @@ def get_father_dir():
     return father_dir
 
 
-def get_absolute_data_path(path_name: str):
-    return os.path.join(get_father_dir(), path_name)
+def get_absolute_data_path(path_name: str = ''):
+    if path_name == '' or path_name is None:
+        return get_father_dir()
+    else:
+        return os.path.join(get_father_dir(), path_name)
 
 
 def resource_path(relative_path):
@@ -43,6 +45,33 @@ def get_install_dir():
         return os.path.dirname(sys.executable)  # 安装目录
     else:  # 开发模式
         return os.path.dirname(os.path.abspath(__file__))
+
+
+env_path = os.path.join(get_absolute_data_path(), ".env")
+init_content = """
+# 配置文件
+# 默认配置文件路径：pptflow/.env
+# 配置文件格式：key=value
+# 配置文件内容：
+# TTS_SERVICE_PROVIDER=kokoro
+# Azure TTS
+# TTS_AZURE_SPEECH_KEY=xxxx
+# TTS_AZURE_SPEECH_REGION=eastasia
+# Kokoro TTS
+# KOKORO_MODEL_PATH=D:/workspace/pycharm/pptflow/model/kokoro-v1.0.fp16.onnx
+# KOKORO_VOICE_PATH=D:/workspace/pycharm/pptflow/model/voices-v1.0.bin
+"""
+# 创建目录（如果不存在）
+os.makedirs(os.path.dirname(env_path), exist_ok=True)
+try:
+    with open(env_path, "x") as f:
+        f.write(init_content)
+        print("The file .env has been created successfully")
+
+except FileExistsError:
+    print("The file .env already exists. Skip creation")
+
+load_dotenv(env_path, encoding="gbk")
 
 
 if __name__ == '__main__':

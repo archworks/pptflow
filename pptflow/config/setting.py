@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import os
-from pptflow.utils.datapath import resource_path
+from pptflow.utils.datapath import get_absolute_data_path
 
 
 @dataclass
@@ -67,6 +67,6 @@ class Setting:
     account_email: str = None
 
     # Specify the full path to the PowerPoint presentation
-    temp_dir = resource_path('temp')
+    temp_dir = get_absolute_data_path('temp')
     image_dir_path = os.path.join(temp_dir, 'image')
     audio_dir_path = os.path.join(temp_dir, 'audio')

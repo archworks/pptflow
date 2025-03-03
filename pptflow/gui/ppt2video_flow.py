@@ -1,15 +1,14 @@
 # Author: Valley-e
 # Date: 2025/1/11  
 # Description:
-from pptflow.utils.datapath import resource_path, get_install_dir
-from dotenv import load_dotenv
-import os
 
-load_dotenv(os.path.join(get_install_dir(), ".env"))
 from pptflow.utils import mylogger, setting_dic as sd
 
 logger = mylogger.get_logger(__name__)
 logger.info("Loaded mylogger, and setting_dic")
+from pptflow.utils.datapath import resource_path
+
+import os
 
 import json
 
@@ -409,6 +408,10 @@ class PPTFlowApp(ctk.CTk):
         if self.file_display:
             logger.info(f"Selected file: {self.file_display}")
 
+            # Check whether the PPT file's notes only has English text and punctuation
+            if not self.check_ppt_notes_only_english(self.file_display):
+                return
+
             # Set the default output path
             self.setting.video_path = re.sub(r"pptx?$", self.setting.video_format.lower(), self.file_display)
 
@@ -425,6 +428,52 @@ class PPTFlowApp(ctk.CTk):
             self.step += 1
             self.setting_flow_1(1)
             self.tts = self.tts if self.tts else self.load_tts(self.setting.tts_service_provider)
+
+    def check_ppt_notes_only_english(self, ppt_file_path):
+        from pptx import Presentation
+        try:
+            # ================ 新增校验逻辑 ================
+            presentation = Presentation(ppt_file_path)
+
+            # 1. 检查是否有幻灯片
+            if len(presentation.slides) == 0:
+                messagebox.showerror("Error", "The PPT has no slides, please reselect!")
+                logger.error("The PPT has no slides, please reselect!")
+                self.reselect_file()
+                return False
+
+            # 2. 检查备注和英文内容
+            has_notes = False
+            non_english_chars = set()
+
+            for slide in presentation.slides:
+                notes = slide.notes_slide.notes_text_frame.text.strip()
+
+                # 检查备注是否存在
+                if not notes:
+                    messagebox.showerror("Error", f"There are slides without notes, please add!")
+                    logger.error(f"There are slides without notes, please add!")
+                    self.reselect_file()
+                    return False
+
+                # 检查是否包含非英文字符
+                if not re.match(r'^[\x00-\x7F\u2014\u201C\u201D\u2018\u2019]+$', notes):
+                    non_english_chars.update(re.findall(r'[^\x00-\x7F]', notes))
+
+            # 3. 提示非英文字符错误
+            if non_english_chars:
+                messagebox.showerror("Error",
+                                     f"Non-english characters found: {', '.join(non_english_chars)}\n"
+                                     "Please change the notes to English only!")
+                logger.error(f"Non-english characters found: {', '.join(non_english_chars)}")
+                self.reselect_file()
+                return False
+            return True
+        except Exception as e:
+            messagebox.showerror("Error", f"Unable to open PPT file: {e}")
+            logger.error(f"Unable to open PPT file: {e}", exc_info=True)
+            self.reselect_file()
+            return False
 
     def select_frame(self, name):
         self.flow_frame.grid_remove()

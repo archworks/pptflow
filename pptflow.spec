@@ -34,7 +34,6 @@ a = Analysis(
         ('model', 'model'),
         (language_tags, 'language_tags/data/json/'),
         (espeakng_loader, 'espeakng_loader/'),
-        ('.env', '.'),
     ],
     hiddenimports=[
         'azure.cognitiveservices.speech',  # 显式隐藏导入

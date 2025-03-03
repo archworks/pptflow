@@ -5,7 +5,7 @@ from pptflow.utils import mylogger
 import asyncio
 from pptflow.config.setting import Setting
 from pptflow.tts.tts_service import TtsService
-from pptflow.utils.datapath import resource_path
+from pptflow.utils.datapath import get_absolute_data_path
 
 
 class AzureTtsService(TtsService):
@@ -82,7 +82,7 @@ class AzureTtsService(TtsService):
             return []
 
     def get_voice_list(self, setting: Setting = None):
-        voice_dir = resource_path('voice')
+        voice_dir = get_absolute_data_path('voice')
         os.makedirs(voice_dir, exist_ok=True)
         filename = os.path.join(voice_dir, 'azure_voice_list.json')
         if not os.path.exists(filename):

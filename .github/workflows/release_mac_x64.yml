@@ -58,7 +58,6 @@ jobs:
     # 6. 打包 Python 项目为 macOS 可执行文件
     - name: Build executable with PyInstaller
       run: |
-        cp .env.example .env
         pyinstaller pptflow.spec
 
     # 7. 创建 DMG 安装包
