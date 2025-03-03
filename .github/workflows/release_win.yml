@@ -83,8 +83,8 @@ jobs:
       # 8. 打包 Python 项目为可执行文件
       - name: Build executable with PyInstaller
         run: |
-          pyinstaller pptflow.spec
           copy .env.example .env
+          pyinstaller pptflow.spec
 
       # 9. 安装 Chocolatey
       - name: Install Chocolatey
