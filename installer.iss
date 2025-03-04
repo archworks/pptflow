@@ -12,7 +12,7 @@ Compression=lzma
 SolidCompression=yes
 DisableProgramGroupPage=yes
 DisableDirPage=no
-SetupIconFile=assets\icons\pptflow.ico
+SetupIconFile=_internal\assets\icons\pptflow.ico
 
 [Files]
 ; 将 PyInstaller 打包的可执行文件复制到安装目录
