@@ -65,26 +65,26 @@ jobs:
     # 8. 创建 .deb 安装包
     - name: Create .deb package
       run: |
-        mkdir -p dist/DEBIAN
-        mkdir -p dist/usr/local/bin
+        mkdir -p dist/pptflow/DEBIAN
+        mkdir -p dist/pptflow/usr/local/bin/pptflow
 
         # 将可执行文件放到目标目录
-        cp dist/pptflow/pptflow dist/usr/local/bin/
+        cp dist/pptflow/* dist/pptflow/usr/local/bin/pptflow/
         
         # 获取版本号，并去掉前缀的 "v"
         clean_version=${{ env.tag_name }}
         clean_version=${clean_version//v/}  # 去掉 "v"
 
         # 创建控制文件
-        echo "Package: pptflow" > dist/DEBIAN/control
-        echo "Version: $clean_version" >> dist/DEBIAN/control
-        echo "Architecture: amd64" >> dist/DEBIAN/control
-        echo "Maintainer: your-email@example.com" >> dist/DEBIAN/control
-        echo "Description: PPTFlow Linux Installer" >> dist/DEBIAN/control
-        echo "Depends: python3, python3-pyqt5, python3-pil (>= 9.1.0), python3-pil.imagetk, python3-tk" >> dist/DEBIAN/control
+        echo "Package: pptflow" > dist/pptflow/DEBIAN/control
+        echo "Version: $clean_version" >> dist/pptflow/DEBIAN/control
+        echo "Architecture: amd64" >> dist/pptflow/DEBIAN/control
+        echo "Maintainer: your-email@example.com" >> dist/pptflow/DEBIAN/control
+        echo "Description: PPTFlow Linux Installer" >> dist/pptflow/DEBIAN/control
+        echo "Depends: python3, python3-pyqt5, python3-pil (>= 9.1.0), python3-pil.imagetk, python3-tk" >> dist/pptflow/DEBIAN/control
 
         # 使用 dpkg-deb 创建 .deb 包
-        dpkg-deb --build dist/pptflow/ dist/pptflow-${{ env.tag_name }}-linux-x64-installer.deb
+        dpkg-deb --build dist/pptflow dist/pptflow-${{ env.tag_name }}-linux-x64-installer.deb
 
     # 9. 检查 Release 是否已存在
     - name: Install GitHub CLI
