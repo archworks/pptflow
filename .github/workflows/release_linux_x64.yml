@@ -69,7 +69,7 @@ jobs:
         mkdir -p dist/usr/local/bin
 
         # 将可执行文件放到目标目录
-        cp dist/pptflow dist/usr/local/bin/
+        cp dist/pptflow/pptflow dist/usr/local/bin/
         
         # 获取版本号，并去掉前缀的 "v"
         clean_version=${{ env.tag_name }}
@@ -84,7 +84,7 @@ jobs:
         echo "Depends: python3, python3-pyqt5, python3-pil (>= 9.1.0), python3-pil.imagetk, python3-tk" >> dist/DEBIAN/control
 
         # 使用 dpkg-deb 创建 .deb 包
-        dpkg-deb --build dist dist/pptflow-${{ env.tag_name }}-linux-x64-installer.deb
+        dpkg-deb --build dist/pptflow/ dist/pptflow-${{ env.tag_name }}-linux-x64-installer.deb
 
     # 9. 检查 Release 是否已存在
     - name: Install GitHub CLI

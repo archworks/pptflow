@@ -15,7 +15,10 @@ class PptToImageWin(PptToImage):
         Application = None
         try:
             # Create a PowerPoint application object
-            Application = win32com.client.Dispatch("PowerPoint.Application")
+            Application = win32com.client.gencache.EnsureDispatch("Kwpp.Application")
+
+            if Application is None:
+                Application = win32com.client.Dispatch("PowerPoint.Application")
 
             # Open the presentation without making it visible
             Presentation = Application.Presentations.Open(input_ppt_path, ReadOnly=True, WithWindow=False)

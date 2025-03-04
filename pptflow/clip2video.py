@@ -92,6 +92,7 @@ def write_video_with_kwargs(final_clip, setting):
         "codec": setting.video_codec,
         "audio_codec": setting.audio_codec,
         "fps": float(setting.video_fps),  # 确保 fps 是 float 类型
+        "temp_audiofile_path": setting.temp_dir,
         "threads": setting.video_processing_threads,
         "logger": None,
     }
