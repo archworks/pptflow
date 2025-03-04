@@ -66,7 +66,7 @@ jobs:
     - name: Create .deb package
       run: |
         mkdir -p dist/pptflow/DEBIAN
-        mkdir -p dist/pptflow/usr/local/bin/pptflow
+        mkdir -p dist/usr/local/bin/pptflow
 
         # 将可执行文件放到目标目录
         cp -r dist/pptflow/* dist/usr/local/bin/pptflow/
