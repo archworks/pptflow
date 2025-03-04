@@ -69,7 +69,7 @@ jobs:
         mkdir -p dist/pptflow/usr/local/bin/pptflow
 
         # 将可执行文件放到目标目录
-        cp dist/pptflow/* dist/pptflow/usr/local/bin/pptflow/
+        cp -r dist/pptflow/* dist/pptflow/usr/local/bin/pptflow/
         
         # 获取版本号，并去掉前缀的 "v"
         clean_version=${{ env.tag_name }}
