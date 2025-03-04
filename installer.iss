@@ -12,7 +12,7 @@ Compression=lzma
 SolidCompression=yes
 DisableProgramGroupPage=yes
 DisableDirPage=no
-SetupIconFile=_internal\assets\icons\pptflow.ico
+SetupIconFile=assets\icons\pptflow.ico
 
 [Files]
 ; 将 PyInstaller 打包的可执行文件复制到安装目录
@@ -20,9 +20,9 @@ Source: "dist\pptflow\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs 
 
 [Icons]
 ; 创建桌面快捷方式
-Name: "{commondesktop}\PPTFlow"; Filename: "{app}\pptflow.exe"; WorkingDir: "{app}"; IconFilename: "_internal\assets\icons\pptflow.ico"
+Name: "{commondesktop}\PPTFlow"; Filename: "{app}\pptflow.exe"; WorkingDir: "{app}"; IconFilename: "{app}\_internal\assets\icons\pptflow.ico"
 ; 创建开始菜单快捷方式
-Name: "{group}\PPTFlow"; Filename: "{app}\pptflow.exe"; WorkingDir: "{app}"; IconFilename: "_internal\assets\icons\pptflow.ico"
+Name: "{group}\PPTFlow"; Filename: "{app}\pptflow.exe"; WorkingDir: "{app}"; IconFilename: "{app}\_internal\assets\icons\pptflow.ico"
 
 [Run]
 ; 安装完成后运行程序（可选）
