@@ -90,6 +90,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.create_azure_settings(frame)
 
     def create_kokoro_settings(self, frame):
+        self.app.load_tts(self.tts_providers_var.get())
         tts_settings = {
             self.app.get_text("audio_voice_name"): [self.app.get_text(s) for s in sd.kokoro_voice_type],
         }
@@ -98,6 +99,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
     def create_azure_settings(self, frame):
         # api key
+        self.app.load_tts(self.tts_providers_var.get())
         api_key_frame = ctk.CTkFrame(frame, fg_color="transparent")
         api_key_frame.grid(row=2, column=0, padx=5, pady=10, sticky="w")
         self.api_key_label = ctk.CTkLabel(api_key_frame, text=self.app.get_text("tts_api_key"), font=self.font)
