@@ -5,7 +5,7 @@
 [Setup]
 AppName=PPTFlow
 AppVersion={#MyAppVersion}
-DefaultDirName={autopf}\ArchWorks PPTFlow 2025
+DefaultDirName={autopf}\APPTFlow
 DefaultGroupName=PPTFlow
 OutputBaseFilename=pptflow-{#MyAppVersion}
 Compression=lzma
