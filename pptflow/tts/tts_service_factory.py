@@ -15,6 +15,9 @@ def get_tts_service(tts_service_provider: str):
     elif tts_service_provider.lower() == "kokoro":
         from .tts_kokoro import KokoroTtsService
         return KokoroTtsService()
+    elif tts_service_provider.lower() == "baidu":
+        from .tts_baidu import BaiduTtsService
+        return BaiduTtsService()
     else:
         logger.error(f"unsupport tts service provider: {tts_service_provider}")
         raise NotImplementedError(f"unsupport tts service provider: {tts_service_provider}")

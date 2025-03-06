@@ -19,9 +19,9 @@ class Setting:
     tts_voice_rate: str = None
     pytts_voice_rate: int = None
     # Baidu TTS settings
-    baidu_app_id: str = None
-    baidu_api_key: str = None
-    baidu_secret_key: str = None
+    baidu_app_id: str = '117675325'
+    baidu_api_key: str = 'XAzMnN5M5RHrkv6QUYbmeUmS'
+    baidu_secret_key: str = 'cmYU6NfDS8ZdDnju7Xq2lsPj1GW6pJHl'
     per: int = 0
     vol: int = 5
     spd: int = 5

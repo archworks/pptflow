@@ -34,7 +34,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         super().__init__(frame, fg_color="white")
         self.app = app
         self.grid_columnconfigure(0, weight=1)
-        # self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
         self.font_size = 12
         self.font = ctk.CTkFont(size=self.font_size, weight="normal")
@@ -43,13 +43,14 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
         # Create scrollable frame for settings
         self.scrollable_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        self.scrollable_frame.grid(row=0, column=0, padx=70, pady=(20, 0), sticky="nsew")
+        self.scrollable_frame.grid(row=0, column=0, padx=70, pady=(30, 0), sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
         # Create a dict for audio/video/subtitle settings
         self.api_key_help = None
         self.export_path_var = ctk.StringVar()
         self.tts_providers_var = ctk.StringVar()
+        self.language_settings_var = ctk.StringVar()
         self.tts_settings_vars = {}
         self.audio_settings_vars = {}
         self.video_settings_vars = {}
@@ -66,11 +67,21 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             frame,
             text=self.app.get_text("tts_service_provider"), font=self.font
         )
-        self.tts_providers_label.grid(row=1, column=0, padx=5, pady=10, sticky="w")
-        self.tts_providers_var.set(self.app.setting.tts_service_provider)
-        self.tts_providers = ctk.CTkComboBox(frame, values=sd.tts_service_providers, state="readonly",
+        self.tts_providers_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        providers = sd.tts_service_providers.get(self.app.setting.language, ["kokoro", "baidu", "azure"])
+        self.tts_providers_var.set(providers[0])
+        self.tts_providers = ctk.CTkComboBox(frame, values=providers, state="readonly",
                                              variable=self.tts_providers_var, font=self.font)
-        self.tts_providers.grid(row=1, column=1, padx=5, pady=10, sticky="w")
+        self.tts_providers.grid(row=1, column=1, padx=5, pady=5, sticky="w")
+        self.language_setting_label = ctk.CTkLabel(
+            frame,
+            text=self.app.get_text("audio_language"), font=self.font
+        )
+        self.language_setting_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        self.language_settings_var.set(self.app.get_text(self.app.setting.language))
+        self.language_settings = ctk.CTkComboBox(frame, values=[self.app.get_text(s) for s in sd.audio_languages], state="readonly",
+                                                 variable=self.language_settings_var, font=self.font)
+        self.language_settings.grid(row=2, column=1, padx=5, pady=5, sticky="w")
         # 绑定选择变化的事件
         self.tts_providers_var.trace("w", lambda *args: self.on_tts_provider_change(frame))
         # 初始化加载当前选项的设置
@@ -79,7 +90,8 @@ class AdjustSettingsFrame(ctk.CTkFrame):
     def on_tts_provider_change(self, frame):
         # 清除之前的组件（如果需要）
         for widget in frame.winfo_children():
-            if widget not in {self.tts_providers_label, self.tts_providers}:
+            if widget not in {self.tts_providers_label, self.tts_providers,
+                              self.language_setting_label, self.language_settings}:
                 widget.destroy()
 
         # 根据选择的 TTS 提供商加载相应的设置 frame
@@ -88,37 +100,75 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.create_kokoro_settings(frame)
         elif self.tts_providers_var.get() == "azure":
             self.create_azure_settings(frame)
+        elif self.tts_providers_var.get() == "baidu":
+            self.create_baidu_settings(frame)
 
     def create_kokoro_settings(self, frame):
         self.app.load_tts(self.tts_providers_var.get())
         tts_settings = {
             self.app.get_text("audio_voice_name"): [self.app.get_text(s) for s in sd.kokoro_voice_type],
         }
-        create_combo_box(frame, 1, tts_settings, self.tts_settings_vars)
+        create_combo_box(frame, 2, tts_settings, self.tts_settings_vars)
         self.tts_settings_vars[self.app.get_text("audio_voice_name")].set(self.app.setting.kokoro_voice_name)
+
+    def create_baidu_settings(self, frame):
+        # baidu api
+        baidu_api_frame = ctk.CTkFrame(frame, fg_color="transparent")
+        baidu_api_frame.grid(row=3, column=0, padx=5, pady=5, sticky="w")
+        # 新增实例变量用于存储真实值
+        self._app_id_var_real = self.app.setting.baidu_app_id
+        self._baidu_api_key_real = self.app.setting.baidu_api_key
+        self._baidu_secret_key_real = self.app.setting.baidu_secret_key
+        self.app_id_label = ctk.CTkLabel(baidu_api_frame, text='App ID:', font=self.font)
+        self.app_id_label.grid(row=0, column=0, sticky="w")
+        self.app_id_help_label = ctk.CTkLabel(baidu_api_frame, text="?", text_color="red",
+                                              fg_color="transparent", font=self.font)
+        self.app_id_help_label.grid(row=0, column=1, padx=5, sticky="w")
+        self.app_id_help_tip = CustomTooltip(self.app_id_help_label,
+                                             self.app.get_text("tts_api_key_help"), delay=10)
+        self.app_id_help_label.bind("<Button-1>", lambda event: self.get_api_key_help(event))
+
+        self.app_id_var = ctk.StringVar(value="******" if self._app_id_var_real else "")
+        self.app_id = ctk.CTkEntry(frame, width=140, textvariable=self.app_id_var,
+                                   font=self.font, show="*")
+        self.app_id.grid(row=3, column=1, padx=5, pady=5, sticky="w")
+
+        self.baidu_api_key_label = ctk.CTkLabel(frame, text='API Key:', font=self.font)
+        self.baidu_api_key_label.grid(row=4, column=0, padx=5, pady=5, sticky="w")
+        self.baidu_api_key_var = ctk.StringVar(value="******" if self._baidu_api_key_real else "")
+        self.baidu_api_key = ctk.CTkEntry(frame, width=140, textvariable=self.baidu_api_key_var,
+                                          font=self.font, show="*")
+        self.baidu_api_key.grid(row=4, column=1, padx=5, pady=5, sticky="w")
+        self.baidu_secret_key_label = ctk.CTkLabel(frame, text='Secret Key:', font=self.font)
+        self.baidu_secret_key_label.grid(row=5, column=0, padx=5, pady=5, sticky="w")
+        self.baidu_secret_key_var = ctk.StringVar(value="******" if self._baidu_secret_key_real else "")
+        self.baidu_secret_key = ctk.CTkEntry(frame, width=140, textvariable=self.baidu_secret_key_var,
+                                             font=self.font, show="*")
+        self.baidu_secret_key.grid(row=5, column=1, padx=5, pady=5, sticky="w")
 
     def create_azure_settings(self, frame):
         # api key
         self.app.load_tts(self.tts_providers_var.get())
         api_key_frame = ctk.CTkFrame(frame, fg_color="transparent")
-        api_key_frame.grid(row=2, column=0, padx=5, pady=10, sticky="w")
+        api_key_frame.grid(row=3, column=0, padx=5, pady=5, sticky="w")
         self.api_key_label = ctk.CTkLabel(api_key_frame, text=self.app.get_text("tts_api_key"), font=self.font)
-        self.api_key_label.grid(row=2, column=0, sticky="w")
+        self.api_key_label.grid(row=0, column=0, sticky="w")
         self.api_key_help_label = ctk.CTkLabel(api_key_frame, text="?", text_color="red",
                                                fg_color="transparent", font=self.font)
-        self.api_key_help_label.grid(row=2, column=1, padx=5, sticky="w")
+        self.api_key_help_label.grid(row=0, column=1, padx=5, sticky="w")
         self.api_key_help = CustomTooltip(self.api_key_help_label,
                                           self.app.get_text("tts_api_key_help"), delay=10)
         self.api_key_help_label.bind("<Button-1>", lambda event: self.get_api_key_help(event))
-        self.api_key_var = ctk.StringVar(value=self.app.setting.tts_api_key)
-        self.api_key = ctk.CTkEntry(frame, width=140, textvariable=self.api_key_var, font=self.font)
-        self.api_key.grid(row=2, column=1, padx=5, pady=10, sticky="w")
+        self._api_key_real = self.app.setting.tts_api_key
+        self.api_key_var = ctk.StringVar(value="******" if self._api_key_real else "")
+        self.api_key = ctk.CTkEntry(frame, width=140, textvariable=self.api_key_var,
+                                    font=self.font, show="*")
+        self.api_key.grid(row=3, column=1, padx=5, pady=5, sticky="w")
         tts_settings = {
-            self.app.get_text("audio_language"): [self.app.get_text(s) for s in sd.audio_languages],
             self.app.get_text("tts_speech_region"): sd.tts_speech_regions,
             self.app.get_text("tts_voice_type"): sd.tts_speech_voices,
         }
-        create_combo_box(frame, 2, tts_settings, self.tts_settings_vars)
+        create_combo_box(frame, 3, tts_settings, self.tts_settings_vars)
         self.tts_settings_vars[self.app.get_text("tts_speech_region")].set(self.app.setting.tts_speech_region)
         self.tts_settings_vars[self.app.get_text("tts_voice_type")].set(self.app.setting.tts_voice_type)
 
@@ -332,16 +382,27 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
     def update_tts_settings(self):
         tts_service_provider = self.tts_providers_var.get()
-        if tts_service_provider != self.app.setting.tts_service_provider:
+        language = self.app.text_to_key(self.language_settings_var.get())
+        if tts_service_provider != self.app.setting.tts_service_provider \
+                or language != self.app.setting.language:
             self.app.clear_audio_cache()
         self.app.setting.tts_service_provider = tts_service_provider
-        logger.info(f"Updated TTS service provider: {tts_service_provider}")
+        self.app.setting.language = language
+        logger.info(f"Updated TTS service provider: {tts_service_provider}, Audio Language: {language}")
         if tts_service_provider == "kokoro":
             audio_voice_name = self.tts_settings_vars[self.app.get_text("audio_voice_name")].get()
             if audio_voice_name != self.app.setting.kokoro_voice_name:
                 self.app.clear_audio_cache()
             self.app.setting.kokoro_voice_name = audio_voice_name
             logger.info(f"Updated Kokoro settings - Voice Name: {audio_voice_name}")
+        if tts_service_provider == "baidu":
+            app_id = self.app_id_var.get()
+            api_key = self.baidu_api_key_var.get()
+            secret_key = self.baidu_secret_key_var.get()
+            self.app.setting.baidu_app_id = app_id
+            self.app.setting.baidu_api_key = api_key
+            self.app.setting.baidu_secret_key = secret_key
+            logger.info(f"Updated Baidu settings - App ID: {app_id}, API Key: {api_key}, Secret Key: {secret_key}")
         if tts_service_provider == "azure":
             tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
             tts_speech_region = self.tts_settings_vars[self.app.get_text("tts_speech_region")].get()
@@ -403,9 +464,16 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                     errors.append(self.app.get_text("tts_speech_region"))
                 if not self.tts_settings_vars[self.app.get_text("tts_voice_type")].get():
                     errors.append(self.app.get_text("tts_voice_type"))
-            if self.tts_providers_var.get() == "kokoro":
+            elif self.tts_providers_var.get() == "kokoro":
                 if not self.tts_settings_vars[self.app.get_text("audio_voice_name")].get():
                     errors.append(self.app.get_text("audio_voice_name"))
+            elif self.tts_providers_var.get() == "baidu":
+                if not self.app_id_var.get().strip():
+                    errors.append(self.app.get_text("app_id"))
+                if not self.baidu_api_key_var.get().strip():
+                    errors.append(self.app.get_text("baidu_api_key"))
+                if not self.baidu_secret_key_var.get().strip():
+                    errors.append(self.app.get_text("baidu_secret_key"))
 
         # 校验视频设置
         if self.is_video_settings_visible:

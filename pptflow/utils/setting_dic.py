@@ -14,27 +14,41 @@ if sys.platform == "win32":
 
 # tts setting
 # tts_service_providers = ["azure", "edge-tts", "coqui-tts", "pyttsx3"]
-tts_service_providers = ["kokoro", "azure"]
+tts_service_providers: dict = {"en": ["kokoro", "baidu", "azure"],
+                               "zh": ["baidu", "azure"]}
 tts_speech_regions = ["eastasia", "northeurope", "southeastasia", "westus"]
 tts_speech_voices = ["en-US-EmmaNeural"]
 # Video settings
 video_formats = ['MP4', 'AVI', 'MOV']
 video_codecs = ['H.264', 'H.265', 'VP9']
-video_sizes = ["1280x720", "1920x1080", "2560x1440", "3840x2160","720x480"]
+video_sizes = ["1280x720", "1920x1080", "2560x1440", "3840x2160", "720x480"]
 video_fps = ["10fps", "30fps", "24fps"]
 video_processing_threads = ["1", "2", "4", "8", "16"]
 # Audio settings
+# 发音人选择, 基础音库：0为度小美，1为度小宇，3为度逍遥，4为度丫丫，
+# 精品音库：5为度小娇，103为度米朵，106为度博文，110为度小童，111为度小萌，默认为度小美
+baidu_voice_persons: dict = {
+    0: "度小美",
+    1: "度小宇",
+    3: "度逍遥",
+    4: "度丫丫",
+    5: "度小娇",
+    103: "度米朵",
+    106: "度博文",
+    110: "度小童",
+    111: "度小萌",
+}
 LANGUAGE_MAP = {
-            'American English': 'a',
-            'British English': 'b',
-            'Japanese': 'j',
-            'Mandarin Chinese': 'z',
-            # 'Spanish': 'e',
-            # 'French': 'f',
-            # 'Hindi': 'h',
-            # 'Italian': 'i',
-            # 'Brazilian Portuguese': 'p'
-        }
+    'American English': 'a',
+    'British English': 'b',
+    'Japanese': 'j',
+    'Mandarin Chinese': 'z',
+    # 'Spanish': 'e',
+    # 'French': 'f',
+    # 'Hindi': 'h',
+    # 'Italian': 'i',
+    # 'Brazilian Portuguese': 'p'
+}
 GENDER_MAP = {
     'Female': 'f',
     'Male': 'm'
@@ -47,7 +61,7 @@ audio_voice_type = ["zh-CN-YunjianNeural", "zh-CN-XiaoxiaoNeural"]
 audio_speeds = ["1.0x", "0.8x", "1.2x", "1.5x"]
 audio_languages = ['en', 'zh']
 # Subtitle settings
-subtitle_lengths = ["20", "35", "50", "70"]
+subtitle_lengths = ["20", "35", "50", "70", "100"]
 subtitle_font_dict = {}
 font_colors = ['white', 'black', 'red', 'blue', 'yellow', 'green']
 border_colors = ['black', 'white', 'no_color']

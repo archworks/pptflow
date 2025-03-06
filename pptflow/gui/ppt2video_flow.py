@@ -70,6 +70,7 @@ class PPTFlowApp(ctk.CTk):
         self.setting = get_default_setting(os_name=platform.system(),
                                            tts_service_provider=os.getenv("TTS_SERVICE_PROVIDER", "kokoro").lower())
         self.tts = None
+        # 初始化界面语言
         self.current_language = 'en'
         logger.info("Current language: {}".format(self.current_language))
         self.language_modes = get_locales_subdirectories() if len(
@@ -116,7 +117,7 @@ class PPTFlowApp(ctk.CTk):
         self.main_frame.grid_rowconfigure(2, weight=1)
 
         # Load and set background image
-        bg_image = ctk.CTkImage(Image.open(os.path.join(self.icon_dir, "background.png")), size=(800, 173))
+        bg_image = ctk.CTkImage(Image.open(os.path.join(self.icon_dir, "background2.png")), size=(800, 173))
         self.bg_label = ctk.CTkLabel(self.main_frame, image=bg_image, text="")
         self.bg_label.place(x=0, y=0, anchor="nw")
 
@@ -252,14 +253,20 @@ class PPTFlowApp(ctk.CTk):
                                          font=ctk.CTkFont(size=12), width=110,
                                          text_color="white", text_color_disabled="white",
                                          command=lambda: self.on_button_click("Preview and Play"))
+        self.open_button = ctk.CTkButton(self.button_frame, text=self.get_text("open_dir"),
+                                         font=ctk.CTkFont(size=12), width=110,
+                                         text_color="white", text_color_disabled="white",
+                                         command=lambda: self.on_button_click("Open Directory"))
         self.reselect_button = ctk.CTkButton(self.button_frame, text=self.get_text("reselect_ppt"),
-                                             font=ctk.CTkFont(size=12), width=110,
-                                             text_color="white", text_color_disabled="white",
+                                             font=ctk.CTkFont(size=12), width=110, border_width=1, hover=False,
+                                             fg_color="transparent", text_color="#2563EB", border_color="#2563EB",
                                              command=lambda: self.on_button_click("Reselect PPT"))
         self.play_button.grid(row=row_offset + 1, column=i * 2, pady=5, padx=(20, 40))
-        self.reselect_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(20, 40))
+        self.open_button.grid(row=row_offset + 2, column=i * 2, pady=5, padx=(20, 40))
+        self.reselect_button.grid(row=row_offset + 3, column=i * 2, pady=5, padx=(20, 40))
         self.update_button(i, self.play_button)
-        self.update_button(i, self.reselect_button)
+        self.update_button(i, self.open_button)
+        self.reselect_button.grid_remove()
 
     def update_button(self, icon_index, button):
         # 根据步骤更新按钮状态
@@ -392,7 +399,19 @@ class PPTFlowApp(ctk.CTk):
             threading.Thread(target=self.generate_video).start()
         elif label_text == "Preview and Play":
             self.play_video()
+        elif label_text == "Open Directory":
+            self.open_video_directory()
         elif label_text == "Reselect PPT":
+            # 添加确认对话框
+            confirm = messagebox.askyesno(
+                "Confirmation",
+                "Are you sure you want to reselect the PPT file?",
+                parent=self  # 确保对话框居中在父窗口
+            )
+            self.update()
+            if not confirm:
+                logger.info("Reselect PPT operation cancelled by user")
+                return
             self.step = 0
             self.file_display = ""
             self.create_workflow_section()
@@ -457,17 +476,24 @@ class PPTFlowApp(ctk.CTk):
                     return False
 
                 # 检查是否包含非英文字符
-                if not re.match(r'^[\x00-\x7F\u2014\u201C\u201D\u2018\u2019]+$', notes):
-                    non_english_chars.update(re.findall(r'[^\x00-\x7F]', notes))
+                # if not re.match(r'^[\x00-\x7F\u2014\u201C\u201D\u2018\u2019]+$', notes):
+                #     non_english_chars.update(re.findall(r'[^\x00-\x7F]', notes))
+
+                for char in notes:
+                    if '\u4e00' <= char <= '\u9fff':
+                        self.setting.language = 'zh'
+                        logger.info(f"Found Chinese characters in notes. Switch language to zh.")
+                        return True
+                self.setting.language = 'en'
 
             # 3. 提示非英文字符错误
-            if non_english_chars:
-                messagebox.showerror("Error",
-                                     f"Non-english characters found: {', '.join(non_english_chars)}\n"
-                                     "Please change the notes to English only!")
-                logger.error(f"Non-english characters found: {', '.join(non_english_chars)}")
-                self.reselect_file()
-                return False
+            # if non_english_chars:
+            #     messagebox.showerror("Error",
+            #                          f"Non-english characters found: {', '.join(non_english_chars)}\n"
+            #                          "Please change the notes to English only!")
+            #     logger.error(f"Non-english characters found: {', '.join(non_english_chars)}")
+            #     self.reselect_file()
+            #     return False
             return True
         except Exception as e:
             messagebox.showerror("Error", f"Unable to open PPT file: {e}")
@@ -482,7 +508,7 @@ class PPTFlowApp(ctk.CTk):
 
             # 显示 ExportSection
             self.adjust_settings = AdjustSettingsFrame(self, self.main_frame)
-            self.adjust_settings.grid(row=1, column=0, padx=(100, 40), pady=(40, 60), sticky="nsew")
+            self.adjust_settings.grid(row=1, column=0, padx=(60, 0), sticky="nsew")
             self.adjust_settings.tkraise()
             self.adjust_settings.grab_set()
         elif name == "Skip Settings":
@@ -541,6 +567,7 @@ class PPTFlowApp(ctk.CTk):
             self.step += 1
             self.generation_flow_2(2)
             self.review_flow_3(3)
+            self.reselect_button.grid()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate video: {str(e)}")
             logger.error(e, exc_info=True)
@@ -569,12 +596,38 @@ class PPTFlowApp(ctk.CTk):
             logger.error(e, exc_info=True)
 
     def reselect_file(self):
+
         self.step = 0
         self.file_label_var.set("")
         self.tooltip = None
         self.setting.video_path = ""
         self.cancel_file.grid_remove()
         self.create_workflow_section()
+
+    def open_video_directory(self):
+        if not self.setting.video_path:
+            messagebox.showerror("Error", "Video path not specified")
+            return
+
+        directory = os.path.dirname(self.setting.video_path)
+
+        try:
+            if not os.path.exists(directory):
+                raise FileNotFoundError(f"Directory not found: {directory}")
+
+            if platform.system() == "Windows":
+                # Windows 使用 explorer
+                os.startfile(directory)
+            else:
+                import subprocess
+                logger.info("Loaded subprocess")
+                opener = "open" if sys.platform == "darwin" else "xdg-open"
+                subprocess.call([opener, directory])
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to open directory: {str(e)}")
+            logger.error(f"Open directory failed: {e}", exc_info=True)
+        pass
 
     def load_ctk_image(self, file_name, size):
         try:

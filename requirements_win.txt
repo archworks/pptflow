@@ -6,3 +6,5 @@ customtkinter==5.2.2
 matplotlib==3.8.4
 azure-cognitiveservices-speech==1.41.1
 kokoro-onnx==0.4.2
+baidu-api==4.16.13
+chardet==5.2.0

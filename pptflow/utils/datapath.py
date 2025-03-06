@@ -49,10 +49,9 @@ def get_install_dir():
 
 env_path = os.path.join(get_absolute_data_path(), ".env")
 init_content = """
-# 配置文件
-# 默认配置文件路径：pptflow/.env
-# 配置文件格式：key=value
-# 配置文件内容：
+# Configuration file
+# Format: key=value
+# Example:
 # TTS_SERVICE_PROVIDER=kokoro
 # Azure TTS
 # TTS_AZURE_SPEECH_KEY=xxxx
@@ -60,6 +59,9 @@ init_content = """
 # Kokoro TTS
 # KOKORO_MODEL_PATH=D:/workspace/pycharm/pptflow/model/kokoro-v1.0.fp16.onnx
 # KOKORO_VOICE_PATH=D:/workspace/pycharm/pptflow/model/voices-v1.0.bin
+# BAIDU_APP_ID=xxxx
+# BAIDU_API_KEY=xxxx
+# BAIDU_SECRET_KEY=xxxx
 """
 # 创建目录（如果不存在）
 os.makedirs(os.path.dirname(env_path), exist_ok=True)
@@ -71,7 +73,7 @@ try:
 except FileExistsError:
     print("The file .env already exists. Skip creation")
 
-load_dotenv(env_path, encoding="gbk")
+load_dotenv(env_path, encoding="utf-8")
 
 
 if __name__ == '__main__':
