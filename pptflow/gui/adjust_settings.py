@@ -153,7 +153,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.app.get_text("baidu_tts_per"): [value for key, value in sd.baidu_voice_persons.items()],
         }
         create_combo_box(frame, 3, tts_settings, self.tts_settings_vars)
-        self.tts_settings_vars[self.app.get_text("baidu_tts_per")].set(self.app.setting.per)
+        self.tts_settings_vars[self.app.get_text("baidu_tts_per")].set(sd.baidu_voice_persons.get(self.app.setting.baidu_tts_per))
 
     def create_azure_settings(self, frame):
         # api key
@@ -414,8 +414,15 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.app.setting.baidu_app_id = app_id
             self.app.setting.baidu_api_key = api_key
             self.app.setting.baidu_secret_key = secret_key
+            tts_voice_per = self.tts_settings_vars[self.app.get_text("baidu_tts_per")].get()
+            tts_voice_per = get_key_by_value(sd.baidu_voice_persons, tts_voice_per)
+            if tts_voice_per != self.app.setting.baidu_tts_per:
+                self.app.clear_audio_cache()
+            self.app.setting.baidu_tts_per = tts_voice_per
             logger.info(f"Updated Baidu settings - App ID: {self.app_id_var.get()}, "
-                        f"API Key: {self.baidu_api_key_var.get()}, Secret Key: {self.baidu_secret_key_var.get()}")
+                        f"API Key: {self.baidu_api_key_var.get()}, "
+                        f"Secret Key: {self.baidu_secret_key_var.get()}, "
+                        f"TTS Voice Person: {self.tts_settings_vars[self.app.get_text('baidu_tts_per')].get()}")
         if tts_service_provider == "azure":
             tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
             tts_speech_region = self.tts_settings_vars[self.app.get_text("tts_speech_region")].get()
@@ -542,3 +549,12 @@ class AdjustSettingsFrame(ctk.CTkFrame):
     def refresh(self):
         if self.export_path_var.get() == "" and self.app.setting.video_path:
             self.export_path_var.set(self.app.setting.video_path)
+
+
+def get_key_by_value(dictionary, target_value):
+    """根据value反向查找字典中的key"""
+    for key, value in dictionary.items():
+        if value == target_value:
+            return key
+    logger.error(f"未找到对应value的key: {target_value}")
+    return None  # 未找到时返回None
