@@ -38,6 +38,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
 
         self.font_size = 12
         self.font = ctk.CTkFont(size=self.font_size, weight="normal")
+        self.help_image = self.app.load_ctk_image(os.path.join(self.app.icon_dir, "question-red.png"), 15)
 
 
 
@@ -121,7 +122,10 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self._baidu_secret_key_real = self.app.setting.baidu_secret_key
         self.app_id_label = ctk.CTkLabel(baidu_api_frame, text='App ID:', font=self.font)
         self.app_id_label.grid(row=0, column=0, sticky="w")
-        self.app_id_help_label = ctk.CTkLabel(baidu_api_frame, text="?", text_color="red",
+
+        self.app_id_help_label = ctk.CTkLabel(baidu_api_frame,
+                                              image=self.help_image,
+                                              text="", text_color="red",
                                               fg_color="transparent", font=self.font)
         self.app_id_help_label.grid(row=0, column=1, padx=5, sticky="w")
         self.app_id_help_tip = CustomTooltip(self.app_id_help_label,
@@ -145,6 +149,11 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.baidu_secret_key = ctk.CTkEntry(frame, width=140, textvariable=self.baidu_secret_key_var,
                                              font=self.font, show="*")
         self.baidu_secret_key.grid(row=5, column=1, padx=5, pady=5, sticky="w")
+        tts_settings = {
+            self.app.get_text("baidu_tts_per"): [value for key, value in sd.baidu_voice_persons.items()],
+        }
+        create_combo_box(frame, 3, tts_settings, self.tts_settings_vars)
+        self.tts_settings_vars[self.app.get_text("baidu_tts_per")].set(self.app.setting.per)
 
     def create_azure_settings(self, frame):
         # api key
@@ -153,7 +162,8 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         api_key_frame.grid(row=3, column=0, padx=5, pady=5, sticky="w")
         self.api_key_label = ctk.CTkLabel(api_key_frame, text=self.app.get_text("tts_api_key"), font=self.font)
         self.api_key_label.grid(row=0, column=0, sticky="w")
-        self.api_key_help_label = ctk.CTkLabel(api_key_frame, text="?", text_color="red",
+        self.api_key_help_label = ctk.CTkLabel(api_key_frame, image=self.help_image,
+                                               text="", text_color="red",
                                                fg_color="transparent", font=self.font)
         self.api_key_help_label.grid(row=0, column=1, padx=5, sticky="w")
         self.api_key_help = CustomTooltip(self.api_key_help_label,
@@ -396,13 +406,16 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.app.setting.kokoro_voice_name = audio_voice_name
             logger.info(f"Updated Kokoro settings - Voice Name: {audio_voice_name}")
         if tts_service_provider == "baidu":
-            app_id = self.app_id_var.get()
-            api_key = self.baidu_api_key_var.get()
-            secret_key = self.baidu_secret_key_var.get()
+            app_id = self.app_id_var.get() if self.app_id_var.get() != "******" else self._app_id_var_real
+            api_key = self.baidu_api_key_var.get() if \
+                self.baidu_api_key_var.get() != "******" else self._baidu_api_key_real
+            secret_key = self.baidu_secret_key_var.get() if \
+                self.baidu_secret_key_var.get() != "******" else self._baidu_secret_key_real
             self.app.setting.baidu_app_id = app_id
             self.app.setting.baidu_api_key = api_key
             self.app.setting.baidu_secret_key = secret_key
-            logger.info(f"Updated Baidu settings - App ID: {app_id}, API Key: {api_key}, Secret Key: {secret_key}")
+            logger.info(f"Updated Baidu settings - App ID: {self.app_id_var.get()}, "
+                        f"API Key: {self.baidu_api_key_var.get()}, Secret Key: {self.baidu_secret_key_var.get()}")
         if tts_service_provider == "azure":
             tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
             tts_speech_region = self.tts_settings_vars[self.app.get_text("tts_speech_region")].get()

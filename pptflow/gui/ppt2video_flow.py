@@ -392,6 +392,7 @@ class PPTFlowApp(ctk.CTk):
         elif label_text == "Cancel Settings":
             self.step = 1
             self.cancel_settings.grid_remove()
+            self.reselect_button.grid_remove()
             self.setting_flow_1(1)
             self.generation_flow_2(2)
             self.review_flow_3(3)
@@ -482,6 +483,7 @@ class PPTFlowApp(ctk.CTk):
                 for char in notes:
                     if '\u4e00' <= char <= '\u9fff':
                         self.setting.language = 'zh'
+                        self.setting.subtitle_length = 35
                         logger.info(f"Found Chinese characters in notes. Switch language to zh.")
                         return True
                 self.setting.language = 'en'

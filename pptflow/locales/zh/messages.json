@@ -47,6 +47,7 @@
     "tts_speech_region": "TTS服务商区域",
     "tts_voice_type": "TTS声音类型",
     "tts_voice_rate": "语速调节：",
+    "baidu_tts_per": "TTS发音人",
     "reset": "重置",
     "audio_settings": "音频设置",
     "audio_engine": "引擎选择",

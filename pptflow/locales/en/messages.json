@@ -47,6 +47,7 @@
         "tts_speech_region": "TTS Speech Region",
         "tts_voice_type": "TTS Voice Type",
         "tts_voice_rate": "TTS Voice Rate:",
+        "baidu_tts_per": "TTS Voice Person",
         "reset": "Reset",
         "audio_settings": "Audio Settings",
         "audio_engine": "Audio Engine",

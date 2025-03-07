@@ -22,7 +22,7 @@ class Setting:
     baidu_app_id: str = '117675325'
     baidu_api_key: str = 'XAzMnN5M5RHrkv6QUYbmeUmS'
     baidu_secret_key: str = 'cmYU6NfDS8ZdDnju7Xq2lsPj1GW6pJHl'
-    per: int = 0
+    per: int = 103
     vol: int = 5
     spd: int = 5
     pit: int = 5
