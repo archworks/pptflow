@@ -9,6 +9,7 @@ import customtkinter as ctk
 from .custom_tooltip import CustomTooltip
 from tkinter import filedialog, messagebox
 from pptflow.utils import mylogger, setting_dic as sd
+from pptflow.utils.datapath import resource_path
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -129,7 +130,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                                               fg_color="transparent", font=self.font)
         self.app_id_help_label.grid(row=0, column=1, padx=5, sticky="w")
         self.app_id_help_tip = CustomTooltip(self.app_id_help_label,
-                                             self.app.get_text("tts_api_key_help"), delay=10)
+                                             self.app.get_text("baidu_api_key_help"), delay=10)
         self.app_id_help_label.bind("<Button-1>", lambda event: self.get_api_key_help(event))
 
         self.app_id_var = ctk.StringVar(value="******" if self._app_id_var_real else "")
@@ -531,12 +532,13 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.export_path_var.set(path)
 
     def get_api_key_help(self, event):
-        api_key_help_url = "https://pptflow.com/en/blog/set-up-azure-tts"
         if self.tts_providers_var.get() == "azure":
             api_key_help_url = "https://pptflow.com/en/blog/set-up-azure-tts"
+            webbrowser.open(api_key_help_url)
         elif self.tts_providers_var.get() == "baidu":
-            api_key_help_url = "https://pptflow.com/en/blog/set-up-azure-tts"
-        webbrowser.open(api_key_help_url)
+            doc_path = resource_path(os.path.join("docs", "baidu-tts.md"))
+            webbrowser.open(f"file://{os.path.abspath(doc_path)}")
+
 
     def update_language(self):
         self.create_audio_settings()

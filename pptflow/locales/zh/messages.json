@@ -44,6 +44,7 @@
     "tts_service_provider": "TTS服务商：",
     "tts_api_key": "TTS API 秘钥：",
     "tts_api_key_help": "请填写Azure文本转语音服务的API秘钥。详情请参考https://pptflow.com/en/blog/set-up-azure-tts。点击进行访问。",
+    "baidu_api_key_help": "请填写Baidu语音合成的APPID、API秘钥、Secret秘钥。你可以参考帮助文档。点击进行访问。",
     "tts_speech_region": "TTS服务商区域",
     "tts_voice_type": "TTS声音类型",
     "tts_voice_rate": "语速调节：",

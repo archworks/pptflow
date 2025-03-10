@@ -44,6 +44,7 @@
         "tts_service_provider": "TTS Service Provider:",
         "tts_api_key": "TTS API Key:",
         "tts_api_key_help": "Please enter your Azure TTS API key. Please refer to https://pptflow.com/en/blog/set-up-azure-tts for details. Click to visit.",
+        "baidu_api_key_help": "Please enter your Baidu TTS APPID, API key, Secret key. You can refer to the help documentation. Click to visit.",
         "tts_speech_region": "TTS Speech Region",
         "tts_voice_type": "TTS Voice Type",
         "tts_voice_rate": "TTS Voice Rate:",
