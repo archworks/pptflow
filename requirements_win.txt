@@ -8,3 +8,5 @@ azure-cognitiveservices-speech==1.41.1
 kokoro-onnx==0.4.2
 baidu-api==4.16.13
 chardet==5.2.0
+soundfile==0.13.1
+ratelimit==2.2.1

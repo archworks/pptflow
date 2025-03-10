@@ -153,7 +153,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.app.get_text("baidu_tts_per"): [value for key, value in sd.baidu_voice_persons.items()],
         }
         create_combo_box(frame, 5, tts_settings, self.tts_settings_vars)
-        self.tts_settings_vars[self.app.get_text("baidu_tts_per")].set(sd.baidu_voice_persons.get(self.app.setting.baidu_tts_per))
+        self.tts_settings_vars[self.app.get_text("baidu_tts_per")].set(sd.baidu_voice_persons.get(self.app.setting.per))
 
     def create_azure_settings(self, frame):
         # api key
@@ -416,9 +416,9 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.app.setting.baidu_secret_key = secret_key
             tts_voice_per = self.tts_settings_vars[self.app.get_text("baidu_tts_per")].get()
             tts_voice_per = get_key_by_value(sd.baidu_voice_persons, tts_voice_per)
-            if tts_voice_per != self.app.setting.baidu_tts_per:
+            if tts_voice_per != self.app.setting.per:
                 self.app.clear_audio_cache()
-            self.app.setting.baidu_tts_per = tts_voice_per
+            self.app.setting.per = tts_voice_per
             logger.info(f"Updated Baidu settings - App ID: {self.app_id_var.get()}, "
                         f"API Key: {self.baidu_api_key_var.get()}, "
                         f"Secret Key: {self.baidu_secret_key_var.get()}, "

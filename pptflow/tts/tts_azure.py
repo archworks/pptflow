@@ -92,7 +92,7 @@ class AzureTtsService(TtsService):
                 voice_list = json.load(file)
                 self.logger.info(f"Voice list has been loaded from {filename}")
             return [f'{voice["ShortName"]} ({voice["Locale"]}, {voice["Gender"]})'
-                    for voice in voice_list if voice["ShortName"].split('-')[0] in ['zh', 'en']]
+                    for voice in voice_list if voice["ShortName"].split('-')[0] == setting.language]
         except Exception as e:
             self.logger.error(f"Error occurred: {e}", exc_info=True)
             self.logger.error(

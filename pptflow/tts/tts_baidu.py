@@ -11,6 +11,7 @@ from aip import AipSpeech
 from pptflow.tts.tts_service import TtsService
 from pptflow.config.setting import Setting
 from pptflow.utils import mylogger
+from ratelimit import limits, sleep_and_retry
 
 
 class BaiduTtsService(TtsService):
@@ -20,13 +21,16 @@ class BaiduTtsService(TtsService):
         # 参数合法性校验配置
         # 发音人选择, 基础音库：0为度小美，1为度小宇，3为度逍遥，4为度丫丫，
         # 精品音库：5为度小娇，103为度米朵，106为度博文，110为度小童，111为度小萌，默认为度小美
+        # 臻品银库：4140为度小新-专业女主播，4278为度小贝-知识女主播，4129为度小彦-知识男主播
         self._valid_params = {
-            'per': {0, 1, 3, 4, 5, 103, 106, 110, 111},  # 合法发音人ID
+            'per': {0, 1, 3, 4, 5, 103, 106, 110, 111, 4140, 4278, 4129, 4226, 4277, 6602},  # 合法发音人ID
             'vol': lambda x: 0 <= x <= 15,  # 音量范围校验
             'spd': lambda x: 0 <= x <= 15,  # 语速范围校验
             'pit': lambda x: 0 <= x <= 15  # 音调范围校验
         }
 
+    @sleep_and_retry
+    @limits(calls=2, period=1)
     async def tts(
             self,
             text: str,
