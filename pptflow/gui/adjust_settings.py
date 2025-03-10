@@ -152,7 +152,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         tts_settings = {
             self.app.get_text("baidu_tts_per"): [value for key, value in sd.baidu_voice_persons.items()],
         }
-        create_combo_box(frame, 3, tts_settings, self.tts_settings_vars)
+        create_combo_box(frame, 5, tts_settings, self.tts_settings_vars)
         self.tts_settings_vars[self.app.get_text("baidu_tts_per")].set(sd.baidu_voice_persons.get(self.app.setting.baidu_tts_per))
 
     def create_azure_settings(self, frame):
@@ -426,7 +426,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         if tts_service_provider == "azure":
             tts_voice_type = self.tts_settings_vars[self.app.get_text("tts_voice_type")].get()
             tts_speech_region = self.tts_settings_vars[self.app.get_text("tts_speech_region")].get()
-            tts_api_key = self.api_key_var.get()
+            tts_api_key = self.api_key_var.get() if self.api_key_var.get() != "******" else self._api_key_real
             if tts_voice_type != self.app.setting.tts_voice_type:
                 self.app.clear_audio_cache()
             self.app.setting.tts_api_key = tts_api_key
