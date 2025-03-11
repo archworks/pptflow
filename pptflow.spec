@@ -32,6 +32,7 @@ a = Analysis(
         ('pptflow/locales', 'pptflow/locales'),
         ('assets', 'assets'),
         ('model', 'model'),
+        ('docs', 'docs'),
         (language_tags, 'language_tags/data/json/'),
         (espeakng_loader, 'espeakng_loader/'),
     ],

@@ -41,8 +41,6 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.font = ctk.CTkFont(size=self.font_size, weight="normal")
         self.help_image = self.app.load_ctk_image(os.path.join(self.app.icon_dir, "question-red.png"), 15)
 
-
-
         # Create scrollable frame for settings
         self.scrollable_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.scrollable_frame.grid(row=0, column=0, padx=70, pady=(30, 0), sticky="nsew")
@@ -81,7 +79,8 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         )
         self.language_setting_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
         self.language_settings_var.set(self.app.get_text(self.app.setting.language))
-        self.language_settings = ctk.CTkComboBox(frame, values=[self.app.get_text(s) for s in sd.audio_languages], state="readonly",
+        self.language_settings = ctk.CTkComboBox(frame, values=[self.app.get_text(s) for s in sd.audio_languages],
+                                                 state="readonly",
                                                  variable=self.language_settings_var, font=self.font)
         self.language_settings.grid(row=2, column=1, padx=5, pady=5, sticky="w")
         # 绑定选择变化的事件
@@ -325,7 +324,8 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                 from pptflow.utils import font
                 self.utils_font = font
                 if not self.app.setting.subtitle_font_path:
-                    self.app.setting.subtitle_font_path = self.utils_font.find_font_path(self.app.setting.subtitle_font_name)
+                    self.app.setting.subtitle_font_path = self.utils_font.find_font_path(
+                        self.app.setting.subtitle_font_name)
                 sd.subtitle_font_dict = self.utils_font.get_or_load_fonts()
                 self.subtitle_settings = {
                     self.app.get_text("font_type"): [key for key in sd.subtitle_font_dict],
@@ -537,8 +537,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             webbrowser.open(api_key_help_url)
         elif self.tts_providers_var.get() == "baidu":
             doc_path = resource_path(os.path.join("docs", "baidu-tts.md"))
-            webbrowser.open(f"file://{os.path.abspath(doc_path)}")
-
+            webbrowser.open_new_tab(f"file://{doc_path}")
 
     def update_language(self):
         self.create_audio_settings()
