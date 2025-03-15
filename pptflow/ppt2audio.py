@@ -237,7 +237,11 @@ def split_long_sentence(sentence, max_chars):
 
 async def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_prefix, setting):
     subtitle_file, audio_clips = None, []
-    text_segments = split_text(text, language=setting.language, max_chars=setting.subtitle_length)
+    if setting.subtitle_polishing_enabled:
+        from pptflow.utils.text_polishing import get_polishing_text
+        text_segments = get_polishing_text(text, setting)
+    else:
+        text_segments = split_text(text, language=setting.language, max_chars=setting.subtitle_length)
     logger.info(f'text_segments: {text_segments}')
 
     audio_file_path = os.path.join(setting.audio_dir_path, f"{filename_prefix}-P{page_index + 1}.mp3")

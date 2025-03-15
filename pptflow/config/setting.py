@@ -46,6 +46,8 @@ class Setting:
     subtitle_stroke_color: str = 'black'  # subtitle outline color
     subtitle_stroke_width: int = 1  # subtitle outline width
     subtitle_length: int = None
+    subtitle_polishing_enabled: bool = False
+    subtitle_style: str = 'presentation'
 
     # 2.Advanced Settings
     # PPT settings

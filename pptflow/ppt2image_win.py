@@ -15,10 +15,7 @@ class PptToImageWin(PptToImage):
         Application = None
         try:
             # Create a PowerPoint application object
-            Application = win32com.client.gencache.EnsureDispatch("Kwpp.Application")
-
-            if Application is None:
-                Application = win32com.client.Dispatch("PowerPoint.Application")
+            Application = win32com.client.gencache.EnsureDispatch("PowerPoint.Application")
 
             # Open the presentation without making it visible
             Presentation = Application.Presentations.Open(input_ppt_path, ReadOnly=True, WithWindow=False)
@@ -51,6 +48,9 @@ class PptToImageWin(PptToImage):
             # Close the presentation
             Presentation.Close()
         except Exception as e:
+            # 自动清理缓存后重试
+            os.system('rmdir /s /q %temp%\\gen_py')
+            Application = win32com.client.Dispatch("PowerPoint.Application")
             self.logger.error(f"An error occurred: {e}", exc_info=True)
             self.logger.error("Please run the program in non-admin mode or check COM registration.")
         finally:

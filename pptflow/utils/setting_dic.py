@@ -67,10 +67,20 @@ audio_voice_type = ["zh-CN-YunjianNeural", "zh-CN-XiaoxiaoNeural"]
 audio_speeds = ["1.0x", "0.8x", "1.2x", "1.5x"]
 audio_languages = ['en', 'zh']
 # Subtitle settings
-subtitle_lengths = ["20", "35", "50", "70", "100"]
+subtitle_lengths = ["12", "16", "18", "24", "30"]
 subtitle_font_dict = {}
 font_colors = ['white', 'black', 'red', 'blue', 'yellow', 'green']
 border_colors = ['black', 'white', 'no_color']
 border_widths = ["0", "1", "2", "3", "4"]
+STYLE_MAP = {
+        "presentation": "演讲风格（段落间有空行）",
+        "video_script": "视频脚本风格（短句，口语化）",
+        "storytelling": "故事叙述风格（感官描写）",
+        "academic": "学术风格（数据引用）",
+        "formal": "正式风格（专业术语）",
+        "casual": "休闲风格（日常话术）",
+        "poetic": "诗情画意风格（verse）",
+        "humor": "幽默风格（ Sarcasm）",
+    }
 # Language Settings
 language_mode = ['en', 'zh']

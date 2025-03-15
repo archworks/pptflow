@@ -68,8 +68,12 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             text=self.app.get_text("tts_service_provider"), font=self.font
         )
         self.tts_providers_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        # set the default options for the combo box based on the current language
+        # 如果当前语言没有对应的选项，则使用默认选项
         providers = sd.tts_service_providers.get(self.app.setting.language, ["kokoro", "baidu", "azure"])
-        self.tts_providers_var.set(providers[0])
+        provider = self.app.setting.tts_service_provider \
+            if self.app.setting.tts_service_provider in providers else providers[0]
+        self.tts_providers_var.set(provider)
         self.tts_providers = ctk.CTkComboBox(frame, values=providers, state="readonly",
                                              variable=self.tts_providers_var, font=self.font)
         self.tts_providers.grid(row=1, column=1, padx=5, pady=5, sticky="w")
@@ -327,15 +331,27 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                     self.app.setting.subtitle_font_path = self.utils_font.find_font_path(
                         self.app.setting.subtitle_font_name)
                 sd.subtitle_font_dict = self.utils_font.get_or_load_fonts()
+                self.subtitle_polishing_label = ctk.CTkLabel(self.subtitle_settings_frame, font=self.font,
+                                                             text=self.app.get_text("subtitle_polishing"))
+                self.subtitle_polishing_label.grid(row=0, column=0, padx=5, pady=10, sticky="w")
+                self.subtitle_polishing_var = ctk.BooleanVar(value=self.app.setting.subtitle_polishing_enabled)
+                self.subtitle_polishing = ctk.CTkSwitch(
+                    self.subtitle_settings_frame, text="", font=self.font,
+                    width=20, height=20,
+                    variable=self.subtitle_polishing_var, onvalue=True, offvalue=False
+                )
+                self.subtitle_polishing.grid(row=0, column=1, padx=5, pady=10, sticky="w")
                 self.subtitle_settings = {
+                    self.app.get_text("subtitle_style"): [self.app.get_text(s) for s in sd.STYLE_MAP.keys()],
                     self.app.get_text("font_type"): [key for key in sd.subtitle_font_dict],
                     self.app.get_text("font_size"): [str(i) for i in range(18, 49, 2)],
                     self.app.get_text("font_color"): [self.app.get_text(s) for s in sd.font_colors],
                     self.app.get_text("subtitle_length"): [self.app.get_text(s) for s in sd.subtitle_lengths],
                     self.app.get_text("border_color"): [self.app.get_text(s) for s in sd.border_colors],
-                    self.app.get_text("border_width"): sd.border_widths
+                    self.app.get_text("border_width"): sd.border_widths,
                 }
-                create_combo_box(self.subtitle_settings_frame, 0, self.subtitle_settings, self.subtitle_settings_vars)
+                create_combo_box(self.subtitle_settings_frame, 1, self.subtitle_settings, self.subtitle_settings_vars)
+                self.subtitle_settings_vars[self.app.get_text("subtitle_style")].set(self.app.setting.subtitle_style)
                 self.subtitle_settings_vars[self.app.get_text("font_type")].set(self.app.setting.subtitle_font_name)
                 self.subtitle_settings_vars[self.app.get_text("font_size")].set(self.app.setting.subtitle_font_size)
                 self.subtitle_settings_vars[self.app.get_text("font_color")].set(
@@ -434,8 +450,9 @@ class AdjustSettingsFrame(ctk.CTkFrame):
             self.app.setting.tts_voice_type = tts_voice_type
             self.app.setting.tts_voice_name = tts_voice_type.split(' ')[0]
             self.app.setting.tts_speech_region = tts_speech_region
-            logger.info(f"Updated Azure settings - API Key: {tts_api_key}, Speech Region: {tts_speech_region}, "
-                        f"Voice Type: {tts_voice_type}")
+            logger.info(
+                f"Updated Azure settings - API Key: {self.api_key_var.get()}, Speech Region: {tts_speech_region}, "
+                f"Voice Type: {tts_voice_type}")
         self.app.tts = self.app.load_tts(self.app.setting.tts_service_provider)
 
     def update_video_settings(self):
@@ -454,12 +471,18 @@ class AdjustSettingsFrame(ctk.CTkFrame):
                     f"Threads: {video_processing_threads}")
 
     def update_subtitle_settings(self):
+        subtitle_polishing_enabled = self.subtitle_polishing_var.get()
+        subtitle_style = self.subtitle_settings_vars[self.app.get_text("subtitle_style")].get()
+        if subtitle_polishing_enabled or subtitle_style != self.app.setting.subtitle_style:
+            self.app.clear_audio_cache()
         subtitle_font = self.subtitle_settings_vars[self.app.get_text("font_type")].get()
         subtitle_font_size = self.subtitle_settings_vars[self.app.get_text("font_size")].get()
         subtitle_font_color = self.subtitle_settings_vars[self.app.get_text("font_color")].get().lower()
         subtitle_length = self.subtitle_settings_vars[self.app.get_text("subtitle_length")].get()
         subtitle_border_color = self.subtitle_settings_vars[self.app.get_text("border_color")].get().lower()
         subtitle_border_width = self.subtitle_settings_vars[self.app.get_text("border_width")].get()
+        self.app.setting.subtitle_polishing_enabled = subtitle_polishing_enabled
+        self.app.setting.subtitle_style = subtitle_style
         self.app.setting.subtitle_font_path = sd.subtitle_font_dict[subtitle_font] if \
             len(sd.subtitle_font_dict) > 0 else self.utils_font.get_or_load_fonts()[subtitle_font]
         self.app.setting.subtitle_font_size = int(subtitle_font_size)
@@ -467,7 +490,8 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.app.setting.subtitle_length = int(subtitle_length)
         self.app.setting.subtitle_stroke_color = self.app.text_to_key(subtitle_border_color)
         self.app.setting.subtitle_stroke_width = int(subtitle_border_width)
-        logger.info(f"Updated subtitle settings - Font: {subtitle_font}, "
+        logger.info(f"Updated subtitle settings - Polishing: {subtitle_polishing_enabled}, Style: {subtitle_style}, "
+                    f"Font: {subtitle_font}, "
                     f"Font Path: {self.app.setting.subtitle_font_path}, Font Size: {subtitle_font_size}, "
                     f"Font Color: {subtitle_font_color}, Subtitle Length: {subtitle_length}, "
                     f"Border Color: {subtitle_border_color}, Border Width: {subtitle_border_width}")
