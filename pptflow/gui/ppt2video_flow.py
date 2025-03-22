@@ -483,7 +483,7 @@ class PPTFlowApp(ctk.CTk):
                 for char in notes:
                     if '\u4e00' <= char <= '\u9fff':
                         self.setting.language = 'zh'
-                        self.setting.subtitle_length = 35
+                        self.setting.subtitle_length = 18
                         logger.info(f"Found Chinese characters in notes. Switch language to zh.")
                         return True
                 self.setting.language = 'en'

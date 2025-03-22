@@ -110,7 +110,7 @@ class BaiduTtsService(TtsService):
         """构建合成参数，设置默认值"""
         return {
             'vol': getattr(setting, 'vol', 5),
-            'per': getattr(setting, 'per', 0),
+            'per': getattr(setting, 'per', 4226),
             'spd': getattr(setting, 'spd', 5),
             'pit': getattr(setting, 'pit', 5)
         }

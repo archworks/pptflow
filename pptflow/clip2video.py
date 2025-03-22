@@ -59,7 +59,7 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
                                                  method='caption',
                                                  size=(int(video_clip.w * 0.9), None))
                 subtitles = SubtitlesClip(subtitles=subtitle_file_path, make_textclip=generator)
-                video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.85))])
+                video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.91))])
 
             clips.append(video_clip)
             # Update progress (70% for clip creation, 30% for final rendering)

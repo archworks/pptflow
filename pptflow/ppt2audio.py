@@ -110,8 +110,16 @@ def split_text(text, language="en", max_chars=None, max_segment_chars=None):
     # 根据语言自动设置 max_chars
     max_chars, max_segment_chars = set_defaults(max_chars, max_segment_chars, language)
 
-    # 主要分隔符：中英文标点、换行
-    delimiters = r'([,.;:!?，。；：！？\n])'
+    # 根据语言设置分隔符
+    if language == "zh":
+        # 中文分隔符：，。；：！？、和换行
+        delimiters = r'([，。；：！？\n])'
+    elif language == "en":
+        # 英文分隔符：,.!?:;和换行
+        delimiters = r'([,.!?:;\n])'
+    else:
+        # 默认保留原有分隔符集合
+        delimiters = r'([,.;:!?，。；：！？\n])'
 
     # 按标点拆分并保留分隔符
     sentences = re.split(delimiters, text)
@@ -124,18 +132,23 @@ def split_text(text, language="en", max_chars=None, max_segment_chars=None):
         if re.match(delimiters, part):  # 这是标点，拼接到前面
             temp_sentence += part
         elif temp_sentence:  # 如果当前有缓存的部分，则将完整句子加入列表
-            merged_sentences.append(temp_sentence.strip())
+            if temp_sentence.strip():
+                merged_sentences.append(temp_sentence.strip())
             temp_sentence = part
         else:  # 否则开始新的句子
             temp_sentence = part
     if temp_sentence:
-        merged_sentences.append(temp_sentence.strip())
+        stripped = temp_sentence.strip()
+        if stripped:  # 新增最终过滤
+            merged_sentences.append(stripped)
 
     # 结果分段
     result = []
     current_segment = ""
 
     for sentence in merged_sentences:
+        if not sentence:  # 新增空字符串检查
+            continue
         if len(sentence) > max_chars:
             # 需要对过长的句子进行进一步拆分
             sub_sentences = split_long_sentence(sentence, max_segment_chars)
