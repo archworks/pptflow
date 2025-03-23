@@ -1,7 +1,7 @@
 import os
-from .ppt2image import PptToImage
-from .utils import mylogger
-from .config.setting import Setting
+from pptflow.ppt2image import PptToImage
+from pptflow.utils import mylogger
+from pptflow.config.setting import Setting
 
 if os.name == "nt":
     import win32com.client
@@ -39,6 +39,7 @@ class PptToImageWin(PptToImage):
                 )
                 # Export the slide as an image
                 slide.Export(image_file_path, "PNG", setting.video_width, setting.video_height)
+                self.logger.info(f"Saved: {image_file_path}")
 
                 # Update progress
                 if progress_tracker:
@@ -57,3 +58,12 @@ class PptToImageWin(PptToImage):
             # Quit the PowerPoint application
             if Application:
                 Application.Quit()
+
+
+if __name__ == '__main__':
+    setting = Setting()
+    ppt_to_image = PptToImageWin()
+    ppt_to_image.convert(
+        input_ppt_path="D:/workspace/ppt/孩子如何合理使用DeepSeek.pptx",
+        setting=setting
+    )

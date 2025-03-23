@@ -12,3 +12,5 @@ chardet==5.2.0
 soundfile==0.13.1
 ratelimit==2.2.1
 openapi==1.66.3
+python-docx==1.1.2
+pymupdf==1.25.4

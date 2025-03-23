@@ -10,6 +10,8 @@ class Setting:
     language = 'en'
     # PPT settings
     ppt_total_slides: int = None
+    external_notes_path: str = None  # 新增外部笔记文件路径
+    has_notes: bool = False
     # Audio settings
     tts_service_provider: str = None
     tts_api_key: str = None

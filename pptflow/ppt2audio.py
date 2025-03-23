@@ -38,6 +38,11 @@ async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None)
         presentation = Presentation(input_ppt_path)
         file_name_without_ext = os.path.basename(input_ppt_path).split('.')[0]
 
+        # 新增外部笔记解析逻辑
+        external_notes = {}
+        if setting.external_notes_path:
+            external_notes = parse_external_notes(setting.external_notes_path)
+
         # Create a dir to save the slides as images
         if not os.path.exists(setting.audio_dir_path):
             os.makedirs(setting.audio_dir_path)
@@ -55,11 +60,20 @@ async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None)
                 continue
             if setting.end_page_num and idx + 1 > setting.end_page_num:
                 continue
+
+            note_text = ""
+            current_page = idx + 1
+
             # Check if the slide has a notes section. If it does, to generate audio and subtitles for it.
-            if slide.has_notes_slide:
-                notes_slide = slide.notes_slide
-                # Get the text from the notes section
-                note_text = notes_slide.notes_text_frame.text
+            if setting.has_notes:
+                if slide.has_notes_slide:
+                    notes_slide = slide.notes_slide
+                    note_text = notes_slide.notes_text_frame.text
+            elif external_notes:
+                note_text = external_notes.get(current_page, "")
+                logger.info(f"Using external notes for page {current_page}")
+
+            if note_text:
                 # Generate audio and subtitles
                 start_time = time.time()
                 await generate_audio_and_subtitles(tts, note_text, len(presentation.slides), idx,
@@ -74,6 +88,39 @@ async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None)
     except Exception as e:
         logger.error(f"An error occurred: {e}", exc_info=True)
         raise e
+
+
+def parse_external_notes(file_path):
+    """解析外部笔记文件"""
+    notes = {}
+    try:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"External notes file not found: {file_path}")
+
+        # 解析不同文件格式
+        if file_path.endswith('.txt'):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+        elif file_path.endswith('.docx'):
+            from docx import Document
+            doc = Document(file_path)
+            content = "\n".join([para.text for para in doc.paragraphs])
+        else:
+            raise ValueError("Unsupported file format")
+
+        # 使用正则表达式匹配页码
+        pattern = r'第\s*(\d+)\s*页[：:]?\s*(.*?)(?=\n第|\Z)'
+        matches = re.findall(pattern, content, re.DOTALL)
+
+        for match in matches:
+            page_num = int(match[0])
+            page_content = match[1].strip()
+            notes[page_num] = page_content
+
+        return notes
+    except Exception as e:
+        logger.error(f"Failed to parse external notes: {e}")
+        raise
 
 
 def get_default_max_chars(language):

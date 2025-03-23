@@ -462,40 +462,22 @@ class PPTFlowApp(ctk.CTk):
                 self.reselect_file()
                 return False
 
-            # 2. 检查备注和英文内容
-            has_notes = False
-            non_english_chars = set()
-
+            # 2. 遍历所有幻灯片检查备注
             for slide in presentation.slides:
                 notes = slide.notes_slide.notes_text_frame.text.strip()
 
-                # 检查备注是否存在
-                if not notes:
-                    messagebox.showerror("Error", f"There are slides without notes, please add!")
-                    logger.error(f"There are slides without notes, please add!")
-                    self.reselect_file()
-                    return False
-
-                # 检查是否包含非英文字符
-                # if not re.match(r'^[\x00-\x7F\u2014\u201C\u201D\u2018\u2019]+$', notes):
-                #     non_english_chars.update(re.findall(r'[^\x00-\x7F]', notes))
-
-                for char in notes:
-                    if '\u4e00' <= char <= '\u9fff':
-                        self.setting.language = 'zh'
-                        self.setting.subtitle_length = 18
-                        logger.info(f"Found Chinese characters in notes. Switch language to zh.")
-                        return True
-                self.setting.language = 'en'
-
-            # 3. 提示非英文字符错误
-            # if non_english_chars:
-            #     messagebox.showerror("Error",
-            #                          f"Non-english characters found: {', '.join(non_english_chars)}\n"
-            #                          "Please change the notes to English only!")
-            #     logger.error(f"Non-english characters found: {', '.join(non_english_chars)}")
-            #     self.reselect_file()
-            #     return False
+                # 只要有一页存在非空备注，就将has_notes设为True
+                if notes:
+                    self.setting.has_notes = True  # 标记存在备注
+                    # 3. 中文检测逻辑
+                    for char in notes:
+                        if '\u4e00' <= char <= '\u9fff':
+                            self.setting.language = 'zh'
+                            self.setting.subtitle_length = 18
+                            logger.info("Found Chinese characters in notes. Switch language to zh.")
+                            return True
+            # 4. 设置默认语言
+            self.setting.language = 'en'
             return True
         except Exception as e:
             messagebox.showerror("Error", f"Unable to open PPT file: {e}")
