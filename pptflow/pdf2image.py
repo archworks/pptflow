@@ -1,6 +1,8 @@
 import os
 import pymupdf
 from pptflow.config.setting import Setting
+from pptflow.utils.mylogger import get_logger
+logger = get_logger(__name__)
 
 
 def pdf_to_image(pdf_path, setting):
@@ -33,7 +35,7 @@ def pdf_to_image(pdf_path, setting):
             setting.image_dir_path, f"{file_name_without_ext}-P{page_number + 1}.png"
         )
         pix.save(output_image_path)
-        print(f"Saved: {output_image_path}")
+        logger.info(f"Saved: {output_image_path}")
 
     # close the PDF file
     pdf_document.close()

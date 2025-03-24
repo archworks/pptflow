@@ -3,9 +3,9 @@ import os
 import re
 from moviepy import AudioFileClip
 from moviepy.audio.AudioClip import concatenate_audioclips
+from pptflow.config.setting import Setting
 from pptflow.utils import mylogger
 import asyncio
-import time
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -33,61 +33,119 @@ def del_file_text_del_cache(audio_file_path):
         os.remove(note_text_path)
 
 
-async def ppt_note_to_audio(tts, input_ppt_path, setting, progress_tracker=None):
+async def ppt_note_to_audio(tts, input_path, setting, progress_tracker=None):
     try:
-        presentation = Presentation(input_ppt_path)
-        file_name_without_ext = os.path.basename(input_ppt_path).split('.')[0]
-
-        # 新增外部笔记解析逻辑
-        external_notes = {}
-        if setting.external_notes_path:
-            external_notes = parse_external_notes(setting.external_notes_path)
-
+        # 获取基础文件名（来自PPT文件或用户指定）
+        file_name = os.path.basename(input_path).split('.')[0]
         # Create a dir to save the slides as images
         if not os.path.exists(setting.audio_dir_path):
             os.makedirs(setting.audio_dir_path)
+        # 判断输入类型（PPT文件或图片目录）
+        if input_path.lower().endswith('.pptx'):
+            pages = process_pptx(input_path, setting)
+        elif input_path.lower().endswith('.pdf'):
+            pages = process_image_dir(setting.image_dir_path, file_name)
+        else:
+            raise ValueError("Unsupported file type")
 
-        total_slides = len(presentation.slides)
-        if total_slides == 0:
-            logger.error("No slides found in the PPT file.")
-            raise ValueError("No slides found")
+        processed_count = 0
 
-        processed_slides = 0
-        # Go through each slide
-        for idx, slide in enumerate(presentation.slides):
-            # Checks whether the current slide falls within the specified start and end page ranges
-            if setting.start_page_num and idx + 1 < setting.start_page_num:
+        for page in pages:
+            if setting.start_page_num and page['number'] < setting.start_page_num:
                 continue
-            if setting.end_page_num and idx + 1 > setting.end_page_num:
+            if setting.end_page_num and page['number'] > setting.end_page_num:
                 continue
 
-            note_text = ""
-            current_page = idx + 1
-
-            # Check if the slide has a notes section. If it does, to generate audio and subtitles for it.
-            if setting.has_notes:
-                if slide.has_notes_slide:
-                    notes_slide = slide.notes_slide
-                    note_text = notes_slide.notes_text_frame.text
-            elif external_notes:
-                note_text = external_notes.get(current_page, "")
-                logger.info(f"Using external notes for page {current_page}")
-
+            note_text = get_note_text(page, setting)
+            logger.info(f"Processing page {page['number']}: {note_text}")
             if note_text:
-                # Generate audio and subtitles
-                start_time = time.time()
-                await generate_audio_and_subtitles(tts, note_text, len(presentation.slides), idx,
-                                                   file_name_without_ext, setting)
+                await process_page(
+                    tts=tts,
+                    page=page,
+                    note_text=note_text,
+                    filename_prefix=file_name,
+                    setting=setting
+                )
 
-                processed_slides += 1
-                if progress_tracker:
-                    progress = processed_slides / total_slides
-                    progress_tracker.update_step(progress)
+            processed_count += 1
+            if progress_tracker:
+                progress = processed_count / len(pages)
+                progress_tracker.update_step(progress)
 
-                logger.info(f"ppt_note_to_audio runtime: {time.time() - start_time:.2f} seconds")
     except Exception as e:
         logger.error(f"An error occurred: {e}", exc_info=True)
         raise e
+
+
+def process_pptx(ppt_path, setting):
+    """处理PPT文件"""
+    presentation = Presentation(ppt_path)
+    return [{
+        'number': idx + 1,
+        'slide': slide,
+        'type': 'pptx'
+    } for idx, slide in enumerate(presentation.slides)]
+
+
+def process_image_dir(img_dir, filename_prefix):
+    """处理图片目录"""
+    # 使用正则表达式严格匹配文件名格式
+    pattern = re.compile(
+        r"^{prefix}-P(\d+)\.(?:png|jpg|jpeg)$".format(
+            prefix=re.escape(filename_prefix)  # 转义特殊字符
+        ),
+        re.IGNORECASE  # 忽略大小写
+    )
+
+    images = []
+    for fname in os.listdir(img_dir):
+        match = pattern.match(fname)
+        if match:
+            images.append({
+                'path': os.path.join(img_dir, fname),
+                'number': int(match.group(1)),  # 提取页码
+                'type': 'pdf'
+            })
+
+    # 按页码排序并验证连续性
+    images.sort(key=lambda x: x['number'])
+    validate_page_continuity(images, filename_prefix)
+    if not images:
+        raise ValueError(f"No images found in {img_dir}")
+    logger.info(f"Found {len(images)} image files")
+
+    return images
+
+
+def validate_page_continuity(images, prefix):
+    """验证页码连续性"""
+    expected = 1
+    for img in images:
+        if img['number'] != expected:
+            raise ValueError(
+                f"Missing page {expected} for {prefix}. "
+                f"Found page {img['number']} instead."
+            )
+        expected += 1
+
+
+def get_note_text(page, setting):
+    """统一获取备注文本"""
+    if setting.has_notes:
+        return page['slide'].notes_slide.notes_text_frame.text
+    else:
+        return parse_external_notes(setting.external_notes_path).get(page['number'], "")
+
+
+async def process_page(tts, page, note_text, filename_prefix, setting):
+    """统一处理单页"""
+    await generate_audio_and_subtitles(
+        tts=tts,
+        text=note_text,
+        page_number=page['number'],  # 修改参数为page_number
+        filename_prefix=filename_prefix,
+        setting=setting
+    )
 
 
 def parse_external_notes(file_path):
@@ -134,7 +192,7 @@ def get_default_max_chars(language):
 def get_default_max_segment_chars(language):
     defaults = {
         "zh": 35,  # 中文每段字幕最大字符数
-        "en": 100  # 英文每段字幕最大字符数
+        "en": 60  # 英文每段字幕最大字符数
     }
     return defaults.get(language, None)
 
@@ -156,6 +214,7 @@ def set_defaults(max_chars, max_segment_chars, language):
 def split_text(text, language="en", max_chars=None, max_segment_chars=None):
     # 根据语言自动设置 max_chars
     max_chars, max_segment_chars = set_defaults(max_chars, max_segment_chars, language)
+    logger.info(f"Splitting text into segments with max_chars={max_chars} and max_segment_chars={max_segment_chars}")
 
     # 根据语言设置分隔符
     if language == "zh":
@@ -221,13 +280,13 @@ def split_text(text, language="en", max_chars=None, max_segment_chars=None):
                 result.append(current_segment)
                 current_segment = sentence
 
-    if current_segment:
-        result.append(current_segment)
+    if current_segment and current_segment.strip():
+        result.append(current_segment.strip())
 
     return result
 
 
-def split_long_sentence(sentence, max_chars):
+def split_long_sentence(sentence, max_segment_chars):
     """
     将过长的句子按空格或合适位置拆分，避免影响语义。
     增加了对连词、引导词和介词的特殊处理，避免拆分不必要的部分。
@@ -236,7 +295,7 @@ def split_long_sentence(sentence, max_chars):
 
     # 定义连词、引导词、介词的词表（可以根据需要扩展）
     conjunctions = ["and", "or", "but", "so", "yet", "for", "nor"]
-    prepositions = ["by", "on", "at", "in", "with", "about", "to", "from"]
+    prepositions = ["by", "on", "at", "in", "with", "about", "to", "from", "of"]
     relative_pronouns = ["who", "which", "that", "whom"]
     adverbs = ["when", "why", "where", "how", "what"]
 
@@ -244,7 +303,7 @@ def split_long_sentence(sentence, max_chars):
     words = sentence.split(" ")
 
     # 如果句子没有超过最大字符数，直接返回原句
-    if len(sentence) <= max_chars:
+    if len(sentence) <= max_segment_chars:
         return [sentence]  # 如果没有超过限制，直接返回原句子
 
     # 如果超过最大字符限制，尝试按语义合理拆分
@@ -255,7 +314,7 @@ def split_long_sentence(sentence, max_chars):
     # 遍历单词，尽量在连词、介词或引导词处拆分
     for word in words:
         # 如果当前部分加上单词不会超过最大字符数，继续拼接
-        if len(current_part) + len(word) + 1 <= max_chars:
+        if len(current_part) + len(word) + 1 <= max_segment_chars:
             if current_part:
                 current_part += " "
             current_part += word
@@ -295,7 +354,7 @@ def split_long_sentence(sentence, max_chars):
     return result
 
 
-async def generate_audio_and_subtitles(tts, text, page_length, page_index, filename_prefix, setting):
+async def generate_audio_and_subtitles(tts, text, page_number, filename_prefix, setting):
     subtitle_file, audio_clips = None, []
     if setting.subtitle_polishing_enabled:
         from pptflow.utils.text_polishing import get_polishing_text
@@ -304,8 +363,8 @@ async def generate_audio_and_subtitles(tts, text, page_length, page_index, filen
         text_segments = split_text(text, language=setting.language, max_chars=setting.subtitle_length)
     logger.info(f'text_segments: {text_segments}')
 
-    audio_file_path = os.path.join(setting.audio_dir_path, f"{filename_prefix}-P{page_index + 1}.mp3")
-    subtitle_file_path = os.path.join(setting.audio_dir_path, f'{filename_prefix}-P{page_index + 1}.srt')
+    audio_file_path = os.path.join(setting.audio_dir_path, f"{filename_prefix}-P{page_number}.mp3")
+    subtitle_file_path = os.path.join(setting.audio_dir_path, f'{filename_prefix}-P{page_number}.srt')
 
     # Check if the audio file already exists and has the same content as the current text
     if setting.audio_local_cache_enabled and not audio_file_do_replace_check(audio_file_path, ''.join(text_segments)):
@@ -320,7 +379,7 @@ async def generate_audio_and_subtitles(tts, text, page_length, page_index, filen
         for idx, segment_text in enumerate(text_segments):
             # file path to save the audio clip based on the current segment
             segment_audio_file_path = os.path.join(setting.audio_dir_path,
-                                                   f'{filename_prefix}-P{page_index + 1}-S{idx + 1}.mp3')
+                                                   f'{filename_prefix}-P{page_number}-S{idx + 1}.mp3')
             # Add the task to the list
             tasks.append(
                 generate_audio_clip(tts, segment_text, segment_audio_file_path, setting)
@@ -358,7 +417,7 @@ async def generate_audio_and_subtitles(tts, text, page_length, page_index, filen
         # Clean up temporary files
         for i in range(len(text_segments)):
             segment_audio_file_path = os.path.join(setting.audio_dir_path,
-                                                   f'{filename_prefix}-P{page_index + 1}-S{i + 1}.mp3')
+                                                   f'{filename_prefix}-P{page_number}-S{i + 1}.mp3')
             if os.path.exists(segment_audio_file_path):
                 os.remove(segment_audio_file_path)
 
@@ -377,3 +436,11 @@ def format_time(seconds):
     minutes, seconds = divmod(int(seconds), 60)
     hours, minutes = divmod(minutes, 60)
     return f"{hours:02d}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
+
+
+if __name__ == '__main__':
+    text = 'Good morning,everyone. Thank you for being here today.I am excited to present to you on the topic of ' \
+           '"Body Aesthetics in Greek Art.". This presentation will explore the historical background,the artistic ' \
+           'significance of Greek sculptures, particularly the Venus de Milo,and the lasting impact of these ' \
+           'masterpieces on future generations.Let’s dive into this fascinating journey through art history. '
+    print(split_text(text, language='en', max_chars=24))

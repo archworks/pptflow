@@ -1,5 +1,6 @@
 import os
 from pptflow.ppt2image import PptToImage
+from pptflow.pdf2image import pdf_to_image
 from pptflow.utils import mylogger
 from pptflow.config.setting import Setting
 
@@ -12,6 +13,10 @@ class PptToImageWin(PptToImage):
     logger = mylogger.get_logger(__name__)
 
     def convert(self, input_ppt_path: str, setting: Setting, progress_tracker=None):
+        file_ext = os.path.splitext(input_ppt_path)[1].lower()
+        if file_ext == ".pdf":
+            pdf_to_image(input_ppt_path, setting)
+            return
         Application = None
         try:
             # Create a PowerPoint application object
@@ -64,6 +69,6 @@ if __name__ == '__main__':
     setting = Setting()
     ppt_to_image = PptToImageWin()
     ppt_to_image.convert(
-        input_ppt_path="D:/workspace/ppt/孩子如何合理使用DeepSeek.pptx",
+        input_ppt_path="D:/workspace/ppt/黑灰白色极简风年度汇报述职通用ppt演示文稿.pdf",
         setting=setting
     )

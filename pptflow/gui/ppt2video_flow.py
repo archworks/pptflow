@@ -50,7 +50,7 @@ from PIL import Image
 
 logger.info("Loaded PIL.Image")
 
-from .custom_tooltip import CustomTooltip
+from pptflow.gui.custom_tooltip import CustomTooltip
 
 logger.info("Loaded CustomTooltip")
 
@@ -423,17 +423,30 @@ class PPTFlowApp(ctk.CTk):
 
     def browse_file(self):
         self.file_display = filedialog.askopenfilename(
-            filetypes=[("PowerPoint files", "*.pptx")]
+            filetypes=[  # 添加PDF支持
+                ("Supported files", "*.pptx;*.pdf"),
+                ("PowerPoint files", "*.pptx"),
+                ("PDF files", "*.pdf")
+            ]
         )
         if self.file_display:
             logger.info(f"Selected file: {self.file_display}")
 
-            # Check whether the PPT file's notes only has English text and punctuation
-            if not self.check_ppt_notes_only_english(self.file_display):
+            file_ext = os.path.splitext(self.file_display)[1].lower()
+
+            # 仅当选择PPT文件时检查备注
+            if file_ext == '.pptx' and not self.check_ppt_notes_only_english(self.file_display):
                 return
 
             # Set the default output path
-            self.setting.video_path = re.sub(r"pptx?$", self.setting.video_format.lower(), self.file_display)
+            # 设置输出路径（支持PPT和PDF扩展名替换）
+            self.setting.video_path = re.sub(
+                r"(pptx?|pdf)$",  # 修改正则表达式匹配PPT和PDF
+                self.setting.video_format.lower(),
+                self.file_display
+            )
+            logger.info(f"video_path:{self.setting.video_path}")
+            self.setting.external_notes_path = re.sub(r"(pptx?|pdf)$", 'docx', self.file_display)
 
             self.file_label.grid()
             self.file_label.configure(state=ctk.NORMAL)
@@ -473,7 +486,7 @@ class PPTFlowApp(ctk.CTk):
                     for char in notes:
                         if '\u4e00' <= char <= '\u9fff':
                             self.setting.language = 'zh'
-                            self.setting.subtitle_length = 18
+                            self.setting.subtitle_length = 24
                             logger.info("Found Chinese characters in notes. Switch language to zh.")
                             return True
             # 4. 设置默认语言

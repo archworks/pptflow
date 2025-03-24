@@ -293,7 +293,7 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         logger.info(f'video_format: {self.video_settings_vars[self.app.get_text("video_format")].get()}')
         if self.app.file_display:
             self.app.setting.video_path = re.sub(
-                r"pptx?$", self.video_settings_vars[self.app.get_text("video_format")].get().lower(),
+                r"(pptx?|pdf)$", self.video_settings_vars[self.app.get_text("video_format")].get().lower(),
                 self.app.file_display)
             self.export_path_var.set(self.app.setting.video_path)
 
@@ -576,9 +576,9 @@ class AdjustSettingsFrame(ctk.CTkFrame):
         self.api_key_help = CustomTooltip(self.api_key_help_label,
                                           self.app.get_text("tts_api_key_help"))
 
-    def refresh(self):
-        if self.export_path_var.get() == "" and self.app.setting.video_path:
-            self.export_path_var.set(self.app.setting.video_path)
+    # def refresh(self):
+    #     if self.export_path_var.get() == "" and self.app.setting.video_path:
+    #         self.export_path_var.set(self.app.setting.video_path)
 
 
 def get_key_by_value(dictionary, target_value):

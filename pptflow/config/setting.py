@@ -12,6 +12,7 @@ class Setting:
     ppt_total_slides: int = None
     external_notes_path: str = None  # 新增外部笔记文件路径
     has_notes: bool = False
+    images_name: str = "黑灰白色极简风年度汇报述职通用ppt演示文稿"
     # Audio settings
     tts_service_provider: str = None
     tts_api_key: str = None
