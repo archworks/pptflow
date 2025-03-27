@@ -28,6 +28,7 @@
     "reselect_ppt": "重新选择PPT",
     "start_generate_video": "视频生成中，请稍等。。。",
     "video_generated": "视频已生成，路径为",
+    "no_notes_found": "PPT没有备注，也没有txt或docx演讲稿文件。",
     "play_video": "播放视频",
     "basic_title": "基础设置",
     "ppt_settings": "PPT 设置",

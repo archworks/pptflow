@@ -62,6 +62,8 @@ init_content = """
 # BAIDU_APP_ID=xxxx
 # BAIDU_API_KEY=xxxx
 # BAIDU_SECRET_KEY=xxxx
+# Language Setting
+# LANGUAGE=en
 """
 # 创建目录（如果不存在）
 os.makedirs(os.path.dirname(env_path), exist_ok=True)

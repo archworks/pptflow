@@ -67,7 +67,7 @@ class PPTFlowApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         # 初始化 Setting 和 TTS
-        self.setting = get_default_setting(os_name=platform.system(),
+        self.setting = get_default_setting(os_name=platform.system(), language=os.getenv("LANGUAGE", "en").lower(),
                                            tts_service_provider=os.getenv("TTS_SERVICE_PROVIDER", "kokoro").lower())
         self.tts = None
         # 初始化界面语言
@@ -365,9 +365,23 @@ class PPTFlowApp(ctk.CTk):
         logger.info("Clear temp cache")
 
     def clear_audio_cache(self):
-        if os.path.exists(self.setting.audio_dir_path):
-            shutil.rmtree(self.setting.audio_dir_path)
-        logger.info("Clear audio cache")
+        # 获取视频文件名前缀（不含扩展名）
+        video_prefix = os.path.splitext(os.path.basename(self.setting.video_path))[0]
+
+        # 遍历目录中的文件
+        for filename in os.listdir(self.setting.audio_dir_path):
+            # 拼接完整路径
+            file_path = os.path.join(self.setting.audio_dir_path, filename)
+
+            # 判断是否是文件且以指定前缀开头
+            if os.path.isfile(file_path) and filename.startswith(video_prefix):
+                try:
+                    os.remove(file_path)
+                    logger.info(f"Deleted audio file: {filename}")
+                except Exception as e:
+                    logger.error(f"Failed to delete {filename}: {e}")
+
+        logger.info(f"Cleared audio files with prefix: {video_prefix}")
 
     def clear_image_cache(self):
         if os.path.exists(self.setting.image_dir_path):
@@ -437,6 +451,8 @@ class PPTFlowApp(ctk.CTk):
             # 仅当选择PPT文件时检查备注
             if file_ext == '.pptx' and not self.check_ppt_notes_only_english(self.file_display):
                 return
+            elif file_ext == '.pdf':
+                self.setting.has_notes = False
 
             # Set the default output path
             # 设置输出路径（支持PPT和PDF扩展名替换）
@@ -446,7 +462,6 @@ class PPTFlowApp(ctk.CTk):
                 self.file_display
             )
             logger.info(f"video_path:{self.setting.video_path}")
-            self.setting.external_notes_path = re.sub(r"(pptx?|pdf)$", 'docx', self.file_display)
 
             self.file_label.grid()
             self.file_label.configure(state=ctk.NORMAL)
@@ -489,8 +504,6 @@ class PPTFlowApp(ctk.CTk):
                             self.setting.subtitle_length = 24
                             logger.info("Found Chinese characters in notes. Switch language to zh.")
                             return True
-            # 4. 设置默认语言
-            self.setting.language = 'en'
             return True
         except Exception as e:
             messagebox.showerror("Error", f"Unable to open PPT file: {e}")
@@ -544,6 +557,19 @@ class PPTFlowApp(ctk.CTk):
         if not self.file_display:
             messagebox.showerror(self.loading_title, self.get_text("no_file_selected"))
             return
+        if not self.setting.has_notes:
+            if os.path.exists(re.sub(r"(pptx?|pdf)$", 'txt', self.file_display)):
+                self.setting.external_notes_path = re.sub(r"(pptx?|pdf)$", 'txt', self.file_display)
+                logger.info(f"Found external notes txt file: {self.setting.external_notes_path}")
+            elif os.path.exists(re.sub(r"(pptx?|pdf)$", 'docx', self.file_display)):
+                self.setting.external_notes_path = re.sub(r"(pptx?|pdf)$", 'docx', self.file_display)
+                logger.info(f"Found external notes docx file: {self.setting.external_notes_path}")
+            else:
+                messagebox.showerror(self.loading_title, self.get_text("no_notes_found"))
+                logger.error(self.get_text("no_notes_found"))
+                return
+        else:
+            logger.info("PPT has notes, no need to search for external notes.")
         try:
             # Show progress frame
             self.progress_bar.grid()

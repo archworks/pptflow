@@ -69,6 +69,6 @@ if __name__ == '__main__':
     setting = Setting()
     ppt_to_image = PptToImageWin()
     ppt_to_image.convert(
-        input_ppt_path="D:/workspace/ppt/黑灰白色极简风年度汇报述职通用ppt演示文稿.pdf",
+        input_ppt_path="D:/workspace/ppt/《坏情绪也没关系》于曈.pptx",
         setting=setting
     )

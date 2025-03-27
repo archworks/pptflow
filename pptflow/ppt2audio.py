@@ -49,6 +49,7 @@ async def ppt_note_to_audio(tts, input_path, setting, progress_tracker=None):
             raise ValueError("Unsupported file type")
 
         processed_count = 0
+        logger.info(f"notes_file: {setting.external_notes_path}")
 
         for page in pages:
             if setting.start_page_num and page['number'] < setting.start_page_num:
@@ -157,9 +158,11 @@ def parse_external_notes(file_path):
 
         # 解析不同文件格式
         if file_path.endswith('.txt'):
+            logger.info(f"Parsing external notes from .txt file")
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
         elif file_path.endswith('.docx'):
+            logger.info(f"Parsing external notes from .docx file")
             from docx import Document
             doc = Document(file_path)
             content = "\n".join([para.text for para in doc.paragraphs])
@@ -192,7 +195,7 @@ def get_default_max_chars(language):
 def get_default_max_segment_chars(language):
     defaults = {
         "zh": 35,  # 中文每段字幕最大字符数
-        "en": 60  # 英文每段字幕最大字符数
+        "en": 100  # 英文每段字幕最大字符数
     }
     return defaults.get(language, None)
 
@@ -220,9 +223,11 @@ def split_text(text, language="en", max_chars=None, max_segment_chars=None):
     if language == "zh":
         # 中文分隔符：，。；：！？、和换行
         delimiters = r'([，。；：！？\n])'
+        text = text.replace("'", "’").replace("\"", "“").replace(";", "；")
     elif language == "en":
         # 英文分隔符：,.!?:;和换行
         delimiters = r'([,.!?:;\n])'
+        text = text.replace("‘", "'").replace("“", "\"").replace("；", ";")
     else:
         # 默认保留原有分隔符集合
         delimiters = r'([,.;:!?，。；：！？\n])'
@@ -361,6 +366,7 @@ async def generate_audio_and_subtitles(tts, text, page_number, filename_prefix, 
         text_segments = get_polishing_text(text, setting)
     else:
         text_segments = split_text(text, language=setting.language, max_chars=setting.subtitle_length)
+    text_segments = [segment for segment in text_segments if segment.strip()]
     logger.info(f'text_segments: {text_segments}')
 
     audio_file_path = os.path.join(setting.audio_dir_path, f"{filename_prefix}-P{page_number}.mp3")
@@ -439,8 +445,14 @@ def format_time(seconds):
 
 
 if __name__ == '__main__':
-    text = 'Good morning,everyone. Thank you for being here today.I am excited to present to you on the topic of ' \
-           '"Body Aesthetics in Greek Art.". This presentation will explore the historical background,the artistic ' \
-           'significance of Greek sculptures, particularly the Venus de Milo,and the lasting impact of these ' \
-           'masterpieces on future generations.Let’s dive into this fascinating journey through art history. '
-    print(split_text(text, language='en', max_chars=24))
+    # text = 'Good morning,everyone. Thank you for being here today.I am excited to present to you on the topic of ' \
+    #        '"Body Aesthetics in Greek Art.". This presentation will explore the historical background,the artistic ' \
+    #        'significance of Greek sculptures, particularly the Venus de Milo,and the lasting impact of these ' \
+    #        'masterpieces on future generations.Let’s dive into this fascinating journey through art history. '
+    # print(split_text(text, language='en', max_chars=24))
+    setting = Setting()
+    setting.external_notes_path = "D:/workspace/ppt/《坏情绪也没关系》于曈.docx"
+    # images = process_image_dir("C:/Users/19622/AppData/Roaming/pptflow/temp/image", "孩子如何合理使用DeepSeek")
+    # for image in images:
+    #     print(image)
+    asyncio.run(ppt_note_to_audio(tts=None, input_path="D:/workspace/ppt/《坏情绪也没关系》于曈.pptx", setting=setting))

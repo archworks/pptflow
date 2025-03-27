@@ -28,6 +28,7 @@
         "reselect_ppt": "Reselect PPT",
         "start_generate_video": "Please wait while the video is being generated...",
         "video_generated": "Video generated, and the path is ",
+        "no_notes_found": "No notes found in the PPT file. And no txt or docx speech files.",
         "play_video": "Play Video",
         "basic_title": "Basic Settings",
         "ppt_settings": "PPT Settings",

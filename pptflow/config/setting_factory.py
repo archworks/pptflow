@@ -54,6 +54,11 @@ def get_default_tts_settings(setting: Setting, tts_service_provider: str = 'koko
         setting.tts_service_provider = 'azure'
         setting.tts_speech_region = 'eastasia'
         setting.tts_api_key = os.getenv("TTS_AZURE_SPEECH_KEY")
+    elif tts_service_provider == 'baidu':
+        setting.tts_service_provider = 'baidu'
+        setting.baidu_app_id = os.getenv("BAIDU_APP_ID")
+        setting.baidu_api_key = os.getenv("BAIDU_API_KEY")
+        setting.baidu_secret_key = os.getenv("BAIDU_SECRET_KEY")
     else:
         raise NotImplementedError(f"Unsupported TTS service provider: {tts_service_provider}")
 
