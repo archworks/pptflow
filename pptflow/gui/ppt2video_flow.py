@@ -365,6 +365,9 @@ class PPTFlowApp(ctk.CTk):
         logger.info("Clear temp cache")
 
     def clear_audio_cache(self):
+        if not os.path.exists(self.setting.audio_dir_path):
+            return
+        
         # 获取视频文件名前缀（不含扩展名）
         video_prefix = os.path.splitext(os.path.basename(self.setting.video_path))[0]
 
