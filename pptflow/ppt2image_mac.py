@@ -10,10 +10,11 @@ class PptToImageMac(PptToImage):
         # Create a dir to save the slides as images
         if not os.path.exists(setting.image_dir_path):
             os.makedirs(setting.image_dir_path)
-        file_name_without_ext = os.path.basename(input_ppt_path).split(".")[0]
-        if file_name_without_ext == ".pdf":
+        file_ext = os.path.basename(input_ppt_path).split(".")[1].lower()
+        if file_ext == "pdf":
             pdf_to_image(input_ppt_path, setting)
             return
+        file_name_without_ext = os.path.basename(input_ppt_path).split(".")[0]
         temp_pdf_path = os.path.join(setting.image_dir_path, f'{file_name_without_ext}.pdf')
         self._ppt_to_pdf(input_ppt_path, temp_pdf_path)
         pdf_to_image(temp_pdf_path, setting)

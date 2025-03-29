@@ -21,7 +21,7 @@ tts_speech_voices = ["en-US-EmmaNeural"]
 # Video settings
 video_formats = ['MP4', 'AVI', 'MOV']
 video_codecs = ['H.264', 'H.265', 'VP9']
-video_sizes = ["1280x720", "1920x1080", "2560x1440", "3840x2160", "720x480"]
+video_sizes = ["1280x720", "1920x1080", "2560x1440", "3840x2160", "720x480", "1280x960"]
 video_fps = ["10fps", "30fps", "24fps"]
 video_processing_threads = ["1", "2", "4", "8", "16"]
 # Audio settings
@@ -67,7 +67,7 @@ audio_voice_type = ["zh-CN-YunjianNeural", "zh-CN-XiaoxiaoNeural"]
 audio_speeds = ["1.0x", "0.8x", "1.2x", "1.5x"]
 audio_languages = ['en', 'zh']
 # Subtitle settings
-subtitle_lengths = ["12", "16", "18", "24", "30"]
+subtitle_lengths = ["12", "16", "18", "24", "30", "80"]
 subtitle_font_dict = {}
 font_colors = ['white', 'black', 'red', 'blue', 'yellow', 'green']
 border_colors = ['black', 'white', 'no_color']
