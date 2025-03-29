@@ -195,7 +195,7 @@ def get_default_max_chars(language):
 def get_default_max_segment_chars(language):
     defaults = {
         "zh": 35,  # 中文每段字幕最大字符数
-        "en": 100  # 英文每段字幕最大字符数
+        "en": 80  # 英文每段字幕最大字符数
     }
     return defaults.get(language, None)
 
@@ -445,14 +445,14 @@ def format_time(seconds):
 
 
 if __name__ == '__main__':
-    # text = 'Good morning,everyone. Thank you for being here today.I am excited to present to you on the topic of ' \
-    #        '"Body Aesthetics in Greek Art.". This presentation will explore the historical background,the artistic ' \
-    #        'significance of Greek sculptures, particularly the Venus de Milo,and the lasting impact of these ' \
-    #        'masterpieces on future generations.Let’s dive into this fascinating journey through art history. '
-    # print(split_text(text, language='en', max_chars=24))
-    setting = Setting()
-    setting.external_notes_path = "D:/workspace/ppt/《坏情绪也没关系》于曈.docx"
-    # images = process_image_dir("C:/Users/19622/AppData/Roaming/pptflow/temp/image", "孩子如何合理使用DeepSeek")
-    # for image in images:
-    #     print(image)
-    asyncio.run(ppt_note_to_audio(tts=None, input_path="D:/workspace/ppt/《坏情绪也没关系》于曈.pptx", setting=setting))
+    text = "So what's beneath this surface? For me, it's about connection, comfort, and even quiet rebellion. Eating " \
+           "at 1 a.m. when others sleep breaks the rules—but gently. It creates space for real talk, laughter, " \
+           "or silence. It's a place where we can feel warmth—through the food, through the company, through the " \
+           "familiarity. This is deep culture. It's not seen—but it's felt. "
+    print(split_text(text, language='en', max_chars=30))
+    # setting = Setting()
+    # setting.external_notes_path = "D:/workspace/ppt/《坏情绪也没关系》于曈.docx"
+    # # images = process_image_dir("C:/Users/19622/AppData/Roaming/pptflow/temp/image", "孩子如何合理使用DeepSeek")
+    # # for image in images:
+    # #     print(image)
+    # asyncio.run(ppt_note_to_audio(tts=None, input_path="D:/workspace/ppt/《坏情绪也没关系》于曈.pptx", setting=setting))
