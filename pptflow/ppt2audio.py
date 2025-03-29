@@ -5,6 +5,7 @@ from moviepy import AudioFileClip
 from moviepy.audio.AudioClip import concatenate_audioclips
 from pptflow.config.setting import Setting
 from pptflow.utils import mylogger
+from pptflow.utils.text_split import TextSplit
 import asyncio
 
 # 创建日志纪录实例
@@ -360,12 +361,15 @@ def split_long_sentence(sentence, max_segment_chars):
 
 
 async def generate_audio_and_subtitles(tts, text, page_number, filename_prefix, setting):
+    # 实例化TextSplit类
+    spliter = TextSplit()
     subtitle_file, audio_clips = None, []
     if setting.subtitle_polishing_enabled:
         from pptflow.utils.text_polishing import get_polishing_text
         text_segments = get_polishing_text(text, setting)
     else:
-        text_segments = split_text(text, language=setting.language, max_chars=setting.subtitle_length)
+        # text_segments = split_text(text, language=setting.language, max_chars=setting.subtitle_length)
+        text_segments = spliter.split(text, setting)
     text_segments = [segment for segment in text_segments if segment.strip()]
     logger.info(f'text_segments: {text_segments}')
 
@@ -445,14 +449,14 @@ def format_time(seconds):
 
 
 if __name__ == '__main__':
-    text = "So what's beneath this surface? For me, it's about connection, comfort, and even quiet rebellion. Eating " \
-           "at 1 a.m. when others sleep breaks the rules—but gently. It creates space for real talk, laughter, " \
-           "or silence. It's a place where we can feel warmth—through the food, through the company, through the " \
-           "familiarity. This is deep culture. It's not seen—but it's felt. "
-    print(split_text(text, language='en', max_chars=30))
-    # setting = Setting()
-    # setting.external_notes_path = "D:/workspace/ppt/《坏情绪也没关系》于曈.docx"
-    # # images = process_image_dir("C:/Users/19622/AppData/Roaming/pptflow/temp/image", "孩子如何合理使用DeepSeek")
-    # # for image in images:
-    # #     print(image)
-    # asyncio.run(ppt_note_to_audio(tts=None, input_path="D:/workspace/ppt/《坏情绪也没关系》于曈.pptx", setting=setting))
+    # text = "So what's beneath this surface? For me, it's about connection, comfort, and even quiet rebellion. Eating " \
+    #        "at 1 a.m. when others sleep breaks the rules—but gently. It creates space for real talk, laughter, " \
+    #        "or silence. It's a place where we can feel warmth—through the food, through the company, through the " \
+    #        "familiarity. This is deep culture. It's not seen—but it's felt. "
+    # print(split_text(text, language='en', max_chars=50))
+    setting = Setting()
+    setting.external_notes_path = "D:/workspace/ppt/《坏情绪也没关系》于曈.docx"
+    # images = process_image_dir("C:/Users/19622/AppData/Roaming/pptflow/temp/image", "孩子如何合理使用DeepSeek")
+    # for image in images:
+    #     print(image)
+    asyncio.run(ppt_note_to_audio(tts=None, input_path="D:/workspace/ppt/《坏情绪也没关系》于曈.pptx", setting=setting))
