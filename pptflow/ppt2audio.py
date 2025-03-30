@@ -368,8 +368,8 @@ async def generate_audio_and_subtitles(tts, text, page_number, filename_prefix, 
         from pptflow.utils.text_polishing import get_polishing_text
         text_segments = get_polishing_text(text, setting)
     else:
-        # text_segments = split_text(text, language=setting.language, max_chars=setting.subtitle_length)
-        text_segments = spliter.split(text, setting)
+        text_segments = split_text(text, language=setting.language, max_chars=setting.subtitle_length)
+        # text_segments = spliter.split(text, setting)
     text_segments = [segment for segment in text_segments if segment.strip()]
     logger.info(f'text_segments: {text_segments}')
 

@@ -43,8 +43,11 @@ class PptToImageWin(PptToImage):
                     setting.image_dir_path, f"{file_name_without_ext}-P{idx + 1}.png"
                 )
                 # Export the slide as an image
-                slide.Export(image_file_path, "PNG", setting.video_width, setting.video_height)
-                self.logger.info(f"Saved: {image_file_path}")
+                if not os.path.exists(image_file_path):
+                    slide.Export(image_file_path, "PNG", setting.video_width, setting.video_height)
+                    self.logger.info(f"Saved: {image_file_path}")
+                else:
+                    self.logger.info(f"Skipped: {image_file_path}")
 
                 # Update progress
                 if progress_tracker:
@@ -69,6 +72,6 @@ if __name__ == '__main__':
     setting = Setting()
     ppt_to_image = PptToImageWin()
     ppt_to_image.convert(
-        input_ppt_path="D:/workspace/ppt/《坏情绪也没关系》于曈.pptx",
+        input_ppt_path="D:/workspace/ppt/国科恒泰内幕信息培训演示文稿.pptx",
         setting=setting
     )

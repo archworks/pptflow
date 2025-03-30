@@ -30,7 +30,7 @@ class BaiduTtsService(TtsService):
         }
 
     @sleep_and_retry
-    @limits(calls=2, period=1)
+    @limits(calls=2, period=5)
     async def tts(
             self,
             text: str,
@@ -131,3 +131,9 @@ class BaiduTtsService(TtsService):
 
     def get_voice_list(self, setting: Setting = None):
         return []
+
+
+if __name__ == '__main__':
+    baidu_tts = BaiduTtsService()
+    text = "今天我们将共同探讨一个至关重要的主题——内幕交易查处处于持续高压态势。作为企业的一员，我们每个人都有责任维护市场的公平和透明，共同构建诚信的商业环境。内幕交易不仅损害了投资者的利益，还破坏了市场的正常秩序。我们将通过一系列培训，深入了解内幕交易的危害，掌握防范和打击内幕交易的策略。希望通过今天的学习，大家能够更好地识别和避免内幕交易行为，共同维护我们的职业道德和企业声誉。"
+    baidu_tts.tts(text, "output.mp3", Setting())
