@@ -38,6 +38,10 @@ class Setting:
     video_height: int = 720
     video_fps: int = 10
     video_path: str = None  # the output video path
+    random_pause_enabled: bool = False
+    min_pause_duration: int = 0.5
+    max_pause_duration: int = 2.0
+    estimate_duration_enabled: bool = False
     # Subtitle settings
     subtitle_width: int = None
     subtitle_height: int = None

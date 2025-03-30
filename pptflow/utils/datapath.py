@@ -7,6 +7,8 @@ import sys
 from dotenv import load_dotenv
 import os
 
+os.environ['ENV'] = 'production'
+
 
 def get_father_dir():
     home = pathlib.Path.home()
@@ -19,7 +21,6 @@ def get_father_dir():
     # 修改原来的data_path定义
     data_path = system_paths[sys.platform]
     if os.getenv('ENV') == 'dev':
-        # father_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         father_dir = os.getcwd()
     else:
         father_dir = os.path.join(data_path, 'pptflow')

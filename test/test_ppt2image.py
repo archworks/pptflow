@@ -12,7 +12,7 @@ from pptflow.ppt2image_factory import get_ppt_to_image
 
 test_path = os.path.join(parent_dir, "test")
 ppt_path = os.path.join(test_path, "test-en.pptx")
-image_dir_path = os.path.join(os.path.join(parent_dir, "temp"), "image")
+image_dir_path = os.path.join(os.path.join(parent_dir, "../pptflow/temp"), "image")
 setting = Setting()
 ppt_to_image = get_ppt_to_image()
 ppt_to_image.convert(ppt_path, setting)

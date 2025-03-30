@@ -21,6 +21,6 @@ elif tts_service_provider.lower() == "xunfei":
 
 test_path = os.path.join(parent_dir, "test")
 ppt_path = os.path.join(test_path, "test-en.pptx")
-audio_dir_path = os.path.join(os.path.join(parent_dir, "temp"), "audio")
+audio_dir_path = os.path.join(os.path.join(parent_dir, "../pptflow/temp"), "audio")
 
 ppt_note_to_audio(tts, ppt_path, audio_dir_path, Setting())

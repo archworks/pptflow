@@ -507,6 +507,11 @@ class PPTFlowApp(ctk.CTk):
                             self.setting.subtitle_length = 24
                             logger.info("Found Chinese characters in notes. Switch language to zh.")
                             return True
+                        else:
+                            self.setting.language = 'en'
+                            self.setting.subtitle_length = 12
+                            logger.info("Found English characters in notes. Switch language to en.")
+                            return True
             return True
         except Exception as e:
             messagebox.showerror("Error", f"Unable to open PPT file: {e}")

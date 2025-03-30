@@ -1,4 +1,5 @@
 import asyncio
+import random
 from concurrent.futures import ThreadPoolExecutor
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy import CompositeVideoClip, concatenate_videoclips
@@ -28,13 +29,15 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
          f.endswith((".jpg", ".png")) and file_name_raw == f.split('.')[0].split('-P')[0]],
         key=lambda x: int(x.split('.')[0].split('-P')[1])
     )
-    logger.info(f'image files: {image_files}')
+    logger.info(f"image files: {image_files}")
     if len(image_files) == 0:
         logger.error(f"image files don't exist in {setting.image_dir_path}")
         raise ValueError("image files don't exist")
 
     clips = []
     total_files = len(image_files)
+    if setting.estimate_duration_enabled:
+        confirm_generate_video(setting)
     for idx, image_file in enumerate(image_files):
         if setting.start_page_num and idx + 1 < setting.start_page_num:
             continue
@@ -44,9 +47,13 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
         image_file_path = os.path.join(setting.image_dir_path, image_file)
         audio_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.mp3")
         subtitle_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.srt")
+
         if os.path.exists(audio_file_path):
             audio_clip = AudioFileClip(audio_file_path)
-            image_clip = ImageClip(image_file_path).with_duration(audio_clip.duration)
+            clip_duration = audio_clip.duration
+            if setting.random_pause_enabled:
+                clip_duration = random_pause(clip_duration, setting.min_pause_duration, setting.max_pause_duration)
+            image_clip = ImageClip(image_file_path).with_duration(clip_duration)
             # Adds audio to a video clip
             video_clip = image_clip.with_audio(audio_clip)
             # Add subtitles
@@ -68,13 +75,13 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
                 progress_tracker.update_step(progress)
         else:
             logger.warning(f"Audio file {audio_file_path} not found")
-            # raise ValueError(f"Please check whether the ppt has notes.")
+            raise ValueError(f"Audio file {audio_file_path} not found. Stopping video creation.")
     # Synthesize all video clips
     final_clip = concatenate_videoclips(clips)
     # Write the clips to a video file
     logger.info(f"Writing video to {setting.video_path}")
 
-    asyncio.run(write_video_async(final_clip, setting, progress_tracker))
+    # asyncio.run(write_video_async(final_clip, setting, progress_tracker))
     if progress_tracker:
         # Map progress from 0-1 to 70-100%
         progress_tracker.complete_step()
@@ -131,3 +138,37 @@ async def write_video_async(final_clip, setting, progress_tracker=None):
             )
         else:
             await write_video_future
+
+
+def random_pause(base_duration, min_time, max_time):
+    silence_duration = random.uniform(min_time, max_time)
+    return base_duration + silence_duration
+
+
+def confirm_generate_video(setting):
+    from pptflow.helper.audio_helper import get_audio_total_duration
+    from tkinter import messagebox
+    filename_prefix = os.path.basename(setting.video_path).split('.')[0]
+    video_duration = get_audio_total_duration(setting.audio_dir_path, filename_prefix)
+    # 弹出确认框
+    message = f"Estimated video generation time: {video_duration / 60:.2f} minutes\n" \
+              f"Do you want to continue generating videos?"
+    result = messagebox.askyesno("Confirm Generation", message)
+    if not result:
+        logger.info("The user canceled the video generation")
+        raise ValueError("The user canceled the video generation")
+    # logger.info(f"video_duration: {video_duration: .2f}s, {video_duration / 60: .2f}min")
+
+
+if __name__ == '__main__':
+    from pptflow.config.setting import Setting
+    from pptflow.config.setting_factory import get_default_setting
+    import platform
+
+    settings = get_default_setting(os_name=platform.system(), language=os.getenv("LANGUAGE", "en").lower(),
+                                   tts_service_provider=os.getenv("TTS_SERVICE_PROVIDER", "kokoro").lower())
+    ppt_path = r'D:\workspace\ppt\“弹”性十足——提升你的抗压能力！.pptx'
+    video_path = ppt_path.replace('.pptx', '.mp4')
+    settings.video_path = video_path
+    settings.random_pause_enabled = True
+    create_video_from_images_and_audio(video_path, settings)
