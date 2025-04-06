@@ -32,16 +32,18 @@ class Setting:
     kokoro_module: str = 'kokoro-v1.0.fp16.onnx'
     kokoro_voice_file: str = 'voices-v1.0.bin'
     kokoro_voice_name: str = 'af_heart'
+    # CosyVoice TTS
+    cosyvoice_role = '中文女'  # 预置语音角色 "中文男|中文女|英文男|英文女|日语男|韩语女|粤语女" 选其一
     # Video settings
     video_format = 'MP4'
     video_width: int = 1280
     video_height: int = 720
     video_fps: int = 10
     video_path: str = None  # the output video path
-    random_pause_enabled: bool = False
+    random_pause_enabled: bool = True  # 是否随机插入暂停
     min_pause_duration: int = 0.5
     max_pause_duration: int = 2.0
-    estimate_duration_enabled: bool = False
+    estimate_duration_enabled: bool = True  # 是否使用计算时长
     # Subtitle settings
     subtitle_width: int = None
     subtitle_height: int = None

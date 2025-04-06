@@ -30,7 +30,7 @@ class BaiduTtsService(TtsService):
         }
 
     @sleep_and_retry
-    @limits(calls=2, period=5)
+    @limits(calls=2, period=3)
     async def tts(
             self,
             text: str,

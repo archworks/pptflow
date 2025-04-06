@@ -98,3 +98,13 @@ class AzureTtsService(TtsService):
             self.logger.error(
                 "An error occurred while loading the voice list. Please check the status of your network.")
             return []
+
+
+if __name__ == '__main__':
+    text = "今天我们跟大家开展一个内幕信息的重要培训。\n" \
+           "我们都知道内幕交易查处处于持续高压态势，作为企业的一员，\n" \
+           "我们每个人都有责任维护市场的公平和透明，共同构建诚信的商业环境。"
+    tts = AzureTtsService()
+    setting = Setting()
+    setting.tts_voice_name = 'zh-CN-XiaoxiaoNeural'
+    asyncio.run(tts.tts(text, "test.mp3", setting))

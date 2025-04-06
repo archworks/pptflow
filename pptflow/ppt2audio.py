@@ -2,7 +2,8 @@ from pptx import Presentation
 import os
 import re
 from moviepy import AudioFileClip
-from moviepy.audio.AudioClip import concatenate_audioclips
+from moviepy.audio.AudioClip import concatenate_audioclips, AudioArrayClip
+import numpy as np
 from pptflow.config.setting import Setting
 from pptflow.utils import mylogger
 
@@ -58,7 +59,7 @@ async def ppt_note_to_audio(tts, input_path, setting, progress_tracker=None):
             if setting.end_page_num and page['number'] > setting.end_page_num:
                 continue
 
-            note_text = get_note_text(page, setting)
+            note_text = get_note_text(page, setting).replace('\u200b', '')
             logger.info(f"Processing page {page['number']}: {note_text}")
             if note_text:
                 await process_page(
@@ -150,6 +151,21 @@ async def process_page(tts, page, note_text, filename_prefix, setting):
     )
 
 
+async def generate_empty_audio_clip(page_number, filename_prefix, setting):
+    """生成一段2到3秒的空音频"""
+    # 参数设置
+    duration = 2  # 2-3秒
+    fps = 44100  # 标准采样率
+    # 生成单声道静音数据（直接初始化为二维数组）
+    sample_count = int(duration * fps)
+    silent_data = np.zeros((sample_count, 1))
+    # 创建音频剪辑
+    silent_clip = AudioArrayClip(silent_data, fps=fps)
+    audio_file_path = os.path.join(setting.audio_dir_path, f"{filename_prefix}-P{page_number}.mp3")
+    silent_clip.write_audiofile(audio_file_path, codec="mp3")  # 明确指定编码格式
+    logger.info(f"Generated a {duration}-second empty audio clip for page {page_number} at {audio_file_path}")
+
+
 def parse_external_notes(file_path):
     """解析外部笔记文件"""
     notes = {}
@@ -223,7 +239,7 @@ def split_text(text, language="en", max_chars=None, max_segment_chars=None):
     # 根据语言设置分隔符
     if language == "zh":
         # 中文分隔符：，。；：！？、和换行
-        delimiters = r'([，。；：！？\n])'
+        delimiters = r'([，、。；：！？\n])'
         text = text.replace("'", "’").replace("\"", "“").replace(";", "；")
     elif language == "en":
         # 英文分隔符：,.!?:;和换行
@@ -450,14 +466,11 @@ def format_time(seconds):
 
 
 if __name__ == '__main__':
-    # text = "So what's beneath this surface? For me, it's about connection, comfort, and even quiet rebellion. Eating " \
-    #        "at 1 a.m. when others sleep breaks the rules—but gently. It creates space for real talk, laughter, " \
-    #        "or silence. It's a place where we can feel warmth—through the food, through the company, through the " \
-    #        "familiarity. This is deep culture. It's not seen—but it's felt. "
-    # print(split_text(text, language='en', max_chars=50))
-    setting = Setting()
-    setting.external_notes_path = "D:/workspace/ppt/《坏情绪也没关系》于曈.docx"
+    text = "【社区由来】\n2024年12月，开源宁波社区（NBopen）正式开始组建，作为宁波首个以“开源技术+产业实践”为核心的城市级开源社区，我们秉持“开放协作、技术普惠、生态共建”的理念，致力于构建连接开发者、企业、高校的开源生态，为宁波经济高质量发展注入创新动能。"
+    print(split_text(text, language='en', max_chars=24))
+    # setting = Setting()
+    # setting.external_notes_path = "D:/workspace/ppt/《坏情绪也没关系》于曈.docx"
     # images = process_image_dir("C:/Users/19622/AppData/Roaming/pptflow/temp/image", "孩子如何合理使用DeepSeek")
     # for image in images:
     #     print(image)
-    asyncio.run(ppt_note_to_audio(tts=None, input_path="D:/workspace/ppt/《坏情绪也没关系》于曈.pptx", setting=setting))
+    # asyncio.run(ppt_note_to_audio(tts=None, input_path="D:/workspace/ppt/《坏情绪也没关系》于曈.pptx", setting=setting))

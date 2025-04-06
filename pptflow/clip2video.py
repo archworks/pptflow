@@ -3,10 +3,11 @@ import random
 from concurrent.futures import ThreadPoolExecutor
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy import CompositeVideoClip, concatenate_videoclips
-from moviepy.video.VideoClip import ImageClip, TextClip
+from moviepy.video.VideoClip import ImageClip, TextClip, VideoClip
 from moviepy.video.tools.subtitles import SubtitlesClip
 import os
 from pptflow.utils import mylogger
+import textwrap
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -58,15 +59,18 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
             video_clip = image_clip.with_audio(audio_clip)
             # Add subtitles
             if os.path.exists(subtitle_file_path):
-                generator = lambda txt: TextClip(font=setting.subtitle_font_path, text=txt,
+                max_width = int((video_clip.w * 0.9) / setting.subtitle_font_size)
+                generator = lambda txt: TextClip(font=setting.subtitle_font_path,
+                                                 text="\n".join(textwrap.wrap(txt, width=max_width)),
                                                  font_size=setting.subtitle_font_size,
                                                  color=setting.subtitle_color,
                                                  stroke_color=setting.subtitle_stroke_color,
                                                  stroke_width=setting.subtitle_stroke_width,
                                                  method='caption',
-                                                 size=(int(video_clip.w * 0.9), None))
+                                                 size=(int(video_clip.w * 0.9), None),
+                                                 text_align='center')
                 subtitles = SubtitlesClip(subtitles=subtitle_file_path, make_textclip=generator)
-                video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.91))])
+                video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.90))])
 
             clips.append(video_clip)
             # Update progress (70% for clip creation, 30% for final rendering)
@@ -74,14 +78,23 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
                 progress = 0.3 * (idx + 1) / total_files
                 progress_tracker.update_step(progress)
         else:
-            logger.warning(f"Audio file {audio_file_path} not found")
-            raise ValueError(f"Audio file {audio_file_path} not found. Stopping video creation.")
+            # logger.warning(f"Audio file {audio_file_path} not found")
+            # raise ValueError(f"Audio file {audio_file_path} not found. Stopping video creation.")
+            logger.warning(f"Audio file {audio_file_path} not found, using default duration")
+            clip_duration = random.uniform(2, 4) if setting.random_pause_enabled else 3
+
+            # 创建带透明通道的RGB剪辑
+            image_clip = ImageClip(image_file_path).with_duration(clip_duration)
+            video_clip = image_clip.with_audio(None)
+            video_clip = CompositeVideoClip([video_clip])
+
+            clips.append(video_clip)
     # Synthesize all video clips
     final_clip = concatenate_videoclips(clips)
     # Write the clips to a video file
     logger.info(f"Writing video to {setting.video_path}")
 
-    # asyncio.run(write_video_async(final_clip, setting, progress_tracker))
+    asyncio.run(write_video_async(final_clip, setting, progress_tracker))
     if progress_tracker:
         # Map progress from 0-1 to 70-100%
         progress_tracker.complete_step()

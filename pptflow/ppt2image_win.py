@@ -72,6 +72,6 @@ if __name__ == '__main__':
     setting = Setting()
     ppt_to_image = PptToImageWin()
     ppt_to_image.convert(
-        input_ppt_path="D:/workspace/ppt/国科恒泰内幕信息培训演示文稿.pptx",
+        input_ppt_path="D:/workspace/ppt/宁波市开源专业委员会.pptx",
         setting=setting
     )

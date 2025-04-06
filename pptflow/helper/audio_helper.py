@@ -24,4 +24,4 @@ def get_audio_total_duration(input_audio_dir_path, filename_prefix):
 
 
 if __name__ == '__main__':
-    total_duration = get_audio_total_duration(r'C:\Users\19622\AppData\Roaming\pptflow\temp\audio', '国科恒泰内幕信息培训演示文稿') / 60
+    total_duration = get_audio_total_duration(r'C:\Users\19622\AppData\Roaming\pptflow\temp\audio', '国科恒泰内幕信息培训演示文稿A1') / 60
