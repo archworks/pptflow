@@ -8,6 +8,7 @@ from moviepy.video.tools.subtitles import SubtitlesClip
 import os
 from pptflow.utils import mylogger
 import textwrap
+import re
 
 # 创建日志纪录实例
 logger = mylogger.get_logger(__name__)
@@ -22,18 +23,40 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
         logger.error(f"{setting.audio_dir_path} not exist")
         raise ValueError(f"{setting.audio_dir_path} not exist")
 
-    file_name_raw = os.path.basename(ppt_file_path).split('.')[0]
+    # 提取PPT基础文件名(不含扩展名)
+    try:
+        ppt_base_name = os.path.splitext(os.path.basename(ppt_file_path))[0]
+        if not ppt_base_name:
+            raise ValueError("PPT文件名无效")
+        logger.info(f"PPT文件名: {ppt_base_name}")
+    except Exception as e:
+        logger.error(f"PPT文件名提取失败: {str(e)}")
+        raise
 
-    # Sort the images extracted from the ppt
-    image_files = sorted(
-        [f for f in os.listdir(setting.image_dir_path) if
-         f.endswith((".jpg", ".png")) and file_name_raw == f.split('.')[0].split('-P')[0]],
-        key=lambda x: int(x.split('.')[0].split('-P')[1])
-    )
-    logger.info(f"image files: {image_files}")
-    if len(image_files) == 0:
-        logger.error(f"image files don't exist in {setting.image_dir_path}")
-        raise ValueError("image files don't exist")
+    # 构建正则表达式模式，精确匹配文件名格式
+    pattern = re.compile(rf'^{re.escape(ppt_base_name)}-P(\d+)\.(jpg|png)$', re.IGNORECASE)
+
+    # 筛选并排序图片文件
+    matched_files = []
+    for filename in os.listdir(setting.image_dir_path):
+        match = pattern.fullmatch(filename)
+        if match:
+            try:
+                page_num = int(match.group(1))
+                matched_files.append((page_num, filename))
+            except ValueError:
+                logger.warning(f"无效的页码格式: {filename}")
+                continue
+
+    if not matched_files:
+        raise FileNotFoundError(
+            f"未找到匹配的图片文件。要求格式: {ppt_base_name}-P页码.jpg/png\n"
+            f"搜索目录: {setting.image_dir_path}"
+        )
+
+    # 按页码排序并获取纯文件名列表
+    image_files = [f for _, f in sorted(matched_files, key=lambda x: x[0])]
+    logger.info(f"找到 {len(image_files)} 个匹配的图片文件(按页码排序): {image_files}")
 
     clips = []
     total_files = len(image_files)
@@ -44,8 +67,17 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
             continue
         if setting.end_page_num and idx + 1 > setting.end_page_num:
             continue
-        file_name_without_ext = image_file.split('.')[0]
-        image_file_path = os.path.join(setting.image_dir_path, image_file)
+        # 更安全的文件名处理
+        try:
+            file_name_without_ext = os.path.splitext(image_file)[0]
+            image_file_path = os.path.join(setting.image_dir_path, image_file)
+
+            if not os.path.exists(image_file_path):
+                raise FileNotFoundError(f"图片文件不存在: {image_file_path}")
+
+        except Exception as e:
+            logger.error(f"文件处理失败: {image_file} - {str(e)}")
+            continue
         audio_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.mp3")
         subtitle_file_path = os.path.join(setting.audio_dir_path, f"{file_name_without_ext}.srt")
 
@@ -70,7 +102,10 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
                                                  size=(int(video_clip.w * 0.9), None),
                                                  text_align='center')
                 subtitles = SubtitlesClip(subtitles=subtitle_file_path, make_textclip=generator)
-                video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.90))])
+                if setting.subtitle_enabled:
+                    video_clip = CompositeVideoClip([video_clip, subtitles.with_position(('center', video_clip.h * 0.90))])
+                else:
+                    video_clip = CompositeVideoClip([video_clip])
 
             clips.append(video_clip)
             # Update progress (70% for clip creation, 30% for final rendering)
@@ -81,7 +116,7 @@ def create_video_from_images_and_audio(ppt_file_path, setting, progress_tracker=
             # logger.warning(f"Audio file {audio_file_path} not found")
             # raise ValueError(f"Audio file {audio_file_path} not found. Stopping video creation.")
             logger.warning(f"Audio file {audio_file_path} not found, using default duration")
-            clip_duration = random.uniform(2, 4) if setting.random_pause_enabled else 3
+            clip_duration = random.uniform(2, 4) if setting.random_pause_enabled else setting.base_pause_duration
 
             # 创建带透明通道的RGB剪辑
             image_clip = ImageClip(image_file_path).with_duration(clip_duration)
