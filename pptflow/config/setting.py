@@ -40,11 +40,12 @@ class Setting:
     video_height: int = 720
     video_fps: int = 10
     video_path: str = None  # the output video path
-    random_pause_enabled: bool = True  # 是否随机插入暂停
+    random_pause_enabled: bool = False  # 是否随机插入暂停
     min_pause_duration: int = 0.5
     max_pause_duration: int = 2.0
-    estimate_duration_enabled: bool = True  # 是否使用计算时长
+    estimate_duration_enabled: bool = False  # 是否使用计算时长
     # Subtitle settings
+    subtitle_enabled: bool = True
     subtitle_width: int = None
     subtitle_height: int = None
     max_height_ratio: float = 0.1

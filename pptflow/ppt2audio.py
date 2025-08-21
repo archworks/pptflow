@@ -378,8 +378,8 @@ def split_long_sentence(sentence, max_segment_chars):
 
 async def generate_audio_and_subtitles(tts, text, page_number, filename_prefix, setting):
     # 实例化TextSplit类
-    from pptflow.utils.text_split import TextSplit
-    spliter = TextSplit()
+    #from pptflow.utils.text_split import TextSplit
+    #spliter = TextSplit()
     subtitle_file, audio_clips = None, []
     if setting.subtitle_polishing_enabled:
         from pptflow.utils.text_polishing import get_polishing_text

@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # Author: Valley-e
 # Date: 2025/2/27  
 # Description:
@@ -7,8 +8,8 @@ import sys
 from dotenv import load_dotenv
 import os
 
-os.environ['ENV'] = 'production'
-
+#os.environ['ENV'] = 'production'
+load_dotenv()
 
 def get_father_dir():
     home = pathlib.Path.home()
@@ -46,38 +47,6 @@ def get_install_dir():
         return os.path.dirname(sys.executable)  # 安装目录
     else:  # 开发模式
         return os.path.dirname(os.path.abspath(__file__))
-
-
-env_path = os.path.join(get_absolute_data_path(), ".env")
-init_content = """
-# Configuration file
-# Format: key=value
-# Example:
-# TTS_SERVICE_PROVIDER=kokoro
-# Azure TTS
-# TTS_AZURE_SPEECH_KEY=xxxx
-# TTS_AZURE_SPEECH_REGION=eastasia
-# Kokoro TTS
-# KOKORO_MODEL_PATH=D:/workspace/pycharm/pptflow/model/kokoro-v1.0.fp16.onnx
-# KOKORO_VOICE_PATH=D:/workspace/pycharm/pptflow/model/voices-v1.0.bin
-# BAIDU_APP_ID=xxxx
-# BAIDU_API_KEY=xxxx
-# BAIDU_SECRET_KEY=xxxx
-# Language Setting
-# LANGUAGE=en
-"""
-# 创建目录（如果不存在）
-os.makedirs(os.path.dirname(env_path), exist_ok=True)
-try:
-    with open(env_path, "x") as f:
-        f.write(init_content)
-        print("The file .env has been created successfully")
-
-except FileExistsError:
-    print("The file .env already exists. Skip creation")
-
-load_dotenv(env_path, encoding="utf-8")
-
 
 if __name__ == '__main__':
     print(get_absolute_data_path('log'))

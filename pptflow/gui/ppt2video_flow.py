@@ -441,7 +441,6 @@ class PPTFlowApp(ctk.CTk):
     def browse_file(self):
         self.file_display = filedialog.askopenfilename(
             filetypes=[  # 添加PDF支持
-                ("Supported files", "*.pptx;*.pdf"),
                 ("PowerPoint files", "*.pptx"),
                 ("PDF files", "*.pdf")
             ]
