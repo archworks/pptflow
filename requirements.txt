@@ -1,16 +1,16 @@
-moviepy==2.1.1
+moviepy==2.1.2
 python-pptx==1.0.2
 python-dotenv==1.0.1
-PyMuPDF==1.24.14
-Pillow==10.4.0
+pywin32==308; sys_platform == 'win32'
 customtkinter==5.2.2
-matplotlib==3.9.4
+matplotlib==3.8.4
 azure-cognitiveservices-speech==1.41.1
-kokoro-onnx==0.4.2
-baidu-api==4.16.13
+kokoro-onnx==0.4.9
+baidu-aip==4.16.13
 chardet==5.2.0
 soundfile==0.13.1
 ratelimit==2.2.1
-openapi==1.66.3
 python-docx==1.1.2
 pymupdf==1.25.4
+openai==1.92.2
+Pillow==10.4.0
